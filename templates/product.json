@@ -324,6 +324,17 @@
         "padding-block-end": 0
       }
     },
+    "product_shipping_estimator": {
+      "type": "shipping-estimator",
+      "settings": {
+        "eyebrow": "Shipping estimate",
+        "heading": "Estimate shipping for this piece",
+        "intro": "This estimator prefills from the product shipping metafields when they exist. If they are not set, it falls back to structured dimensions and weight lines in the product description.",
+        "background_color": "#f7f1ea",
+        "padding-block-start": 40,
+        "padding-block-end": 48
+      }
+    },
     "product_recommendations_qggXJq": {
       "type": "product-recommendations",
       "blocks": {
@@ -469,6 +480,7 @@
   },
   "order": [
     "main",
+    "product_shipping_estimator",
     "product_recommendations_qggXJq"
   ]
 }

@@ -5,6 +5,16 @@
 
   assign estimator_heading = section.settings.heading | default: 'Estimate shipping before you reach out'
   assign estimator_intro = section.settings.intro | default: 'Use the dimensions and approximate weight from a ready-made item description, or enter the measurements from your custom-order plan. These are planning estimates only and should be confirmed with the carrier quote pages below.'
+  assign estimator_product = closest.product
+
+  if estimator_product != blank
+    assign metafield_length = estimator_product.metafields.custom.shipping_length.value | default: estimator_product.metafields.custom.length.value
+    assign metafield_width = estimator_product.metafields.custom.shipping_width.value | default: estimator_product.metafields.custom.width.value
+    assign metafield_height = estimator_product.metafields.custom.shipping_height.value | default: estimator_product.metafields.custom.height.value
+    assign metafield_weight = estimator_product.metafields.custom.shipping_weight.value | default: estimator_product.metafields.custom.approximate_weight.value
+    assign variant_weight_grams = estimator_product.selected_or_first_available_variant.weight | default: 0
+    assign estimator_description_text = estimator_product.description | strip_html | replace: '&nbsp;', ' ' | replace: '<br />', ' ' | replace: '<br/>', ' ' | replace: '<br>', ' ' | strip_newlines | escape
+  endif
 %}
 
 <div class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"></div>
@@ -13,12 +23,27 @@
   style="{% render 'spacing-padding', settings: section.settings %}"
 >
   <div class="shipping-estimator__shell" data-shipping-estimator>
+    {% if estimator_product != blank %}
+      <div
+        class="shipping-estimator__product-prefill"
+        data-product-prefill
+        data-product-title="{{ estimator_product.title | escape }}"
+        data-product-length="{{ metafield_length | escape }}"
+        data-product-width="{{ metafield_width | escape }}"
+        data-product-height="{{ metafield_height | escape }}"
+        data-product-weight="{{ metafield_weight | escape }}"
+        data-product-variant-weight-grams="{{ variant_weight_grams | escape }}"
+        data-product-description="{{ estimator_description_text }}"
+      ></div>
+    {% endif %}
+
     <div class="shipping-estimator__intro">
       {% if section.settings.eyebrow != blank %}
         <p class="shipping-estimator__eyebrow">{{ section.settings.eyebrow }}</p>
       {% endif %}
       <h2 class="shipping-estimator__heading">{{ estimator_heading }}</h2>
       <p class="shipping-estimator__copy">{{ estimator_intro }}</p>
+      <p class="shipping-estimator__prefill-note" data-prefill-note hidden></p>
     </div>
 
     <div class="shipping-estimator__layout">
@@ -134,6 +159,12 @@
   .shipping-estimator__fine-print {
     margin: 0.85rem 0 0;
     color: color-mix(in srgb, var(--color-foreground) 78%, transparent);
+  }
+
+  .shipping-estimator__prefill-note {
+    margin: 0.85rem 0 0;
+    color: #8f5b31;
+    font-weight: 600;
   }
 
   .shipping-estimator__layout {
@@ -258,6 +289,7 @@
     const inputWeight = root.querySelector('[data-weight]');
     const inputCarrier = root.querySelector('[data-carrier]');
     const inputDistance = root.querySelector('[data-distance]');
+    const productPrefill = root.querySelector('[data-product-prefill]');
 
     const outputPrice = root.querySelector('[data-estimate-price]');
     const outputService = root.querySelector('[data-estimate-service]');
@@ -265,6 +297,7 @@
     const outputDimensional = root.querySelector('[data-dimensional-note]');
     const outputTransit = root.querySelector('[data-transit-time]');
     const outputEligibility = root.querySelector('[data-carrier-eligibility]');
+    const outputPrefillNote = root.querySelector('[data-prefill-note]');
 
     const carrierConfig = {
       usps: {
@@ -322,6 +355,107 @@
       }).format(value);
     };
 
+    const parsePositiveNumber = (value) => {
+      const numeric = Number.parseFloat(String(value || '').replace(/[^0-9.]/g, ''));
+      return Number.isFinite(numeric) && numeric > 0 ? numeric : 0;
+    };
+
+    const parseDescriptionDimensions = (description) => {
+      const text = String(description || '');
+      const patterns = [
+        /shipping\s*dimensions?\s*[:\-]\s*(\d+(?:\.\d+)?)\s*(?:in|inches|\")?\s*[x×]\s*(\d+(?:\.\d+)?)\s*(?:in|inches|\")?\s*[x×]\s*(\d+(?:\.\d+)?)\s*(?:in|inches|\")?/i,
+        /dimensions?\s*[:\-]\s*(\d+(?:\.\d+)?)\s*(?:in|inches|\")?\s*[x×]\s*(\d+(?:\.\d+)?)\s*(?:in|inches|\")?\s*[x×]\s*(\d+(?:\.\d+)?)\s*(?:in|inches|\")?/i,
+        /(\d+(?:\.\d+)?)\s*(?:in|inches|\")?\s*[x×]\s*(\d+(?:\.\d+)?)\s*(?:in|inches|\")?\s*[x×]\s*(\d+(?:\.\d+)?)\s*(?:in|inches|\")?\s*(?:shipping\s*)?dimensions?/i
+      ];
+
+      for (const pattern of patterns) {
+        const match = text.match(pattern);
+        if (match) {
+          return {
+            length: parsePositiveNumber(match[1]),
+            width: parsePositiveNumber(match[2]),
+            height: parsePositiveNumber(match[3])
+          };
+        }
+      }
+
+      return null;
+    };
+
+    const parseDescriptionWeight = (description) => {
+      const text = String(description || '');
+      const match = text.match(/(?:approx(?:imate)?\s*)?weight\s*[:\-]\s*(\d+(?:\.\d+)?)\s*(?:lb|lbs|pounds?)/i);
+      return match ? parsePositiveNumber(match[1]) : 0;
+    };
+
+    const applyPrefillValue = (element, value) => {
+      if (!element || !value || Number(value) <= 0) {
+        return false;
+      }
+
+      element.value = String(value);
+      return true;
+    };
+
+    const hydratePrefill = () => {
+      const params = new URLSearchParams(window.location.search);
+      const queryLength = parsePositiveNumber(params.get('length'));
+      const queryWidth = parsePositiveNumber(params.get('width'));
+      const queryHeight = parsePositiveNumber(params.get('height'));
+      const queryWeight = parsePositiveNumber(params.get('weight'));
+
+      let prefillSource = '';
+      let didPrefill = false;
+
+      if (queryLength && queryWidth && queryHeight && queryWeight) {
+        didPrefill = [
+          applyPrefillValue(inputLength, queryLength),
+          applyPrefillValue(inputWidth, queryWidth),
+          applyPrefillValue(inputHeight, queryHeight),
+          applyPrefillValue(inputWeight, queryWeight)
+        ].every(Boolean);
+        prefillSource = 'shipping link';
+      } else if (productPrefill) {
+        const dataset = productPrefill.dataset;
+        const descriptionDimensions = parseDescriptionDimensions(dataset.productDescription);
+        const metafieldLength = parsePositiveNumber(dataset.productLength);
+        const metafieldWidth = parsePositiveNumber(dataset.productWidth);
+        const metafieldHeight = parsePositiveNumber(dataset.productHeight);
+        const metafieldWeight = parsePositiveNumber(dataset.productWeight);
+        const variantWeight = parsePositiveNumber(dataset.productVariantWeightGrams) * 0.00220462;
+        const descriptionWeight = parseDescriptionWeight(dataset.productDescription);
+
+        const length = metafieldLength || descriptionDimensions?.length || 0;
+        const width = metafieldWidth || descriptionDimensions?.width || 0;
+        const height = metafieldHeight || descriptionDimensions?.height || 0;
+        const weight = metafieldWeight || descriptionWeight || variantWeight || 0;
+
+        if (length && width && height && weight) {
+          didPrefill = [
+            applyPrefillValue(inputLength, length),
+            applyPrefillValue(inputWidth, width),
+            applyPrefillValue(inputHeight, height),
+            applyPrefillValue(inputWeight, Math.round(weight * 10) / 10)
+          ].every(Boolean);
+
+          if (didPrefill) {
+            prefillSource = metafieldLength && metafieldWidth && metafieldHeight && metafieldWeight
+              ? 'product metafields'
+              : 'product description';
+
+            if (!metafieldWeight && variantWeight && !descriptionWeight && prefillSource === 'product description') {
+              prefillSource = 'product description and variant weight';
+            }
+          }
+        }
+
+        if (didPrefill && outputPrefillNote) {
+          outputPrefillNote.hidden = false;
+          outputPrefillNote.textContent = `${dataset.productTitle || 'This item'} prefilled from ${prefillSource}. You can adjust any value before comparing carriers.`;
+        }
+      }
+    };
+
     const updateEstimate = () => {
       const length = readPositiveNumber(inputLength);
       const width = readPositiveNumber(inputWidth);
@@ -369,6 +503,7 @@
       element.addEventListener('change', updateEstimate);
     });
 
+    hydratePrefill();
     updateEstimate();
   })();
 </script>
