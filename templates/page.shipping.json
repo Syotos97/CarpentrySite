@@ -1,0 +1,109 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "blocks": {
+        "title": {
+          "type": "text",
+          "name": "t:names.title",
+          "settings": {
+            "text": "<h1>{{ closest.page.title }}</h1>",
+            "width": "100%",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "h2",
+            "font": "var(--font-body--family)",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "page-content": {
+          "type": "page-content",
+          "settings": {},
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "title",
+        "page-content"
+      ],
+      "settings": {
+        "content_direction": "column",
+        "gap": 24,
+        "background_color": "{{ settings.color_palette.background }}",
+        "padding-block-start": 40,
+        "padding-block-end": 24
+      }
+    },
+    "shipping_content": {
+      "type": "carpentry-showcase",
+      "blocks": {
+        "panel_local": {
+          "type": "panel",
+          "settings": {
+            "tab_label": "Local delivery",
+            "kicker": "Regional orders",
+            "title": "Explain how local delivery and placement work",
+            "text": "<p>Let buyers know whether curbside, threshold, room-of-choice, or full installation is included for nearby orders.</p>",
+            "feature_list": "Delivery window communication\nStair or access requirements\nProtection for floors and walls\nInspection at handoff",
+            "callout_title": "What customers need to provide",
+            "callout_text": "Parking access, stair details, elevator availability, and any delivery restrictions."
+          }
+        },
+        "panel_freight": {
+          "type": "panel",
+          "settings": {
+            "tab_label": "Freight",
+            "kicker": "Large pieces",
+            "title": "Set expectations for crate shipping and freight appointments",
+            "text": "<p>For oversized furniture and millwork, explain how freight is quoted, whether liftgate service is included, and when damage must be reported.</p>",
+            "feature_list": "Crated packaging for transit\nFreight carrier scheduling\nLiftgate or dock requirements\nDamage reporting window on delivery",
+            "callout_title": "Risk reduction",
+            "callout_text": "A short inspection checklist on this page helps prevent disputes after delivery."
+          }
+        },
+        "panel_timeline": {
+          "type": "panel",
+          "settings": {
+            "tab_label": "Timelines",
+            "kicker": "Lead times",
+            "title": "Separate build lead time from shipping transit time",
+            "text": "<p>Customers need to understand that handcrafted work often has two clocks: fabrication time and delivery time. Spell both out so expectations stay realistic.</p>",
+            "feature_list": "Build queue estimates\nTransit windows after completion\nHoliday or weather delays\nStorage policy for delayed receipt",
+            "callout_title": "Keep this current",
+            "callout_text": "Update the copy here when lead times change seasonally or after major order volume swings."
+          }
+        }
+      },
+      "block_order": [
+        "panel_local",
+        "panel_freight",
+        "panel_timeline"
+      ],
+      "settings": {
+        "eyebrow": "Shipping and delivery",
+        "heading": "Shipping information should answer practical questions before checkout",
+        "intro": "<p>Assign this template to a page named Shipping so customers can self-serve the basics around delivery method, freight handling, and timing.</p>",
+        "enable_tabs": false,
+        "section_width": "page-width",
+        "background_color": "#f7f1ea",
+        "padding-block-start": 0,
+        "padding-block-end": 72
+      }
+    }
+  },
+  "order": [
+    "main",
+    "shipping_content"
+  ]
+}
