@@ -45,66 +45,12 @@
         "padding-block-end": 24
       }
     },
-    "custom_orders_content": {
-      "type": "carpentry-showcase",
-      "blocks": {
-        "panel_start": {
-          "type": "panel",
-          "settings": {
-            "tab_label": "Start here",
-            "kicker": "Step 1",
-            "title": "Gather the information needed for a real estimate",
-            "text": "<p>Ask buyers for the intended room, target dimensions, use case, and any access constraints. That keeps the first conversation focused on scope instead of guesswork.</p>",
-            "feature_list": "Room type and installation location\nWidth, depth, and height targets\nReference images or sketches\nPreferred wood species and finish",
-            "callout_title": "Suggested intake fields",
-            "callout_text": "Name\nEmail\nPhone\nZIP code\nDesired completion date",
-            "asset_gallery_key": "custom-orders-start",
-            "asset_gallery_layout": "grid",
-            "asset_gallery_alt": "Project planning example"
-          }
-        },
-        "panel_design": {
-          "type": "panel",
-          "settings": {
-            "tab_label": "Design review",
-            "kicker": "Step 2",
-            "title": "Confirm materials, edge details, and final build scope",
-            "text": "<p>Use this section to explain how revisions are handled, when drawings are approved, and what triggers production scheduling.</p>",
-            "feature_list": "Material and finish confirmation\nHardware selections if needed\nRevision limits before deposit\nEstimated lead time once approved",
-            "callout_title": "Good policy language",
-            "callout_text": "Clarify whether design changes after approval affect price or delivery date.",
-            "asset_gallery_key": "custom-orders-design",
-            "asset_gallery_layout": "grid",
-            "asset_gallery_alt": "Design and finish example"
-          }
-        },
-        "panel_quote": {
-          "type": "panel",
-          "settings": {
-            "tab_label": "Quote and deposit",
-            "kicker": "Step 3",
-            "title": "Spell out how the order becomes a reserved build slot",
-            "text": "<p>Customers should know when a quote expires, how deposits work, and what is included in delivery or installation.</p>",
-            "feature_list": "Written quote with scope summary\nDeposit amount and payment timing\nDelivery or install line items\nFinal balance due before or at delivery",
-            "callout_title": "Conversion tip",
-            "callout_text": "Use the page body above this section for a short introduction or downloadable template text.",
-            "asset_gallery_key": "custom-orders-quote",
-            "asset_gallery_layout": "grid",
-            "asset_gallery_alt": "Quoted project example"
-          }
-        }
-      },
-      "block_order": [
-        "panel_start",
-        "panel_design",
-        "panel_quote"
-      ],
+    "custom_project_builder": {
+      "type": "custom-project-builder",
       "settings": {
         "eyebrow": "Custom builds",
-        "heading": "A clear custom order workflow builds trust before the first reply",
-        "intro": "<p>Assign this template to a page named Custom Orders, then tailor each panel to the exact information you want buyers to submit before requesting a quote.</p>",
-        "enable_tabs": false,
-        "section_width": "page-width",
+        "heading": "Design your custom project before you request pricing",
+        "intro": "<p>Choose the type of build, wood preferences, dimensions, and sketch notes here. When you send the request, I will review it and get back to you with an ETA and a cost estimate within 7 days.</p>",
         "background_color": "#e8ddd0",
         "padding-block-start": 0,
         "padding-block-end": 72
@@ -113,6 +59,6 @@
   },
   "order": [
     "main",
-    "custom_orders_content"
+    "custom_project_builder"
   ]
 }

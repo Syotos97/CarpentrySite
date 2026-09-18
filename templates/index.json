@@ -60,7 +60,7 @@
           "name": "t:names.button",
           "settings": {
             "label": "Create custom piece",
-            "link": "#made-for-your-space",
+            "link": "/pages/custom-orders",
             "open_in_new_tab": false,
             "style_class": "button-custom",
             "custom_button_background": "{{ settings.color_palette.background }}",
@@ -98,7 +98,7 @@
         "gap": 24,
         "section_width": "page-width",
         "section_height": "custom",
-        "section_height_custom": 38,
+        "section_height_custom": 46,
         "background_color": "rgba(0,0,0,0)",
         "toggle_overlay": true,
         "overlay_color": "#12121266",
@@ -134,15 +134,15 @@
             "tab_label": "Custom ordering",
             "kicker": "Made for your space",
             "title": "Turn rough ideas into a build-ready order",
-            "text": "<p>Walk customers through measurements, references, material preferences, and finish choices so the first inquiry arrives with the information you actually need.</p>",
-            "feature_list": "Choose project type and approximate size\nShare inspiration photos and room conditions\nReview quote, lead time, and final scope before production",
-            "callout_title": "Template checklist",
-            "callout_text": "Ask for width, depth, height, species, stain preference, and delivery ZIP code.",
+            "text": "<p>Specify as many details as possible for your custom order to ensure accurate quotes timelines. If a detail does not matter to you, indicate it with N.A.</p>",
+            "feature_list": "Choose project type and approximate size\nShare inspiration photos and room conditions\nYou can expect a response from your submission within 7 days",
+            "callout_title": "Please Note:",
+            "callout_text": "All custom orders require a deposit for cost of materials after approval of the project details.",
             "asset_gallery_key": "home-orders",
             "asset_gallery_layout": "grid",
             "asset_gallery_alt": "Custom order project detail",
             "button_label": "Open custom order guide",
-            "button_link": "/pages/quote-request"
+            "button_link": "/pages/custom-orders"
           }
         }
       },
@@ -153,7 +153,7 @@
         "anchor_id": "made-for-your-space",
         "eyebrow": "Custom ordering",
         "heading": "Made for your space",
-        "intro": "<p>Use this section to guide visitors from inspiration to the exact measurements and material choices you need for a serious quote request.</p>",
+        "intro": "<p>Use the custom order guide to specify which measurements, materials, and finishes you need for your project.</p>",
         "enable_tabs": false,
         "section_width": "page-width",
         "background_color": "#e8ddd0",

@@ -667,7 +667,12 @@
 
   .hero--show-full-image .hero__media-grid,
   .hero--show-full-image .hero__media-wrapper {
-    background: color-mix(in srgb, var(--color-foreground) 82%, #000 18%);
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-background) 78%, #8f5b31 22%) 0%,
+        color-mix(in srgb, var(--color-background) 68%, #6d441e 32%) 100%
+      );
   }
 
   .hero--show-full-image .hero__media {

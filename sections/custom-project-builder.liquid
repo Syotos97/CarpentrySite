@@ -1,0 +1,721 @@
+{% liquid
+  if section.settings.background_color != blank
+    render 'contrast-override', background_color: section.settings.background_color, section_id: section.id, skip_contrast: true
+  endif
+
+  assign form_id = 'CustomProjectBuilder-' | append: section.id
+%}
+
+<div class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"></div>
+<section
+  class="section section--page-width custom-project-builder spacing-style{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
+  style="{% render 'spacing-padding', settings: section.settings %}"
+>
+  <div class="custom-project-builder__shell" data-custom-project-builder>
+    <div class="custom-project-builder__header">
+      <p class="custom-project-builder__eyebrow">{{ section.settings.eyebrow }}</p>
+      <h2 class="custom-project-builder__heading">{{ section.settings.heading }}</h2>
+      <div class="custom-project-builder__intro rte">{{ section.settings.intro }}</div>
+    </div>
+
+    <div class="custom-project-builder__highlights">
+      <article class="custom-project-builder__highlight-card">
+        <p class="custom-project-builder__highlight-label">Start with the essentials</p>
+        <ul class="custom-project-builder__highlight-list">
+          <li>Tell me what we are building: furniture, charcuterie boards, shelving, decor, or something else.</li>
+          <li>Choose hardwood or softwood, or name a species if you already know what you want.</li>
+          <li>Add exact dimensions or leave sizing open if you want help developing the plan.</li>
+        </ul>
+      </article>
+      <article class="custom-project-builder__highlight-card">
+        <p class="custom-project-builder__highlight-label">What happens next</p>
+        <ul class="custom-project-builder__highlight-list">
+          <li>Sketch your idea directly on the page with the built-in drawing area.</li>
+          <li>Send the project notes with the Create Invoice button at the bottom.</li>
+          <li>I will get back to you with an ETA and a cost estimate within 7 days.</li>
+        </ul>
+      </article>
+    </div>
+
+    {%- form 'contact', id: form_id, class: 'custom-project-builder__form' -%}
+      <input type="hidden" name="contact[id]" value="{{ form_id }}">
+      <input type="hidden" name="contact[tags]" value="custom-project-builder,invoice-request">
+      <input type="hidden" name="contact[Request type]" value="Custom project builder">
+      <input type="hidden" name="contact[Sketch data]" value="" data-sketch-data>
+      <input type="hidden" name="contact[Dimensions summary]" value="" data-dimensions-summary>
+
+      {%- if form.errors -%}
+        <div class="custom-project-builder__message custom-project-builder__message--error" tabindex="-1" autofocus>
+          {{- 'icon-error.svg' | inline_asset_content -}}
+          {{ form.errors.translated_fields.email | capitalize }} {{ form.errors.messages.email }}
+        </div>
+      {%- endif -%}
+
+      {%- if form.posted_successfully? -%}
+        <div class="custom-project-builder__message custom-project-builder__message--success" tabindex="-1" autofocus>
+          {{- 'icon-checkmark.svg' | inline_asset_content -}}
+          Request received. I will get back to you with an ETA and a cost estimate within 7 days.
+        </div>
+      {%- endif -%}
+
+      <div class="custom-project-builder__grid custom-project-builder__grid--contact">
+        <label class="custom-project-builder__field">
+          <span>Name</span>
+          <input
+            type="text"
+            class="custom-project-builder__input"
+            name="contact[name]"
+            autocomplete="name"
+            value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}"
+            placeholder="Your name"
+          >
+        </label>
+
+        <label class="custom-project-builder__field">
+          <span>Email</span>
+          <input
+            type="email"
+            class="custom-project-builder__input"
+            name="contact[email]"
+            autocomplete="email"
+            spellcheck="false"
+            autocapitalize="off"
+            aria-required="true"
+            value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"
+            placeholder="you@example.com"
+          >
+        </label>
+
+        <label class="custom-project-builder__field">
+          <span>Phone</span>
+          <input
+            type="tel"
+            class="custom-project-builder__input"
+            name="contact[phone]"
+            autocomplete="tel"
+            value="{% if form.phone %}{{ form.phone }}{% elsif customer %}{{ customer.phone }}{% endif %}"
+            placeholder="708-515-1012"
+          >
+        </label>
+      </div>
+
+      <div class="custom-project-builder__planner">
+        <div class="custom-project-builder__planner-section">
+          <div class="custom-project-builder__section-heading">
+            <p class="custom-project-builder__section-kicker">Step 1</p>
+            <h3>Define the build</h3>
+          </div>
+
+          <div class="custom-project-builder__grid">
+            <label class="custom-project-builder__field">
+              <span>What are we building?</span>
+              <select class="custom-project-builder__input" name="contact[What are we building?]">
+                <option value="Furniture">Furniture</option>
+                <option value="Charcuterie boards">Charcuterie boards</option>
+                <option value="Shelving">Shelving</option>
+                <option value="Table or desk">Table or desk</option>
+                <option value="Storage piece">Storage piece</option>
+                <option value="Wall decor">Wall decor</option>
+                <option value="Outdoor piece">Outdoor piece</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+
+            <label class="custom-project-builder__field">
+              <span>Hardwood or softwood?</span>
+              <select class="custom-project-builder__input" name="contact[Wood family]">
+                <option value="Hardwood">Hardwood</option>
+                <option value="Softwood">Softwood</option>
+                <option value="Either">Either</option>
+                <option value="Builder recommendation">Leave it to the builder</option>
+              </select>
+            </label>
+
+            <label class="custom-project-builder__field custom-project-builder__field--full">
+              <span>Specific wood type, if you want to request one</span>
+              <input
+                type="text"
+                class="custom-project-builder__input"
+                name="contact[Specific wood type]"
+                placeholder="Examples: walnut, white oak, maple, cedar"
+              >
+            </label>
+          </div>
+        </div>
+
+        <div class="custom-project-builder__planner-section">
+          <div class="custom-project-builder__section-heading">
+            <p class="custom-project-builder__section-kicker">Step 2</p>
+            <h3>Dimensions and sizing</h3>
+          </div>
+
+          <fieldset class="custom-project-builder__choice-group">
+            <legend>How would you like to handle dimensions?</legend>
+            <label class="custom-project-builder__choice">
+              <input type="radio" name="contact[Dimension preference]" value="Customer provided exact dimensions" checked data-dimension-mode="exact">
+              <span>I want to specify dimensions</span>
+            </label>
+            <label class="custom-project-builder__choice">
+              <input type="radio" name="contact[Dimension preference]" value="Leave dimensions to the builder" data-dimension-mode="builder">
+              <span>Leave dimensions to the builder</span>
+            </label>
+          </fieldset>
+
+          <div class="custom-project-builder__grid" data-dimension-fields>
+            <label class="custom-project-builder__field">
+              <span>Width (inches)</span>
+              <input type="number" min="0" step="0.5" class="custom-project-builder__input" name="contact[Width in inches]" data-dimension-input="Width" placeholder="36">
+            </label>
+            <label class="custom-project-builder__field">
+              <span>Depth (inches)</span>
+              <input type="number" min="0" step="0.5" class="custom-project-builder__input" name="contact[Depth in inches]" data-dimension-input="Depth" placeholder="18">
+            </label>
+            <label class="custom-project-builder__field">
+              <span>Height (inches)</span>
+              <input type="number" min="0" step="0.5" class="custom-project-builder__input" name="contact[Height in inches]" data-dimension-input="Height" placeholder="18">
+            </label>
+            <label class="custom-project-builder__field">
+              <span>Length (inches)</span>
+              <input type="number" min="0" step="0.5" class="custom-project-builder__input" name="contact[Length in inches]" data-dimension-input="Length" placeholder="48">
+            </label>
+          </div>
+        </div>
+
+        <div class="custom-project-builder__planner-section">
+          <div class="custom-project-builder__section-heading">
+            <p class="custom-project-builder__section-kicker">Step 3</p>
+            <h3>Sketch the project</h3>
+          </div>
+
+          <div class="custom-project-builder__sketch-shell">
+            <div class="custom-project-builder__toolbar" role="toolbar" aria-label="Sketch tools">
+              <button type="button" class="custom-project-builder__tool is-active" data-sketch-tool="pen">Pen</button>
+              <button type="button" class="custom-project-builder__tool" data-sketch-tool="eraser">Eraser</button>
+              <button type="button" class="custom-project-builder__tool" data-sketch-clear>Clear</button>
+              <label class="custom-project-builder__brush-size">
+                <span>Brush size</span>
+                <input type="range" min="1" max="12" value="3" data-sketch-size>
+              </label>
+            </div>
+            <div class="custom-project-builder__sketch-frame">
+              <canvas class="custom-project-builder__canvas" width="960" height="560" data-sketch-canvas></canvas>
+            </div>
+            <p class="custom-project-builder__sketch-note">Use the canvas to outline your piece. The sketch line data will be included with the request email.</p>
+          </div>
+        </div>
+
+        <div class="custom-project-builder__planner-section">
+          <div class="custom-project-builder__section-heading">
+            <p class="custom-project-builder__section-kicker">Step 4</p>
+            <h3>Project notes</h3>
+          </div>
+
+          <label class="custom-project-builder__field custom-project-builder__field--full">
+            <span>Describe the style, use, room, finish, and anything else that matters</span>
+            <textarea
+              rows="10"
+              class="custom-project-builder__input custom-project-builder__input--textarea"
+              name="contact[body]"
+              placeholder="Example: I want a walnut entry bench with lower shoe storage, a lighter satin finish, and a clean modern profile."
+            >{{- form.body -}}</textarea>
+          </label>
+        </div>
+      </div>
+
+      <div class="custom-project-builder__footer">
+        <p class="custom-project-builder__promise">I will get back to you with an ETA and a cost estimate within 7 days.</p>
+        <button type="submit" class="button custom-project-builder__submit">Create Invoice</button>
+      </div>
+    {%- endform -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .custom-project-builder__shell {
+    display: grid;
+    gap: 1.5rem;
+    padding: clamp(1.25rem, 2vw, 2rem);
+    border-radius: 2rem;
+    border: 1px solid rgba(143, 91, 49, 0.14);
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--color-background) 96%, #f4e6d4 4%), var(--color-background)),
+      radial-gradient(circle at top left, rgba(183, 130, 73, 0.14), transparent 34%);
+    box-shadow: 0 1.25rem 3rem rgba(32, 19, 9, 0.08);
+  }
+
+  .custom-project-builder__header,
+  .custom-project-builder__footer {
+    max-width: 48rem;
+  }
+
+  .custom-project-builder__eyebrow,
+  .custom-project-builder__section-kicker,
+  .custom-project-builder__highlight-label {
+    margin: 0 0 0.6rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #8f5b31;
+  }
+
+  .custom-project-builder__heading,
+  .custom-project-builder__section-heading h3,
+  .custom-project-builder__promise {
+    margin: 0;
+  }
+
+  .custom-project-builder__intro {
+    margin-top: 0.9rem;
+    color: color-mix(in srgb, var(--color-foreground) 76%, transparent);
+  }
+
+  .custom-project-builder__highlights {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .custom-project-builder__highlight-card,
+  .custom-project-builder__planner-section,
+  .custom-project-builder__form {
+    border-radius: 1.5rem;
+  }
+
+  .custom-project-builder__highlight-card,
+  .custom-project-builder__planner-section {
+    border: 1px solid rgba(143, 91, 49, 0.12);
+    background: rgba(255, 255, 255, 0.62);
+    padding: 1.25rem;
+  }
+
+  .custom-project-builder__highlight-list {
+    margin: 0;
+    padding-left: 1.2rem;
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .custom-project-builder__form,
+  .custom-project-builder__planner {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .custom-project-builder__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .custom-project-builder__grid--contact {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .custom-project-builder__field,
+  .custom-project-builder__choice-group {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .custom-project-builder__field--full {
+    grid-column: 1 / -1;
+  }
+
+  .custom-project-builder__field span,
+  .custom-project-builder__choice-group legend,
+  .custom-project-builder__sketch-note,
+  .custom-project-builder__promise {
+    color: color-mix(in srgb, var(--color-foreground) 82%, transparent);
+  }
+
+  .custom-project-builder__input {
+    width: 100%;
+    min-height: 3.25rem;
+    padding: 0.9rem 1rem;
+    color: var(--color-input-text);
+    background: var(--color-input-background);
+    border: 1px solid var(--color-input-border);
+    border-radius: var(--style-border-radius-inputs);
+  }
+
+  .custom-project-builder__input--textarea {
+    min-height: 11rem;
+    resize: vertical;
+  }
+
+  .custom-project-builder__choice-group {
+    margin: 0;
+    padding: 1rem;
+    border: 1px solid rgba(143, 91, 49, 0.14);
+    background: rgba(255, 255, 255, 0.45);
+  }
+
+  .custom-project-builder__choice {
+    display: flex;
+    gap: 0.65rem;
+    align-items: center;
+  }
+
+  .custom-project-builder__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .custom-project-builder__tool {
+    appearance: none;
+    border: 1px solid rgba(143, 91, 49, 0.18);
+    background: rgba(255, 255, 255, 0.6);
+    color: inherit;
+    border-radius: 999px;
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+  }
+
+  .custom-project-builder__tool.is-active,
+  .custom-project-builder__tool:hover,
+  .custom-project-builder__tool:focus-visible {
+    background: #8f5b31;
+    border-color: #8f5b31;
+    color: #fff;
+  }
+
+  .custom-project-builder__brush-size {
+    display: flex;
+    gap: 0.65rem;
+    align-items: center;
+    margin-left: auto;
+  }
+
+  .custom-project-builder__brush-size input {
+    width: 11rem;
+  }
+
+  .custom-project-builder__sketch-frame {
+    border-radius: 1.5rem;
+    border: 1px solid rgba(143, 91, 49, 0.14);
+    overflow: hidden;
+    background:
+      linear-gradient(rgba(143, 91, 49, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(143, 91, 49, 0.08) 1px, transparent 1px),
+      rgba(255, 255, 255, 0.74);
+    background-size: 24px 24px;
+  }
+
+  .custom-project-builder__canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    touch-action: none;
+    cursor: crosshair;
+  }
+
+  .custom-project-builder__message {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    padding: 0.9rem 1rem;
+    border-radius: 1rem;
+  }
+
+  .custom-project-builder__message--error {
+    background: rgba(170, 52, 52, 0.12);
+    color: #7d1e1e;
+  }
+
+  .custom-project-builder__message--success {
+    background: rgba(59, 122, 74, 0.14);
+    color: #204f2a;
+  }
+
+  .custom-project-builder__footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  @media screen and (max-width: 989px) {
+    .custom-project-builder__highlights,
+    .custom-project-builder__grid,
+    .custom-project-builder__grid--contact {
+      grid-template-columns: 1fr;
+    }
+
+    .custom-project-builder__brush-size {
+      margin-left: 0;
+      width: 100%;
+    }
+
+    .custom-project-builder__brush-size input {
+      flex: 1 1 auto;
+      width: auto;
+    }
+
+    .custom-project-builder__footer {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+{% endstylesheet %}
+
+<script>
+  (() => {
+    const currentScript = document.currentScript;
+    const section = document.getElementById('shopify-section-{{ section.id }}') || currentScript.closest('.shopify-section');
+
+    if (!section || section.dataset.customProjectBuilderBound === 'true') {
+      return;
+    }
+
+    const root = section.querySelector('[data-custom-project-builder]');
+    const canvas = root?.querySelector('[data-sketch-canvas]');
+    const sketchInput = root?.querySelector('[data-sketch-data]');
+    const dimensionSummaryInput = root?.querySelector('[data-dimensions-summary]');
+    const dimensionModeInputs = Array.from(root?.querySelectorAll('[data-dimension-mode]') || []);
+    const dimensionFields = root?.querySelector('[data-dimension-fields]');
+    const dimensionInputs = Array.from(root?.querySelectorAll('[data-dimension-input]') || []);
+    const toolButtons = Array.from(root?.querySelectorAll('[data-sketch-tool]') || []);
+    const clearButton = root?.querySelector('[data-sketch-clear]');
+    const sizeInput = root?.querySelector('[data-sketch-size]');
+    const form = root?.querySelector('form');
+
+    if (!root || !canvas || !sketchInput || !dimensionSummaryInput || !form) {
+      return;
+    }
+
+    section.dataset.customProjectBuilderBound = 'true';
+
+    const context = canvas.getContext('2d');
+    let strokes = [];
+    let activeStroke = null;
+    let activeTool = 'pen';
+    let brushSize = Number(sizeInput?.value || 3);
+    let deviceRatio = Math.max(window.devicePixelRatio || 1, 1);
+
+    const roundPoint = (value) => Math.round(value * 10) / 10;
+
+    const resizeCanvas = () => {
+      const cssWidth = canvas.clientWidth || 960;
+      const aspectRatio = canvas.height / canvas.width;
+      const cssHeight = cssWidth * aspectRatio;
+
+      deviceRatio = Math.max(window.devicePixelRatio || 1, 1);
+      canvas.width = Math.round(cssWidth * deviceRatio);
+      canvas.height = Math.round(cssHeight * deviceRatio);
+      context.setTransform(deviceRatio, 0, 0, deviceRatio, 0, 0);
+      redraw();
+    };
+
+    const setTool = (tool) => {
+      activeTool = tool;
+      toolButtons.forEach((button) => {
+        button.classList.toggle('is-active', button.dataset.sketchTool === tool);
+      });
+      canvas.style.cursor = tool === 'eraser' ? 'cell' : 'crosshair';
+    };
+
+    const drawStroke = (stroke) => {
+      if (!stroke.points.length) {
+        return;
+      }
+
+      context.save();
+      context.lineJoin = 'round';
+      context.lineCap = 'round';
+      context.lineWidth = stroke.size;
+      context.globalCompositeOperation = stroke.tool === 'eraser' ? 'destination-out' : 'source-over';
+      context.strokeStyle = '#6d441e';
+      context.beginPath();
+
+      const [firstPoint, ...otherPoints] = stroke.points;
+      context.moveTo(firstPoint[0], firstPoint[1]);
+
+      otherPoints.forEach((point) => {
+        context.lineTo(point[0], point[1]);
+      });
+
+      if (!otherPoints.length) {
+        context.lineTo(firstPoint[0] + 0.01, firstPoint[1] + 0.01);
+      }
+
+      context.stroke();
+      context.restore();
+    };
+
+    const redraw = () => {
+      const cssWidth = canvas.width / deviceRatio;
+      const cssHeight = canvas.height / deviceRatio;
+      context.clearRect(0, 0, cssWidth, cssHeight);
+      strokes.forEach(drawStroke);
+      if (activeStroke) {
+        drawStroke(activeStroke);
+      }
+    };
+
+    const syncSketchData = () => {
+      sketchInput.value = strokes.length ? JSON.stringify(strokes) : 'No sketch provided';
+    };
+
+    const syncDimensions = () => {
+      const builderMode = dimensionModeInputs.some((input) => input.checked && input.dataset.dimensionMode === 'builder');
+      const summary = builderMode
+        ? 'Leave final dimensions to the builder.'
+        : dimensionInputs
+            .map((input) => {
+              const label = input.dataset.dimensionInput;
+              const value = input.value.trim();
+              return value ? `${label}: ${value} in` : null;
+            })
+            .filter(Boolean)
+            .join(', ');
+
+      dimensionSummaryInput.value = summary || 'No dimensions supplied yet.';
+
+      if (dimensionFields) {
+        dimensionFields.toggleAttribute('hidden', builderMode);
+      }
+
+      dimensionInputs.forEach((input) => {
+        input.disabled = builderMode;
+      });
+    };
+
+    const getPoint = (event) => {
+      const rect = canvas.getBoundingClientRect();
+      return [roundPoint(event.clientX - rect.left), roundPoint(event.clientY - rect.top)];
+    };
+
+    canvas.addEventListener('pointerdown', (event) => {
+      event.preventDefault();
+      canvas.setPointerCapture(event.pointerId);
+      activeStroke = { tool: activeTool, size: brushSize, points: [getPoint(event)] };
+      redraw();
+    });
+
+    canvas.addEventListener('pointermove', (event) => {
+      if (!activeStroke) {
+        return;
+      }
+
+      activeStroke.points.push(getPoint(event));
+      redraw();
+    });
+
+    const finishStroke = () => {
+      if (!activeStroke) {
+        return;
+      }
+
+      strokes.push(activeStroke);
+      activeStroke = null;
+      redraw();
+      syncSketchData();
+    };
+
+    canvas.addEventListener('pointerup', finishStroke);
+    canvas.addEventListener('pointercancel', finishStroke);
+    canvas.addEventListener('pointerleave', () => {
+      if (activeStroke) {
+        finishStroke();
+      }
+    });
+
+    toolButtons.forEach((button) => {
+      button.addEventListener('click', () => setTool(button.dataset.sketchTool || 'pen'));
+    });
+
+    clearButton?.addEventListener('click', () => {
+      strokes = [];
+      activeStroke = null;
+      redraw();
+      syncSketchData();
+    });
+
+    sizeInput?.addEventListener('input', () => {
+      brushSize = Number(sizeInput.value || 3);
+    });
+
+    dimensionModeInputs.forEach((input) => {
+      input.addEventListener('change', syncDimensions);
+    });
+
+    dimensionInputs.forEach((input) => {
+      input.addEventListener('input', syncDimensions);
+    });
+
+    form.addEventListener('submit', () => {
+      syncDimensions();
+      syncSketchData();
+    });
+
+    setTool('pen');
+    syncDimensions();
+    syncSketchData();
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Custom project builder",
+  "class": "section-wrapper",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Custom project builder"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Plan your custom build before requesting a quote"
+    },
+    {
+      "type": "richtext",
+      "id": "intro",
+      "label": "Intro",
+      "default": "<p>Use this page to outline the project, choose wood preferences, sketch the idea, and send the full request for review.</p>"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#e8ddd0"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom project builder"
+    }
+  ]
+}
+{% endschema %}
