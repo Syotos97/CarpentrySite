@@ -124,7 +124,7 @@
         "intro": "<p>Use this page to collect dimensions, rough weight, access details, and timing so the first reply can include a realistic build and shipping plan.</p>",
         "enable_tabs": false,
         "section_width": "page-width",
-        "background_color": "#f7f1ea",
+        "background_color": "#e8ddd0",
         "padding-block-start": 0,
         "padding-block-end": 48
       }
@@ -135,7 +135,7 @@
         "eyebrow": "Shipping preview",
         "heading": "Test a rough shipping range while planning a custom order",
         "intro": "If you already have target dimensions and a rough finished weight, use this estimator to compare USPS, UPS, and FedEx before you submit the quote form below.",
-        "background_color": "#f7f1ea",
+        "background_color": "#e8ddd0",
         "padding-block-start": 0,
         "padding-block-end": 48
       }

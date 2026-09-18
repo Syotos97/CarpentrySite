@@ -32,12 +32,6 @@
       </div>
     {% endif %}
 
-      "type": "text",
-      "id": "anchor_id",
-      "label": "Anchor ID",
-      "default": ""
-    },
-    {
     {% if use_tabs %}
       <div class="carpentry-showcase__tablist" role="tablist" aria-label="{{ section.settings.heading | escape }}" data-showcase-tabs>
         {% for block in section.blocks %}
@@ -687,7 +681,13 @@
       "type": "color",
       "id": "background_color",
       "label": "Background color",
-      "default": "#f7f1ea"
+      "default": "#e8ddd0"
+    },
+    {
+      "type": "text",
+      "id": "anchor_id",
+      "label": "Anchor ID",
+      "default": ""
     },
     {
       "type": "header",

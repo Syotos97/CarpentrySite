@@ -46,7 +46,7 @@
                     "badge_sold_out_text_color":  "{{ settings.color_palette.foreground }}",
                     "badge_text_transform":  "none",
                     "palette_primary_button_background":  "#8f5b31",
-                    "palette_primary_button_text":  "#f7f1ea",
+                    "palette_primary_button_text":  "#e8ddd0",
                     "palette_primary_button_border":  "#8f5b31",
                     "primary_button_border_width":  0,
                     "button_border_radius_primary":  14,
@@ -94,10 +94,10 @@
                     "variant_button_radius":  14,
                     "variant_button_width":  "equal-width-buttons",
                     "color_palette":  {
-                                          "background":  "#f7f1ea",
-                                          "foreground":  "#2f241b",
-                                          "color1":  "#4e3a2c",
-                                          "color2":  "#d8c5b0"
+                                          "background":  "#e8ddd0",
+                                          "foreground":  "#261d18",
+                                          "color1":  "#413025",
+                                          "color2":  "#c5b29d"
                                       }
                 },
     "presets":  {

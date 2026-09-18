@@ -105,7 +105,7 @@
         "intro": "<p>Use this page to explain delivery method, freight handling, timing, and rough parcel pricing before a customer reaches out.</p>",
         "enable_tabs": false,
         "section_width": "page-width",
-        "background_color": "#f7f1ea",
+        "background_color": "#e8ddd0",
         "padding-block-start": 0,
         "padding-block-end": 72
       }
@@ -116,7 +116,7 @@
         "eyebrow": "Delivery planning",
         "heading": "Estimate shipping by carrier before requesting the final quote",
         "intro": "Use the dimensions and approximate weight from a ready-made item description, or enter the measurements from your custom-order plan. Choose USPS, UPS, or FedEx to compare a rough shipping range and delivery window, then confirm the final numbers on the carrier site.",
-        "background_color": "#f7f1ea",
+        "background_color": "#e8ddd0",
         "padding-block-start": 0,
         "padding-block-end": 72
       }

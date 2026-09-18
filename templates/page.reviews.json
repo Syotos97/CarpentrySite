@@ -48,7 +48,7 @@
     "reviews_content": {
       "type": "reviews-hub",
       "settings": {
-        "background_color": "#f7f1ea",
+        "background_color": "#e8ddd0",
         "padding-block-start": 0,
         "padding-block-end": 72
       }

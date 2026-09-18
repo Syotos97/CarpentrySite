@@ -330,7 +330,7 @@
         "eyebrow": "Shipping estimate",
         "heading": "Estimate shipping for this piece",
         "intro": "This estimator prefills from the product shipping metafields when they exist. If they are not set, it falls back to structured dimensions and weight lines in the product description.",
-        "background_color": "#f7f1ea",
+        "background_color": "#e8ddd0",
         "padding-block-start": 40,
         "padding-block-end": 48
       }

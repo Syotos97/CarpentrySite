@@ -105,7 +105,7 @@
         "intro": "<p>Assign this template to a page named Custom Orders, then tailor each panel to the exact information you want buyers to submit before requesting a quote.</p>",
         "enable_tabs": false,
         "section_width": "page-width",
-        "background_color": "#f7f1ea",
+        "background_color": "#e8ddd0",
         "padding-block-start": 0,
         "padding-block-end": 72
       }

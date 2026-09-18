@@ -43,41 +43,27 @@
       <button
         type="button"
         class="project-catalog__tab"
-        id="ProjectCatalogTab-{{ section.id }}-available"
+        id="ProjectCatalogTab-{{ section.id }}-past"
         role="tab"
-        aria-controls="ProjectCatalogPanel-{{ section.id }}-available"
+        aria-controls="ProjectCatalogPanel-{{ section.id }}-past"
         aria-selected="true"
         tabindex="0"
         data-project-catalog-trigger
       >
-        Currently available
+        Past projects
       </button>
       <button
         type="button"
         class="project-catalog__tab"
-        id="ProjectCatalogTab-{{ section.id }}-past"
+        id="ProjectCatalogTab-{{ section.id }}-available"
         role="tab"
-        aria-controls="ProjectCatalogPanel-{{ section.id }}-past"
+        aria-controls="ProjectCatalogPanel-{{ section.id }}-available"
         aria-selected="false"
         tabindex="-1"
         data-project-catalog-trigger
       >
-        Past projects
+        Currently available
       </button>
-    </div>
-
-    <div
-      class="project-catalog__panel project-catalog__panel--empty"
-      id="ProjectCatalogPanel-{{ section.id }}-available"
-      role="tabpanel"
-      aria-labelledby="ProjectCatalogTab-{{ section.id }}-available"
-      data-project-catalog-panel
-    >
-      <div class="project-catalog__empty-state">
-        <h3>Currently available</h3>
-        <p>No pieces are listed here right now.</p>
-        <p>Check back soon or use the contact page if you want to ask about an upcoming piece.</p>
-      </div>
     </div>
 
     <div
@@ -85,7 +71,6 @@
       id="ProjectCatalogPanel-{{ section.id }}-past"
       role="tabpanel"
       aria-labelledby="ProjectCatalogTab-{{ section.id }}-past"
-      hidden
       data-project-catalog-panel
     >
       <div class="project-catalog__grid">
@@ -99,6 +84,21 @@
             </div>
           </article>
         {% endfor %}
+      </div>
+    </div>
+
+    <div
+      class="project-catalog__panel project-catalog__panel--empty"
+      id="ProjectCatalogPanel-{{ section.id }}-available"
+      role="tabpanel"
+      aria-labelledby="ProjectCatalogTab-{{ section.id }}-available"
+      hidden
+      data-project-catalog-panel
+    >
+      <div class="project-catalog__empty-state">
+        <h3>Currently available</h3>
+        <p>No pieces are listed here right now.</p>
+        <p>Check back soon or use the contact page if you want to ask about an upcoming piece.</p>
       </div>
     </div>
   </div>
