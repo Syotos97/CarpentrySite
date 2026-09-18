@@ -58,31 +58,37 @@
         {% assign asset_gallery_files = '' %}
         {% case asset_gallery_key %}
           {% when 'home-projects-all' %}
-            {% assign asset_gallery_files = 'photos/IMG_0317.jpg|photos/IMG_0319.jpg|photos/IMG_0320.jpg|photos/IMG_0335.jpg|photos/IMG_0336.jpg|photos/IMG_0337.jpg|photos/IMG_0338.jpg|photos/IMG_0675.jpg|photos/IMG_0676.jpg|photos/IMG_1158.jpg|photos/IMG_1159.jpg|photos/IMG_1207.jpg|photos/IMG_1208.jpg|photos/IMG_1209.jpg|photos/IMG_1210.jpg|photos/IMG_1211.jpg|photos/IMG_1212.jpg|photos/IMG_1213.jpg|photos/IMG_1252.jpg|photos/IMG_1253.jpg|photos/IMG_1258.jpg|photos/IMG_1259.jpg|photos/IMG_1273.jpg|photos/IMG_1289.jpg|photos/IMG_1290.jpg|photos/IMG_1296.jpg|photos/IMG_1297.jpg|photos/IMG_1387.jpg|photos/IMG_1388.jpg|photos/IMG_1432.jpg|photos/IMG_1433.jpg|photos/IMG_1533.jpg|photos/IMG_1753.jpg|photos/IMG_1754.jpg|photos/IMG_7434.jpg|photos/IMG_7437.jpg' %}
+            {% assign asset_gallery_files = 'photos/IMG_0317.jpg|photos/IMG_0336.jpg|photos/IMG_1158.jpg|photos/IMG_1252.jpg|photos/IMG_1290.jpg|photos/IMG_1388.jpg|photos/IMG_1533.jpg|photos/IMG_7437.jpg' %}
           {% when 'home-orders' %}
-            {% assign asset_gallery_files = 'photos/IMG_0317.jpg|photos/IMG_0319.jpg|photos/IMG_0320.jpg' %}
+            {% assign asset_gallery_files = 'photos/IMG_0319.jpg|photos/IMG_1213.jpg|photos/IMG_1387.jpg' %}
           {% when 'home-shipping' %}
-            {% assign asset_gallery_files = 'photos/IMG_0335.jpg|photos/IMG_0336.jpg|photos/IMG_0337.jpg' %}
+            {% assign asset_gallery_files = 'photos/IMG_0335.jpg|photos/IMG_0336.jpg|photos/IMG_1158.jpg' %}
           {% when 'home-reviews' %}
-            {% assign asset_gallery_files = 'photos/IMG_0338.jpg|photos/IMG_0675.jpg|photos/IMG_0676.jpg' %}
+            {% assign asset_gallery_files = 'photos/IMG_0317.jpg|photos/IMG_1252.jpg|photos/IMG_1533.jpg' %}
+          {% when 'custom-orders-start' %}
+            {% assign asset_gallery_files = 'photos/IMG_0319.jpg|photos/IMG_1290.jpg|photos/IMG_1213.jpg' %}
+          {% when 'custom-orders-design' %}
+            {% assign asset_gallery_files = 'photos/IMG_1387.jpg|photos/IMG_1252.jpg|photos/IMG_1433.jpg' %}
+          {% when 'custom-orders-quote' %}
+            {% assign asset_gallery_files = 'photos/IMG_0317.jpg|photos/IMG_0336.jpg|photos/IMG_1533.jpg' %}
           {% when 'quote-scope' %}
-            {% assign asset_gallery_files = 'photos/IMG_1158.jpg|photos/IMG_1159.jpg|photos/IMG_1207.jpg' %}
+            {% assign asset_gallery_files = 'photos/IMG_0317.jpg|photos/IMG_0336.jpg|photos/IMG_1158.jpg' %}
           {% when 'quote-site' %}
-            {% assign asset_gallery_files = 'photos/IMG_1208.jpg|photos/IMG_1209.jpg|photos/IMG_1210.jpg' %}
+            {% assign asset_gallery_files = 'photos/IMG_0319.jpg|photos/IMG_1290.jpg|photos/IMG_1252.jpg' %}
           {% when 'quote-response' %}
-            {% assign asset_gallery_files = 'photos/IMG_1211.jpg|photos/IMG_1212.jpg|photos/IMG_1213.jpg' %}
+            {% assign asset_gallery_files = 'photos/IMG_1387.jpg|photos/IMG_1433.jpg|photos/IMG_1754.jpg' %}
           {% when 'shipping-local' %}
-            {% assign asset_gallery_files = 'photos/IMG_1252.jpg|photos/IMG_1253.jpg|photos/IMG_1258.jpg' %}
+            {% assign asset_gallery_files = 'photos/IMG_0317.jpg|photos/IMG_1158.jpg|photos/IMG_1290.jpg' %}
           {% when 'shipping-freight' %}
-            {% assign asset_gallery_files = 'photos/IMG_1259.jpg|photos/IMG_1273.jpg|photos/IMG_1289.jpg' %}
+            {% assign asset_gallery_files = 'photos/IMG_0335.jpg|photos/IMG_0336.jpg|photos/IMG_0337.jpg' %}
           {% when 'shipping-timeline' %}
-            {% assign asset_gallery_files = 'photos/IMG_1290.jpg|photos/IMG_1296.jpg|photos/IMG_1297.jpg' %}
+            {% assign asset_gallery_files = 'photos/IMG_1213.jpg|photos/IMG_1252.jpg|photos/IMG_1387.jpg' %}
           {% when 'reviews-quality' %}
-            {% assign asset_gallery_files = 'photos/IMG_1387.jpg|photos/IMG_1388.jpg|photos/IMG_1432.jpg' %}
+            {% assign asset_gallery_files = 'photos/IMG_1387.jpg|photos/IMG_1388.jpg|photos/IMG_1754.jpg' %}
           {% when 'reviews-service' %}
-            {% assign asset_gallery_files = 'photos/IMG_1433.jpg|photos/IMG_1533.jpg|photos/IMG_1753.jpg' %}
+            {% assign asset_gallery_files = 'photos/IMG_0317.jpg|photos/IMG_1252.jpg|photos/IMG_1433.jpg' %}
           {% when 'reviews-outcomes' %}
-            {% assign asset_gallery_files = 'photos/IMG_1754.jpg|photos/IMG_7434.jpg|photos/IMG_7437.jpg' %}
+            {% assign asset_gallery_files = 'photos/IMG_0336.jpg|photos/IMG_1290.jpg|photos/IMG_1533.jpg' %}
         {% endcase %}
         {% assign asset_gallery_items = asset_gallery_files | split: '|' %}
         {% assign asset_gallery_has_items = false %}
@@ -772,6 +778,18 @@
             {
               "value": "home-reviews",
               "label": "Homepage: reviews photos"
+            },
+            {
+              "value": "custom-orders-start",
+              "label": "Custom orders: start here photos"
+            },
+            {
+              "value": "custom-orders-design",
+              "label": "Custom orders: design review photos"
+            },
+            {
+              "value": "custom-orders-quote",
+              "label": "Custom orders: quote and deposit photos"
             },
             {
               "value": "quote-scope",

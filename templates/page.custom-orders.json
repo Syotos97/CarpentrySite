@@ -57,7 +57,10 @@
             "text": "<p>Ask buyers for the intended room, target dimensions, use case, and any access constraints. That keeps the first conversation focused on scope instead of guesswork.</p>",
             "feature_list": "Room type and installation location\nWidth, depth, and height targets\nReference images or sketches\nPreferred wood species and finish",
             "callout_title": "Suggested intake fields",
-            "callout_text": "Name\nEmail\nPhone\nZIP code\nDesired completion date"
+            "callout_text": "Name\nEmail\nPhone\nZIP code\nDesired completion date",
+            "asset_gallery_key": "custom-orders-start",
+            "asset_gallery_layout": "grid",
+            "asset_gallery_alt": "Project planning example"
           }
         },
         "panel_design": {
@@ -69,7 +72,10 @@
             "text": "<p>Use this section to explain how revisions are handled, when drawings are approved, and what triggers production scheduling.</p>",
             "feature_list": "Material and finish confirmation\nHardware selections if needed\nRevision limits before deposit\nEstimated lead time once approved",
             "callout_title": "Good policy language",
-            "callout_text": "Clarify whether design changes after approval affect price or delivery date."
+            "callout_text": "Clarify whether design changes after approval affect price or delivery date.",
+            "asset_gallery_key": "custom-orders-design",
+            "asset_gallery_layout": "grid",
+            "asset_gallery_alt": "Design and finish example"
           }
         },
         "panel_quote": {
@@ -81,7 +87,10 @@
             "text": "<p>Customers should know when a quote expires, how deposits work, and what is included in delivery or installation.</p>",
             "feature_list": "Written quote with scope summary\nDeposit amount and payment timing\nDelivery or install line items\nFinal balance due before or at delivery",
             "callout_title": "Conversion tip",
-            "callout_text": "Use the page body above this section for a short introduction or downloadable template text."
+            "callout_text": "Use the page body above this section for a short introduction or downloadable template text.",
+            "asset_gallery_key": "custom-orders-quote",
+            "asset_gallery_layout": "grid",
+            "asset_gallery_alt": "Quoted project example"
           }
         }
       },
