@@ -1,0 +1,194 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "blocks": {
+        "title": {
+          "type": "text",
+          "name": "t:names.title",
+          "settings": {
+            "text": "<h1>{{ closest.page.title }}</h1>",
+            "width": "100%",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "h2",
+            "font": "var(--font-body--family)",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "content": {
+          "type": "text",
+          "name": "t:names.content",
+          "settings": {
+            "text": "{{ closest.page.content }}",
+            "width": "100%",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "rte",
+            "font": "var(--font-body--family)",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "title",
+        "content"
+      ],
+      "settings": {
+        "content_direction": "column",
+        "gap": 24,
+        "background_color": "{{ settings.color_palette.background }}",
+        "padding-block-start": 40,
+        "padding-block-end": 24
+      }
+    },
+    "quote_request_details": {
+      "type": "carpentry-showcase",
+      "blocks": {
+        "panel_scope": {
+          "type": "panel",
+          "settings": {
+            "tab_label": "Project scope",
+            "kicker": "Before you submit",
+            "title": "Share the details that shape the build and the estimate",
+            "text": "<p>Ask for the room, approximate dimensions, intended use, preferred materials, and any finish direction. That gives you enough context to reply with a real next step.</p>",
+            "feature_list": "Room location and function\nWidth, depth, and height targets\nWood species or finish preference\nReference photos, sketches, or inspiration links",
+            "callout_title": "Best first inquiry",
+            "callout_text": "A strong request includes dimensions, style references, delivery ZIP code, and a realistic timing target."
+          }
+        },
+        "panel_site_conditions": {
+          "type": "panel",
+          "settings": {
+            "tab_label": "Site conditions",
+            "kicker": "Install planning",
+            "title": "Collect access and delivery information early",
+            "text": "<p>Built-ins and larger furniture often depend on doorways, stairs, elevator access, and wall conditions. Get those constraints upfront so quoting stays accurate.</p>",
+            "feature_list": "Stairways, hallways, and elevator access\nParking or loading restrictions\nDesired install date range\nWhether removal or old-piece disposal is needed",
+            "callout_title": "Why ask now",
+            "callout_text": "Access details can change both the delivery method and the total project cost."
+          }
+        },
+        "panel_response": {
+          "type": "panel",
+          "settings": {
+            "tab_label": "What happens next",
+            "kicker": "Reply workflow",
+            "title": "Set expectations for timeline, drawings, and deposits",
+            "text": "<p>Use this panel to explain when buyers should expect a response, whether drawings are included, and how a quote becomes a reserved production slot.</p>",
+            "feature_list": "Response window for new inquiries\nFollow-up for missing measurements\nEstimate or drawing review process\nDeposit and scheduling after approval",
+            "callout_title": "Trust signal",
+            "callout_text": "Clear response expectations reduce drop-off and keep your inbox focused on qualified leads."
+          }
+        }
+      },
+      "block_order": [
+        "panel_scope",
+        "panel_site_conditions",
+        "panel_response"
+      ],
+      "settings": {
+        "eyebrow": "Quote request",
+        "heading": "A quote request page should qualify the project before the conversation starts",
+        "intro": "<p>Assign this template to a page named Quote Request, then use the page body above for your short intro and the contact form below for the actual inquiry.</p>",
+        "enable_tabs": false,
+        "section_width": "page-width",
+        "background_color": "#f7f1ea",
+        "padding-block-start": 0,
+        "padding-block-end": 48
+      }
+    },
+    "form": {
+      "type": "section",
+      "blocks": {
+        "contact_form_quote": {
+          "type": "contact-form",
+          "settings": {
+            "width": "custom",
+            "custom_width": 60,
+            "width_mobile": "custom",
+            "custom_width_mobile": 100,
+            "input_style": "default",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "submit-button": {
+              "type": "contact-form-submit-button",
+              "static": true,
+              "settings": {
+                "label": "Request a quote",
+                "style_class": "button",
+                "width": "fit-content",
+                "custom_width": 100,
+                "width_mobile": "fit-content",
+                "custom_width_mobile": 100
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": []
+        }
+      },
+      "block_order": [
+        "contact_form_quote"
+      ],
+      "name": "Quote request form",
+      "settings": {
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "center",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 32,
+        "section_width": "page-width",
+        "section_height_custom": 50,
+        "background_media": "none",
+        "background_color": "{{ settings.color_palette.background }}",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 0,
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "padding-block-start": 0,
+        "padding-block-end": 84
+      }
+    }
+  },
+  "order": [
+    "main",
+    "quote_request_details",
+    "form"
+  ]
+}

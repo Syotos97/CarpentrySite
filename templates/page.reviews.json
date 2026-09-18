@@ -1,0 +1,109 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "blocks": {
+        "title": {
+          "type": "text",
+          "name": "t:names.title",
+          "settings": {
+            "text": "<h1>{{ closest.page.title }}</h1>",
+            "width": "100%",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "h2",
+            "font": "var(--font-body--family)",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "page-content": {
+          "type": "page-content",
+          "settings": {},
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "title",
+        "page-content"
+      ],
+      "settings": {
+        "content_direction": "column",
+        "gap": 24,
+        "background_color": "{{ settings.color_palette.background }}",
+        "padding-block-start": 40,
+        "padding-block-end": 24
+      }
+    },
+    "reviews_content": {
+      "type": "carpentry-showcase",
+      "blocks": {
+        "panel_quality": {
+          "type": "panel",
+          "settings": {
+            "tab_label": "Craft quality",
+            "kicker": "What clients notice",
+            "title": "Use reviews that mention the fit, finish, and daily feel of the work",
+            "text": "<p>Strong testimonials mention specifics: flush reveals, smooth drawer action, the warmth of the wood finish, or how a room finally works the way it should.</p>",
+            "feature_list": "Precision fit in older homes\nFinish quality in natural light\nDurability after everyday use",
+            "callout_title": "Sample prompt",
+            "callout_text": "What detail do you notice every day now that the piece is installed?"
+          }
+        },
+        "panel_service": {
+          "type": "panel",
+          "settings": {
+            "tab_label": "Service",
+            "kicker": "Buying experience",
+            "title": "Include feedback on communication, scheduling, and installation",
+            "text": "<p>For custom work, buyers care as much about the process as the finished piece. Reviews that describe responsiveness and clarity reduce hesitation.</p>",
+            "feature_list": "Clear quoting and revisions\nAccurate scheduling updates\nProfessional delivery and install",
+            "callout_title": "Where to use these",
+            "callout_text": "Pull the strongest lines from this page into product descriptions, homepage panels, and social content."
+          }
+        },
+        "panel_outcomes": {
+          "type": "panel",
+          "settings": {
+            "tab_label": "Outcomes",
+            "kicker": "Room impact",
+            "title": "Testimonials convert better when they explain the problem the build solved",
+            "text": "<p>Examples include better storage in a narrow mudroom, a dining table sized for a growing family, or shelving that finally uses awkward wall space well.</p>",
+            "feature_list": "Storage and organization improvements\nBetter use of difficult spaces\nPieces sized for real day-to-day needs",
+            "callout_title": "Keep it credible",
+            "callout_text": "Favor short, concrete reviews over generic praise. Specificity is the proof."
+          }
+        }
+      },
+      "block_order": [
+        "panel_quality",
+        "panel_service",
+        "panel_outcomes"
+      ],
+      "settings": {
+        "eyebrow": "Client reviews",
+        "heading": "A dedicated reviews page should reinforce craftsmanship and reliability",
+        "intro": "<p>Assign this template to a page named Reviews, then replace the placeholder copy with real customer feedback and project-specific outcomes.</p>",
+        "enable_tabs": false,
+        "section_width": "page-width",
+        "background_color": "#f7f1ea",
+        "padding-block-start": 0,
+        "padding-block-end": 72
+      }
+    }
+  },
+  "order": [
+    "main",
+    "reviews_content"
+  ]
+}
