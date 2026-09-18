@@ -57,7 +57,10 @@
             "text": "<p>Let buyers know whether curbside, threshold, room-of-choice, or full installation is included for nearby orders.</p>",
             "feature_list": "Delivery window communication\nStair or access requirements\nProtection for floors and walls\nInspection at handoff",
             "callout_title": "What customers need to provide",
-            "callout_text": "Parking access, stair details, elevator availability, and any delivery restrictions."
+            "callout_text": "Parking access, stair details, elevator availability, and any delivery restrictions.",
+            "asset_gallery_key": "shipping-local",
+            "asset_gallery_layout": "grid",
+            "asset_gallery_alt": "Local delivery project"
           }
         },
         "panel_freight": {
@@ -69,7 +72,10 @@
             "text": "<p>For oversized furniture and millwork, explain how freight is quoted, whether liftgate service is included, and when damage must be reported.</p>",
             "feature_list": "Crated packaging for transit\nFreight carrier scheduling\nLiftgate or dock requirements\nDamage reporting window on delivery",
             "callout_title": "Risk reduction",
-            "callout_text": "A short inspection checklist on this page helps prevent disputes after delivery."
+            "callout_text": "A short inspection checklist on this page helps prevent disputes after delivery.",
+            "asset_gallery_key": "shipping-freight",
+            "asset_gallery_layout": "grid",
+            "asset_gallery_alt": "Freight-ready furniture build"
           }
         },
         "panel_timeline": {
@@ -81,7 +87,10 @@
             "text": "<p>Customers need to understand that handcrafted work often has two clocks: fabrication time and delivery time. Spell both out so expectations stay realistic.</p>",
             "feature_list": "Build queue estimates\nTransit windows after completion\nHoliday or weather delays\nStorage policy for delayed receipt",
             "callout_title": "Keep this current",
-            "callout_text": "Update the copy here when lead times change seasonally or after major order volume swings."
+            "callout_text": "Update the copy here when lead times change seasonally or after major order volume swings.",
+            "asset_gallery_key": "shipping-timeline",
+            "asset_gallery_layout": "grid",
+            "asset_gallery_alt": "Completed build awaiting delivery"
           }
         }
       },

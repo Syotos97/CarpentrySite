@@ -53,7 +53,47 @@
     <div class="carpentry-showcase__panels{% unless use_tabs %} carpentry-showcase__panels--stacked{% endunless %}">
       {% for block in section.blocks %}
         {% assign has_images = false %}
-        {% if block.settings.image_1 != blank or block.settings.image_2 != blank or block.settings.image_3 != blank %}
+        {% assign asset_gallery_key = block.settings.asset_gallery_key %}
+        {% assign asset_gallery_layout = block.settings.asset_gallery_layout %}
+        {% assign asset_gallery_files = '' %}
+        {% case asset_gallery_key %}
+          {% when 'home-projects-all' %}
+            {% assign asset_gallery_files = 'photos/IMG_0317.jpg|photos/IMG_0319.jpg|photos/IMG_0320.jpg|photos/IMG_0335.jpg|photos/IMG_0336.jpg|photos/IMG_0337.jpg|photos/IMG_0338.jpg|photos/IMG_0675.jpg|photos/IMG_0676.jpg|photos/IMG_1158.jpg|photos/IMG_1159.jpg|photos/IMG_1207.jpg|photos/IMG_1208.jpg|photos/IMG_1209.jpg|photos/IMG_1210.jpg|photos/IMG_1211.jpg|photos/IMG_1212.jpg|photos/IMG_1213.jpg|photos/IMG_1252.jpg|photos/IMG_1253.jpg|photos/IMG_1258.jpg|photos/IMG_1259.jpg|photos/IMG_1273.jpg|photos/IMG_1289.jpg|photos/IMG_1290.jpg|photos/IMG_1296.jpg|photos/IMG_1297.jpg|photos/IMG_1387.jpg|photos/IMG_1388.jpg|photos/IMG_1432.jpg|photos/IMG_1433.jpg|photos/IMG_1533.jpg|photos/IMG_1753.jpg|photos/IMG_1754.jpg|photos/IMG_7434.jpg|photos/IMG_7437.jpg' %}
+          {% when 'home-orders' %}
+            {% assign asset_gallery_files = 'photos/IMG_0317.jpg|photos/IMG_0319.jpg|photos/IMG_0320.jpg' %}
+          {% when 'home-shipping' %}
+            {% assign asset_gallery_files = 'photos/IMG_0335.jpg|photos/IMG_0336.jpg|photos/IMG_0337.jpg' %}
+          {% when 'home-reviews' %}
+            {% assign asset_gallery_files = 'photos/IMG_0338.jpg|photos/IMG_0675.jpg|photos/IMG_0676.jpg' %}
+          {% when 'quote-scope' %}
+            {% assign asset_gallery_files = 'photos/IMG_1158.jpg|photos/IMG_1159.jpg|photos/IMG_1207.jpg' %}
+          {% when 'quote-site' %}
+            {% assign asset_gallery_files = 'photos/IMG_1208.jpg|photos/IMG_1209.jpg|photos/IMG_1210.jpg' %}
+          {% when 'quote-response' %}
+            {% assign asset_gallery_files = 'photos/IMG_1211.jpg|photos/IMG_1212.jpg|photos/IMG_1213.jpg' %}
+          {% when 'shipping-local' %}
+            {% assign asset_gallery_files = 'photos/IMG_1252.jpg|photos/IMG_1253.jpg|photos/IMG_1258.jpg' %}
+          {% when 'shipping-freight' %}
+            {% assign asset_gallery_files = 'photos/IMG_1259.jpg|photos/IMG_1273.jpg|photos/IMG_1289.jpg' %}
+          {% when 'shipping-timeline' %}
+            {% assign asset_gallery_files = 'photos/IMG_1290.jpg|photos/IMG_1296.jpg|photos/IMG_1297.jpg' %}
+          {% when 'reviews-quality' %}
+            {% assign asset_gallery_files = 'photos/IMG_1387.jpg|photos/IMG_1388.jpg|photos/IMG_1432.jpg' %}
+          {% when 'reviews-service' %}
+            {% assign asset_gallery_files = 'photos/IMG_1433.jpg|photos/IMG_1533.jpg|photos/IMG_1753.jpg' %}
+          {% when 'reviews-outcomes' %}
+            {% assign asset_gallery_files = 'photos/IMG_1754.jpg|photos/IMG_7434.jpg|photos/IMG_7437.jpg' %}
+        {% endcase %}
+        {% assign asset_gallery_items = asset_gallery_files | split: '|' %}
+        {% assign asset_gallery_has_items = false %}
+        {% for asset_gallery_item in asset_gallery_items %}
+          {% if asset_gallery_item != blank %}
+            {% assign asset_gallery_has_items = true %}
+            {% break %}
+          {% endif %}
+        {% endfor %}
+        {% assign asset_gallery_alt = block.settings.asset_gallery_alt | default: block.settings.title | default: section.settings.heading %}
+        {% if block.settings.image_1 != blank or block.settings.image_2 != blank or block.settings.image_3 != blank or asset_gallery_has_items %}
           {% assign has_images = true %}
         {% endif %}
         {% assign feature_items = block.settings.feature_list | newline_to_br | split: '<br />' %}
@@ -120,27 +160,74 @@
               {% endif %}
 
               {% if has_images %}
-                <div class="carpentry-showcase__gallery{% if block.settings.image_3 == blank %} carpentry-showcase__gallery--compact{% endif %}">
-                  {% for image_index in (1..3) %}
-                    {% liquid
-                      assign image_key = 'image_' | append: image_index
-                      assign image = block.settings[image_key]
-                    %}
-                    {% if image != blank %}
-                      <div class="carpentry-showcase__gallery-item carpentry-showcase__gallery-item--{{ image_index }}">
-                        {{
-                          image
-                          | image_url: width: 1400
-                          | image_tag:
-                            widths: '480, 720, 960, 1400',
-                            sizes: '(min-width: 750px) 30vw, 100vw',
-                            loading: 'lazy',
-                            alt: image.alt
-                        }}
+                {% if asset_gallery_has_items %}
+                  {% if asset_gallery_layout == 'slideshow' %}
+                    <div class="carpentry-showcase__asset-slideshow" data-asset-slideshow>
+                      <div class="carpentry-showcase__asset-slideshow-track" data-asset-slideshow-track>
+                        {% for asset_gallery_item in asset_gallery_items %}
+                          {% if asset_gallery_item != blank %}
+                            <div class="carpentry-showcase__asset-slideshow-slide">
+                              <img
+                                src="{{ asset_gallery_item | asset_url }}"
+                                alt="{{ asset_gallery_alt | escape }} photo {{ forloop.index }}"
+                                loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                              >
+                            </div>
+                          {% endif %}
+                        {% endfor %}
                       </div>
-                    {% endif %}
-                  {% endfor %}
-                </div>
+                      <div class="carpentry-showcase__asset-slideshow-footer">
+                        <div class="carpentry-showcase__asset-slideshow-nav">
+                          <button type="button" class="carpentry-showcase__asset-button" data-asset-slideshow-prev aria-label="Previous project photo">
+                            Previous
+                          </button>
+                          <button type="button" class="carpentry-showcase__asset-button" data-asset-slideshow-next aria-label="Next project photo">
+                            Next
+                          </button>
+                        </div>
+                        <p class="carpentry-showcase__asset-slideshow-status" data-asset-slideshow-status>
+                          1 / {{ asset_gallery_items.size }}
+                        </p>
+                      </div>
+                    </div>
+                  {% else %}
+                    <div class="carpentry-showcase__gallery{% if asset_gallery_items.size < 3 %} carpentry-showcase__gallery--compact{% endif %}">
+                      {% for asset_gallery_item in asset_gallery_items %}
+                        {% if asset_gallery_item != blank %}
+                          <div class="carpentry-showcase__gallery-item carpentry-showcase__gallery-item--{{ forloop.index }}">
+                            <img
+                              src="{{ asset_gallery_item | asset_url }}"
+                              alt="{{ asset_gallery_alt | escape }} photo {{ forloop.index }}"
+                              loading="lazy"
+                            >
+                          </div>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                {% else %}
+                  <div class="carpentry-showcase__gallery{% if block.settings.image_3 == blank %} carpentry-showcase__gallery--compact{% endif %}">
+                    {% for image_index in (1..3) %}
+                      {% liquid
+                        assign image_key = 'image_' | append: image_index
+                        assign image = block.settings[image_key]
+                      %}
+                      {% if image != blank %}
+                        <div class="carpentry-showcase__gallery-item carpentry-showcase__gallery-item--{{ image_index }}">
+                          {{
+                            image
+                            | image_url: width: 1400
+                            | image_tag:
+                              widths: '480, 720, 960, 1400',
+                              sizes: '(min-width: 750px) 30vw, 100vw',
+                              loading: 'lazy',
+                              alt: image.alt
+                          }}
+                        </div>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                {% endif %}
               {% endif %}
             </div>
           {% endif %}
@@ -317,6 +404,74 @@
     border-radius: 1rem;
   }
 
+  .carpentry-showcase__asset-slideshow {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .carpentry-showcase__asset-slideshow-track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    border-radius: 1rem;
+    overscroll-behavior-x: contain;
+  }
+
+  .carpentry-showcase__asset-slideshow-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .carpentry-showcase__asset-slideshow-slide {
+    scroll-snap-align: start;
+  }
+
+  .carpentry-showcase__asset-slideshow-slide img {
+    display: block;
+    width: 100%;
+    min-height: clamp(18rem, 42vw, 28rem);
+    object-fit: cover;
+    border-radius: 1rem;
+  }
+
+  .carpentry-showcase__asset-slideshow-footer,
+  .carpentry-showcase__asset-slideshow-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .carpentry-showcase__asset-button {
+    appearance: none;
+    border: 1px solid var(--carpentry-border);
+    background: rgba(255, 255, 255, 0.78);
+    color: inherit;
+    border-radius: 999px;
+    padding: 0.65rem 1rem;
+    cursor: pointer;
+    transition:
+      background 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .carpentry-showcase__asset-button:hover,
+  .carpentry-showcase__asset-button:focus-visible {
+    background: var(--carpentry-accent);
+    border-color: var(--carpentry-accent);
+    color: #fff;
+  }
+
+  .carpentry-showcase__asset-slideshow-status {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-foreground) 72%, transparent);
+    font-size: 0.95rem;
+  }
+
   @media screen and (max-width: 749px) {
     .carpentry-showcase__shell {
       border-radius: 1.5rem;
@@ -337,65 +492,136 @@
     .carpentry-showcase__gallery--compact {
       grid-template-columns: 1fr;
     }
+
+    .carpentry-showcase__asset-slideshow-slide img {
+      min-height: 16rem;
+    }
   }
 {% endstylesheet %}
 
-{% if use_tabs %}
-  <script>
-    (() => {
-      const currentScript = document.currentScript;
-      const section = document.getElementById('shopify-section-{{ section.id }}') || currentScript.closest('.shopify-section');
+<script>
+  (() => {
+    const currentScript = document.currentScript;
+    const section = document.getElementById('shopify-section-{{ section.id }}') || currentScript.closest('.shopify-section');
 
-      if (!section || section.dataset.carpentryShowcaseBound === 'true') {
-        return;
-      }
+    if (!section) {
+      return;
+    }
 
+    if (section.dataset.carpentryShowcaseTabsBound !== 'true') {
       const tabs = Array.from(section.querySelectorAll('[data-tab-trigger]'));
       const panels = Array.from(section.querySelectorAll('[data-tab-panel]'));
 
-      if (!tabs.length || !panels.length) {
+      if (tabs.length && panels.length) {
+        section.dataset.carpentryShowcaseTabsBound = 'true';
+
+        const activateTab = (index) => {
+          tabs.forEach((tab, tabIndex) => {
+            const isActive = tabIndex === index;
+            tab.setAttribute('aria-selected', String(isActive));
+            tab.setAttribute('tabindex', isActive ? '0' : '-1');
+          });
+
+          panels.forEach((panel, panelIndex) => {
+            panel.hidden = panelIndex !== index;
+          });
+        };
+
+        tabs.forEach((tab, index) => {
+          tab.addEventListener('click', () => activateTab(index));
+          tab.addEventListener('keydown', (event) => {
+            let nextIndex = index;
+
+            if (event.key === 'ArrowRight') {
+              nextIndex = (index + 1) % tabs.length;
+            } else if (event.key === 'ArrowLeft') {
+              nextIndex = (index - 1 + tabs.length) % tabs.length;
+            } else if (event.key === 'Home') {
+              nextIndex = 0;
+            } else if (event.key === 'End') {
+              nextIndex = tabs.length - 1;
+            } else {
+              return;
+            }
+
+            event.preventDefault();
+            activateTab(nextIndex);
+            tabs[nextIndex].focus();
+          });
+        });
+      }
+    }
+
+    if (section.dataset.carpentryShowcaseSlideshowsBound === 'true') {
+      return;
+    }
+
+    const slideshows = Array.from(section.querySelectorAll('[data-asset-slideshow]'));
+
+    if (!slideshows.length) {
+      return;
+    }
+
+    section.dataset.carpentryShowcaseSlideshowsBound = 'true';
+
+    slideshows.forEach((slideshow) => {
+      const track = slideshow.querySelector('[data-asset-slideshow-track]');
+      const previousButton = slideshow.querySelector('[data-asset-slideshow-prev]');
+      const nextButton = slideshow.querySelector('[data-asset-slideshow-next]');
+      const status = slideshow.querySelector('[data-asset-slideshow-status]');
+      const slides = Array.from(slideshow.querySelectorAll('.carpentry-showcase__asset-slideshow-slide'));
+
+      if (!track || !previousButton || !nextButton || !status || slides.length < 2) {
         return;
       }
 
-      section.dataset.carpentryShowcaseBound = 'true';
+      const getSlideWidth = () => slides[0].getBoundingClientRect().width || track.clientWidth;
+      const getIndex = () => {
+        const slideWidth = getSlideWidth();
 
-      const activateTab = (index) => {
-        tabs.forEach((tab, tabIndex) => {
-          const isActive = tabIndex === index;
-          tab.setAttribute('aria-selected', String(isActive));
-          tab.setAttribute('tabindex', isActive ? '0' : '-1');
-        });
+        if (!slideWidth) {
+          return 0;
+        }
 
-        panels.forEach((panel, panelIndex) => {
-          panel.hidden = panelIndex !== index;
+        return Math.max(0, Math.min(slides.length - 1, Math.round(track.scrollLeft / slideWidth)));
+      };
+
+      const updateStatus = () => {
+        status.textContent = `${getIndex() + 1} / ${slides.length}`;
+      };
+
+      const scrollToIndex = (index) => {
+        const slideWidth = getSlideWidth();
+
+        if (!slideWidth) {
+          return;
+        }
+
+        track.scrollTo({
+          left: slideWidth * index,
+          behavior: 'smooth'
         });
       };
 
-      tabs.forEach((tab, index) => {
-        tab.addEventListener('click', () => activateTab(index));
-        tab.addEventListener('keydown', (event) => {
-          let nextIndex = index;
-
-          if (event.key === 'ArrowRight') {
-            nextIndex = (index + 1) % tabs.length;
-          } else if (event.key === 'ArrowLeft') {
-            nextIndex = (index - 1 + tabs.length) % tabs.length;
-          } else if (event.key === 'Home') {
-            nextIndex = 0;
-          } else if (event.key === 'End') {
-            nextIndex = tabs.length - 1;
-          } else {
-            return;
-          }
-
-          event.preventDefault();
-          activateTab(nextIndex);
-          tabs[nextIndex].focus();
-        });
+      previousButton.addEventListener('click', () => {
+        const nextIndex = (getIndex() - 1 + slides.length) % slides.length;
+        scrollToIndex(nextIndex);
       });
-    })();
-  </script>
-{% endif %}
+
+      nextButton.addEventListener('click', () => {
+        const nextIndex = (getIndex() + 1) % slides.length;
+        scrollToIndex(nextIndex);
+      });
+
+      track.addEventListener('scroll', () => {
+        window.requestAnimationFrame(updateStatus);
+      });
+
+      window.addEventListener('resize', updateStatus);
+      updateStatus();
+    });
+  })();
+</script>
 
 {% schema %}
 {
@@ -520,6 +746,92 @@
           "id": "callout_text",
           "label": "Callout text",
           "default": "This area works well for dimensions, lead times, delivery zones, or a short testimonial pull-quote."
+        },
+        {
+          "type": "select",
+          "id": "asset_gallery_key",
+          "label": "Built-in asset photo gallery",
+          "default": "none",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "home-projects-all",
+              "label": "Homepage: all project photos"
+            },
+            {
+              "value": "home-orders",
+              "label": "Homepage: custom ordering photos"
+            },
+            {
+              "value": "home-shipping",
+              "label": "Homepage: shipping photos"
+            },
+            {
+              "value": "home-reviews",
+              "label": "Homepage: reviews photos"
+            },
+            {
+              "value": "quote-scope",
+              "label": "Quote request: scope photos"
+            },
+            {
+              "value": "quote-site",
+              "label": "Quote request: site condition photos"
+            },
+            {
+              "value": "quote-response",
+              "label": "Quote request: response workflow photos"
+            },
+            {
+              "value": "shipping-local",
+              "label": "Shipping page: local delivery photos"
+            },
+            {
+              "value": "shipping-freight",
+              "label": "Shipping page: freight photos"
+            },
+            {
+              "value": "shipping-timeline",
+              "label": "Shipping page: timeline photos"
+            },
+            {
+              "value": "reviews-quality",
+              "label": "Reviews page: craft quality photos"
+            },
+            {
+              "value": "reviews-service",
+              "label": "Reviews page: service photos"
+            },
+            {
+              "value": "reviews-outcomes",
+              "label": "Reviews page: room outcome photos"
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "asset_gallery_layout",
+          "label": "Built-in gallery layout",
+          "default": "grid",
+          "options": [
+            {
+              "value": "grid",
+              "label": "Grid"
+            },
+            {
+              "value": "slideshow",
+              "label": "Slideshow"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "asset_gallery_alt",
+          "label": "Built-in gallery alt text",
+          "default": "Custom carpentry project"
         },
         {
           "type": "image_picker",

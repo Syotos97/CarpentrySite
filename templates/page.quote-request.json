@@ -76,7 +76,10 @@
             "text": "<p>Ask for the room, approximate dimensions, intended use, preferred materials, and any finish direction. That gives you enough context to reply with a real next step.</p>",
             "feature_list": "Room location and function\nWidth, depth, and height targets\nWood species or finish preference\nReference photos, sketches, or inspiration links",
             "callout_title": "Best first inquiry",
-            "callout_text": "A strong request includes dimensions, style references, delivery ZIP code, and a realistic timing target."
+            "callout_text": "A strong request includes dimensions, style references, delivery ZIP code, and a realistic timing target.",
+            "asset_gallery_key": "quote-scope",
+            "asset_gallery_layout": "grid",
+            "asset_gallery_alt": "Project scope example"
           }
         },
         "panel_site_conditions": {
@@ -88,7 +91,10 @@
             "text": "<p>Built-ins and larger furniture often depend on doorways, stairs, elevator access, and wall conditions. Get those constraints upfront so quoting stays accurate.</p>",
             "feature_list": "Stairways, hallways, and elevator access\nParking or loading restrictions\nDesired install date range\nWhether removal or old-piece disposal is needed",
             "callout_title": "Why ask now",
-            "callout_text": "Access details can change both the delivery method and the total project cost."
+            "callout_text": "Access details can change both the delivery method and the total project cost.",
+            "asset_gallery_key": "quote-site",
+            "asset_gallery_layout": "grid",
+            "asset_gallery_alt": "Installation planning example"
           }
         },
         "panel_response": {
@@ -100,7 +106,10 @@
             "text": "<p>Use this panel to explain when buyers should expect a response, whether drawings are included, and how a quote becomes a reserved production slot.</p>",
             "feature_list": "Response window for new inquiries\nFollow-up for missing measurements\nEstimate or drawing review process\nDeposit and scheduling after approval",
             "callout_title": "Trust signal",
-            "callout_text": "Clear response expectations reduce drop-off and keep your inbox focused on qualified leads."
+            "callout_text": "Clear response expectations reduce drop-off and keep your inbox focused on qualified leads.",
+            "asset_gallery_key": "quote-response",
+            "asset_gallery_layout": "grid",
+            "asset_gallery_alt": "Quoted project outcome"
           }
         }
       },

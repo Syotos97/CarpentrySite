@@ -100,10 +100,13 @@
             "tab_label": "Project photos",
             "kicker": "Portfolio",
             "title": "Finished work that shows the details clients ask about",
-            "text": "<p>Use this tab to rotate through cabinetry, built-ins, tables, and trim work. Each project can show the grain selection, joinery, finish, and the room it was made for.</p>",
+            "text": "<p>Use this tab to rotate through cabinetry, built-ins, tables, and trim work. The slideshow now pulls from your full project-photo library so visitors can see grain, joinery, finish, and how each piece lives in the room.</p>",
             "feature_list": "Before-and-after room shots\nClose-ups of joinery and finish work\nNotes on wood species and dimensions",
             "callout_title": "What to upload",
-            "callout_text": "Start with three strong images from your best projects. You can swap them anytime in the theme editor.",
+            "callout_text": "This panel now rotates every photo from assets/photos so the homepage stays visually full without manual image picking.",
+            "asset_gallery_key": "home-projects-all",
+            "asset_gallery_layout": "slideshow",
+            "asset_gallery_alt": "Completed custom carpentry project",
             "button_label": "Browse the full catalog",
             "button_link": "shopify://collections/all"
           }
@@ -118,6 +121,9 @@
             "feature_list": "Choose project type and approximate size\nShare inspiration photos and room conditions\nReview quote, lead time, and final scope before production",
             "callout_title": "Template checklist",
             "callout_text": "Ask for width, depth, height, species, stain preference, and delivery ZIP code.",
+            "asset_gallery_key": "home-orders",
+            "asset_gallery_layout": "grid",
+            "asset_gallery_alt": "Custom order project detail",
             "button_label": "Open custom order guide",
             "button_link": "/pages/quote-request"
           }
@@ -132,6 +138,9 @@
             "feature_list": "Local delivery for regional orders\nFreight coordination for oversized builds\nPackaging details and inspection on arrival",
             "callout_title": "Reduce surprises",
             "callout_text": "A clear shipping page lowers abandoned carts and cuts repeat support questions.",
+            "asset_gallery_key": "home-shipping",
+            "asset_gallery_layout": "grid",
+            "asset_gallery_alt": "Delivered carpentry project",
             "button_label": "Read shipping details",
             "button_link": "/pages/shipping"
           }
@@ -146,6 +155,9 @@
             "feature_list": "Quote the delivery and install experience\nHighlight durability and finish quality\nShow repeat customers and referral work",
             "callout_title": "Strong review prompt",
             "callout_text": "Ask clients what problem the piece solved and what stands out now that they live with it.",
+            "asset_gallery_key": "home-reviews",
+            "asset_gallery_layout": "grid",
+            "asset_gallery_alt": "Finished room with custom woodwork",
             "button_label": "Read client reviews",
             "button_link": "/pages/reviews"
           }

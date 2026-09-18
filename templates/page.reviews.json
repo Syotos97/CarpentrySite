@@ -57,7 +57,10 @@
             "text": "<p>Strong testimonials mention specifics: flush reveals, smooth drawer action, the warmth of the wood finish, or how a room finally works the way it should.</p>",
             "feature_list": "Precision fit in older homes\nFinish quality in natural light\nDurability after everyday use",
             "callout_title": "Sample prompt",
-            "callout_text": "What detail do you notice every day now that the piece is installed?"
+            "callout_text": "What detail do you notice every day now that the piece is installed?",
+            "asset_gallery_key": "reviews-quality",
+            "asset_gallery_layout": "grid",
+            "asset_gallery_alt": "Craft quality example"
           }
         },
         "panel_service": {
@@ -69,7 +72,10 @@
             "text": "<p>For custom work, buyers care as much about the process as the finished piece. Reviews that describe responsiveness and clarity reduce hesitation.</p>",
             "feature_list": "Clear quoting and revisions\nAccurate scheduling updates\nProfessional delivery and install",
             "callout_title": "Where to use these",
-            "callout_text": "Pull the strongest lines from this page into product descriptions, homepage panels, and social content."
+            "callout_text": "Pull the strongest lines from this page into product descriptions, homepage panels, and social content.",
+            "asset_gallery_key": "reviews-service",
+            "asset_gallery_layout": "grid",
+            "asset_gallery_alt": "Install and service example"
           }
         },
         "panel_outcomes": {
@@ -81,7 +87,10 @@
             "text": "<p>Examples include better storage in a narrow mudroom, a dining table sized for a growing family, or shelving that finally uses awkward wall space well.</p>",
             "feature_list": "Storage and organization improvements\nBetter use of difficult spaces\nPieces sized for real day-to-day needs",
             "callout_title": "Keep it credible",
-            "callout_text": "Favor short, concrete reviews over generic praise. Specificity is the proof."
+            "callout_text": "Favor short, concrete reviews over generic praise. Specificity is the proof.",
+            "asset_gallery_key": "reviews-outcomes",
+            "asset_gallery_layout": "grid",
+            "asset_gallery_alt": "Finished room outcome"
           }
         }
       },
