@@ -64,152 +64,20 @@
         "padding-block-end": 24
       }
     },
-    "quote_request_details": {
-      "type": "carpentry-showcase",
-      "blocks": {
-        "panel_scope": {
-          "type": "panel",
-          "settings": {
-            "tab_label": "Project scope",
-            "kicker": "Before you submit",
-            "title": "Share the details that shape the build and the estimate",
-            "text": "<p>Ask for the room, approximate dimensions, intended use, preferred materials, finish direction, and rough piece weight when possible. That gives you enough context to reply with a real next step and a shipping plan.</p>",
-            "feature_list": "Room location and function\nWidth, depth, and height targets\nApproximate finished weight for shipping\nReference photos, sketches, or inspiration links",
-            "callout_title": "Best first inquiry",
-            "callout_text": "A strong request includes dimensions, rough weight, style references, delivery ZIP code, and a realistic timing target.",
-            "asset_gallery_key": "quote-scope",
-            "asset_gallery_layout": "grid",
-            "asset_gallery_alt": "Project scope example"
-          }
-        },
-        "panel_site_conditions": {
-          "type": "panel",
-          "settings": {
-            "tab_label": "Site conditions",
-            "kicker": "Install planning",
-            "title": "Collect access and delivery information early",
-            "text": "<p>Built-ins and larger furniture often depend on doorways, stairs, elevator access, and wall conditions. Get those constraints upfront so quoting stays accurate.</p>",
-            "feature_list": "Stairways, hallways, and elevator access\nParking or loading restrictions\nDesired install date range\nWhether removal or old-piece disposal is needed",
-            "callout_title": "Why ask now",
-            "callout_text": "Access details can change both the delivery method and the total project cost.",
-            "asset_gallery_key": "quote-site",
-            "asset_gallery_layout": "grid",
-            "asset_gallery_alt": "Installation planning example"
-          }
-        },
-        "panel_response": {
-          "type": "panel",
-          "settings": {
-            "tab_label": "What happens next",
-            "kicker": "Reply workflow",
-            "title": "Set expectations for timeline, drawings, and deposits",
-            "text": "<p>Use this panel to explain when buyers should expect a response, whether drawings are included, and how a quote becomes a reserved production slot.</p>",
-            "feature_list": "Response window for new inquiries\nFollow-up for missing measurements\nEstimate or drawing review process\nDeposit and scheduling after approval",
-            "callout_title": "Trust signal",
-            "callout_text": "Clear response expectations reduce drop-off and keep your inbox focused on qualified leads.",
-            "asset_gallery_key": "quote-response",
-            "asset_gallery_layout": "grid",
-            "asset_gallery_alt": "Quoted project outcome"
-          }
-        }
-      },
-      "block_order": [
-        "panel_scope",
-        "panel_site_conditions",
-        "panel_response"
-      ],
+    "custom_project_builder": {
+      "type": "custom-project-builder",
       "settings": {
-        "eyebrow": "Quote request",
-        "heading": "A quote request page should qualify the project before the conversation starts",
-        "intro": "<p>Use this page to collect dimensions, rough weight, access details, and timing so the first reply can include a realistic build and shipping plan.</p>",
-        "enable_tabs": false,
-        "section_width": "page-width",
+        "eyebrow": "Custom builds",
+        "heading": "Design your custom project before you request pricing",
+        "intro": "<p>Choose the type of build, wood preferences, dimensions, and sketch notes here. When you send the request, I will review it and get back to you with an ETA and a cost estimate within 7 days.</p>",
         "background_color": "#e8ddd0",
         "padding-block-start": 0,
-        "padding-block-end": 48
-      }
-    },
-    "quote_shipping_estimator": {
-      "type": "shipping-estimator",
-      "settings": {
-        "eyebrow": "Shipping preview",
-        "heading": "Test a rough shipping range while planning a custom order",
-        "intro": "If you already have target dimensions and a rough finished weight, use this estimator to compare USPS, UPS, and FedEx before you submit the quote form below.",
-        "background_color": "#e8ddd0",
-        "padding-block-start": 0,
-        "padding-block-end": 48
-      }
-    },
-    "form": {
-      "type": "section",
-      "blocks": {
-        "contact_form_quote": {
-          "type": "contact-form",
-          "settings": {
-            "width": "custom",
-            "custom_width": 60,
-            "width_mobile": "custom",
-            "custom_width_mobile": 100,
-            "input_style": "default",
-            "padding-block-start": 0,
-            "padding-block-end": 0,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
-          },
-          "blocks": {
-            "submit-button": {
-              "type": "contact-form-submit-button",
-              "static": true,
-              "settings": {
-                "label": "Request a quote",
-                "style_class": "button",
-                "width": "fit-content",
-                "custom_width": 100,
-                "width_mobile": "fit-content",
-                "custom_width_mobile": 100
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": []
-        }
-      },
-      "block_order": [
-        "contact_form_quote"
-      ],
-      "name": "Quote request form",
-      "settings": {
-        "content_direction": "column",
-        "vertical_on_mobile": true,
-        "horizontal_alignment": "flex-start",
-        "vertical_alignment": "center",
-        "align_baseline": false,
-        "horizontal_alignment_flex_direction_column": "center",
-        "vertical_alignment_flex_direction_column": "center",
-        "gap": 32,
-        "section_width": "page-width",
-        "section_height_custom": 50,
-        "background_media": "none",
-        "background_color": "{{ settings.color_palette.background }}",
-        "video_position": "cover",
-        "background_image_position": "cover",
-        "border": "none",
-        "border_width": 1,
-        "border_opacity": 100,
-        "border_radius": 0,
-        "toggle_overlay": false,
-        "overlay_color": "#00000026",
-        "overlay_style": "solid",
-        "gradient_direction": "to top",
-        "padding-block-start": 0,
-        "padding-block-end": 84
+        "padding-block-end": 72
       }
     }
   },
   "order": [
     "main",
-    "quote_request_details",
-    "quote_shipping_estimator",
-    "form"
+    "custom_project_builder"
   ]
 }

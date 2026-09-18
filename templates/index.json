@@ -60,7 +60,7 @@
           "name": "t:names.button",
           "settings": {
             "label": "Create custom piece",
-            "link": "/pages/custom-orders",
+            "link": "/pages/quote-request",
             "open_in_new_tab": false,
             "style_class": "button-custom",
             "custom_button_background": "{{ settings.color_palette.background }}",
@@ -134,7 +134,7 @@
             "tab_label": "Custom ordering",
             "kicker": "Made for your space",
             "title": "Turn rough ideas into a build-ready order",
-            "text": "<p>Specify as many details as possible for your custom order to ensure accurate quotes timelines. If a detail does not matter to you, indicate it with N.A.</p>",
+            "text": "<p>Specify as many details as possible for your custom order to ensure accurate quotes and timelines. If any specific detail does not matter to you, indicate N/A when prompted.</p>",
             "feature_list": "Choose project type and approximate size\nShare inspiration photos and room conditions\nYou can expect a response from your submission within 7 days",
             "callout_title": "Please Note:",
             "callout_text": "All custom orders require a deposit for cost of materials after approval of the project details.",
@@ -142,7 +142,7 @@
             "asset_gallery_layout": "grid",
             "asset_gallery_alt": "Custom order project detail",
             "button_label": "Open custom order guide",
-            "button_link": "/pages/custom-orders"
+            "button_link": "/pages/quote-request"
           }
         }
       },
