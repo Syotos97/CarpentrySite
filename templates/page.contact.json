@@ -72,6 +72,14 @@
         "padding-block-end": 0
       }
     },
+    "contact_profile": {
+      "type": "contact-profile",
+      "settings": {
+        "background_color": "#f7f1ea",
+        "padding-block-start": 8,
+        "padding-block-end": 16
+      }
+    },
     "form": {
       "type": "section",
       "blocks": {
@@ -140,6 +148,7 @@
   },
   "order": [
     "main",
+    "contact_profile",
     "form"
   ]
 }

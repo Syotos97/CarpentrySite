@@ -1,0 +1,140 @@
+{% liquid
+  if section.settings.background_color != blank
+    render 'contrast-override', background_color: section.settings.background_color, section_id: section.id, skip_contrast: true
+  endif
+%}
+
+<div class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"></div>
+<section
+  class="section section--page-width contact-profile spacing-style{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
+  style="{% render 'spacing-padding', settings: section.settings %}"
+>
+  <div class="contact-profile__card">
+    <div class="contact-profile__media">
+      <img src="{{ 'contact-photo.jpg' | asset_url }}" alt="Contact Photo" loading="lazy">
+    </div>
+    <div class="contact-profile__content">
+      <p class="contact-profile__eyebrow">Contact Photo</p>
+      <h2 class="contact-profile__heading">Reach out directly for custom work or local pickup</h2>
+      <p class="contact-profile__text">
+        Call or text <a href="tel:17085151012">708-515-1012</a> if you want to talk through a project, ask a question,
+        or line up a pickup.
+      </p>
+      <p class="contact-profile__text">Located in Port Huron, MI for local pickups.</p>
+      <a class="button contact-profile__button" href="tel:17085151012">Call 708-515-1012</a>
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .contact-profile__card {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 0.95fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: center;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    border-radius: 2rem;
+    background:
+      linear-gradient(145deg, color-mix(in srgb, var(--color-background) 92%, #f3e4d1 8%), rgba(255, 255, 255, 0.96)),
+      radial-gradient(circle at top left, rgba(143, 91, 49, 0.14), transparent 38%);
+    border: 1px solid rgba(143, 91, 49, 0.14);
+    box-shadow: 0 1.5rem 3rem rgba(32, 19, 9, 0.08);
+  }
+
+  .contact-profile__media img {
+    display: block;
+    width: 100%;
+    min-height: clamp(22rem, 52vw, 38rem);
+    object-fit: cover;
+    object-position: center;
+    border-radius: 1.5rem;
+  }
+
+  .contact-profile__content {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .contact-profile__eyebrow {
+    margin: 0;
+    font-size: 0.82rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #8f5b31;
+  }
+
+  .contact-profile__heading {
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .contact-profile__text {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-foreground) 80%, transparent);
+  }
+
+  .contact-profile__text a {
+    color: inherit;
+    text-decoration-thickness: 0.08em;
+  }
+
+  .contact-profile__button {
+    justify-self: start;
+    margin-top: 0.25rem;
+  }
+
+  @media screen and (max-width: 749px) {
+    .contact-profile__card {
+      grid-template-columns: 1fr;
+      padding: 1rem;
+    }
+
+    .contact-profile__media img {
+      min-height: 18rem;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Contact profile",
+  "class": "section-wrapper",
+  "settings": [
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f7f1ea"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    }
+  ],
+  "presets": [
+    {
+      "name": "Contact profile"
+    }
+  ]
+}
+{% endschema %}
