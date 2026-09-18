@@ -28,7 +28,7 @@
             {% if section.settings.custom_order_button_label != blank %}
               <a
                 class="button"
-                href="{{ routes.root_url }}#{{ custom_order_target }}"
+                href="#{{ custom_order_target }}"
                 data-project-catalog-scroll-target="{{ custom_order_target | escape }}"
               >
                 {{ section.settings.custom_order_button_label }}
@@ -38,7 +38,7 @@
             {% if section.settings.shipping_button_label != blank %}
               <a
                 class="button button-secondary"
-                href="{{ routes.root_url }}#{{ shipping_target }}"
+                href="#{{ shipping_target }}"
                 data-project-catalog-scroll-target="{{ shipping_target | escape }}"
               >
                 {{ section.settings.shipping_button_label }}

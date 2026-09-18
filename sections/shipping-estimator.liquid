@@ -134,6 +134,10 @@
 </section>
 
 {% stylesheet %}
+  .shipping-estimator[id] {
+    scroll-margin-top: calc(var(--header-group-height, 0px) + 24px);
+  }
+
   .shipping-estimator__shell {
     padding: clamp(1.25rem, 2vw, 2rem);
     border-radius: 2rem;

@@ -247,6 +247,10 @@
 </section>
 
 {% stylesheet %}
+  .carpentry-showcase[id] {
+    scroll-margin-top: calc(var(--header-group-height, 0px) + 24px);
+  }
+
   .carpentry-showcase {
     --carpentry-surface: color-mix(in srgb, var(--color-background) 90%, #b78249 10%);
     --carpentry-border: color-mix(in srgb, var(--color-foreground) 14%, transparent);
@@ -682,12 +686,6 @@
       "id": "background_color",
       "label": "Background color",
       "default": "#e8ddd0"
-    },
-    {
-      "type": "text",
-      "id": "anchor_id",
-      "label": "Anchor ID",
-      "default": ""
     },
     {
       "type": "text",
