@@ -1,0 +1,436 @@
+{% liquid
+  if section.settings.background_color != blank
+    render 'contrast-override', background_color: section.settings.background_color, section_id: section.id, skip_contrast: true
+  endif
+
+  assign estimator_heading = section.settings.heading | default: 'Estimate shipping before you reach out'
+  assign estimator_intro = section.settings.intro | default: 'Use the dimensions and approximate weight from a ready-made item description, or enter the measurements from your custom-order plan. These are planning estimates only and should be confirmed with the carrier quote pages below.'
+%}
+
+<div class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"></div>
+<section
+  class="section section--page-width shipping-estimator spacing-style{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
+  style="{% render 'spacing-padding', settings: section.settings %}"
+>
+  <div class="shipping-estimator__shell" data-shipping-estimator>
+    <div class="shipping-estimator__intro">
+      {% if section.settings.eyebrow != blank %}
+        <p class="shipping-estimator__eyebrow">{{ section.settings.eyebrow }}</p>
+      {% endif %}
+      <h2 class="shipping-estimator__heading">{{ estimator_heading }}</h2>
+      <p class="shipping-estimator__copy">{{ estimator_intro }}</p>
+    </div>
+
+    <div class="shipping-estimator__layout">
+      <form class="shipping-estimator__form" data-shipping-form>
+        <div class="shipping-estimator__grid">
+          <label class="shipping-estimator__field">
+            <span>Length (inches)</span>
+            <input type="number" min="1" step="0.5" value="36" data-length>
+          </label>
+
+          <label class="shipping-estimator__field">
+            <span>Width (inches)</span>
+            <input type="number" min="1" step="0.5" value="18" data-width>
+          </label>
+
+          <label class="shipping-estimator__field">
+            <span>Height (inches)</span>
+            <input type="number" min="1" step="0.5" value="18" data-height>
+          </label>
+
+          <label class="shipping-estimator__field">
+            <span>Approximate weight (lb)</span>
+            <input type="number" min="1" step="1" value="28" data-weight>
+          </label>
+
+          <label class="shipping-estimator__field">
+            <span>Carrier</span>
+            <select data-carrier>
+              <option value="usps">USPS Ground Advantage</option>
+              <option value="ups">UPS Ground</option>
+              <option value="fedex">FedEx Home Delivery</option>
+            </select>
+          </label>
+
+          <label class="shipping-estimator__field">
+            <span>Delivery range</span>
+            <select data-distance>
+              <option value="local">Local Michigan pickup or short delivery</option>
+              <option value="regional">Regional Midwest delivery</option>
+              <option value="national" selected>U.S. mainland shipment</option>
+              <option value="remote">Remote, Alaska, or Hawaii shipment</option>
+            </select>
+          </label>
+        </div>
+      </form>
+
+      <div class="shipping-estimator__results" aria-live="polite">
+        <div class="shipping-estimator__result-card shipping-estimator__result-card--primary">
+          <p class="shipping-estimator__label">Estimated shipping</p>
+          <p class="shipping-estimator__price" data-estimate-price>$0 to $0</p>
+          <p class="shipping-estimator__detail" data-estimate-service>Enter your measurements to compare carrier options.</p>
+        </div>
+
+        <div class="shipping-estimator__result-grid">
+          <div class="shipping-estimator__result-card">
+            <p class="shipping-estimator__label">Billable weight</p>
+            <p class="shipping-estimator__metric" data-billable-weight>0 lb</p>
+            <p class="shipping-estimator__detail" data-dimensional-note>Dimensional weight uses a 166 divisor for rough parcel planning.</p>
+          </div>
+
+          <div class="shipping-estimator__result-card">
+            <p class="shipping-estimator__label">Estimated transit</p>
+            <p class="shipping-estimator__metric" data-transit-time>0 business days</p>
+            <p class="shipping-estimator__detail" data-carrier-eligibility>Carrier eligibility will appear here.</p>
+          </div>
+        </div>
+
+        <div class="shipping-estimator__links">
+          <a class="button" href="https://postcalc.usps.com/" target="_blank" rel="noopener noreferrer">Open USPS calculator</a>
+          <a class="button button-secondary" href="https://www.ups.com/us/en/shipping/quote" target="_blank" rel="noopener noreferrer">Open UPS quote tool</a>
+          <a class="button button-secondary" href="https://www.fedex.com/en-us/online/rating.html" target="_blank" rel="noopener noreferrer">Open FedEx rate tool</a>
+        </div>
+
+        <p class="shipping-estimator__fine-print">These figures are rough planning ranges based on box dimensions, approximate weight, and current carrier service patterns. Final cost can change with destination ZIP, fuel and delivery-area surcharges, and packaging method.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .shipping-estimator__shell {
+    padding: clamp(1.25rem, 2vw, 2rem);
+    border-radius: 2rem;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--color-background) 92%, #ead7bf 8%), var(--color-background)),
+      radial-gradient(circle at top left, rgba(169, 100, 33, 0.16), transparent 38%);
+    border: 1px solid rgba(143, 91, 49, 0.15);
+    box-shadow: 0 1.25rem 3rem rgba(32, 19, 9, 0.08);
+  }
+
+  .shipping-estimator__intro {
+    max-width: 46rem;
+    margin-block-end: 1.5rem;
+  }
+
+  .shipping-estimator__eyebrow,
+  .shipping-estimator__label {
+    margin: 0 0 0.55rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #8f5b31;
+  }
+
+  .shipping-estimator__heading,
+  .shipping-estimator__price,
+  .shipping-estimator__metric {
+    margin: 0;
+  }
+
+  .shipping-estimator__copy,
+  .shipping-estimator__detail,
+  .shipping-estimator__fine-print {
+    margin: 0.85rem 0 0;
+    color: color-mix(in srgb, var(--color-foreground) 78%, transparent);
+  }
+
+  .shipping-estimator__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 1.25rem;
+    align-items: start;
+  }
+
+  .shipping-estimator__form,
+  .shipping-estimator__result-card {
+    border: 1px solid rgba(143, 91, 49, 0.12);
+    border-radius: 1.5rem;
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  .shipping-estimator__form {
+    padding: 1rem;
+  }
+
+  .shipping-estimator__grid,
+  .shipping-estimator__result-grid {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .shipping-estimator__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .shipping-estimator__field {
+    display: grid;
+    gap: 0.45rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .shipping-estimator__field input,
+  .shipping-estimator__field select {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border-radius: var(--style-border-radius-inputs);
+    border: var(--style-border-width-inputs) solid var(--color-input-border, rgba(143, 91, 49, 0.18));
+    background: var(--color-input-background, #fff);
+    color: var(--color-input-text, inherit);
+  }
+
+  .shipping-estimator__results {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .shipping-estimator__result-card {
+    padding: 1rem 1.1rem;
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .shipping-estimator__result-card--primary {
+    background: linear-gradient(180deg, rgba(143, 91, 49, 0.08), rgba(255, 255, 255, 0.76));
+  }
+
+  .shipping-estimator__price {
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    line-height: 1;
+  }
+
+  .shipping-estimator__metric {
+    font-size: 1.3rem;
+    line-height: 1.1;
+  }
+
+  .shipping-estimator__links {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  @media screen and (max-width: 989px) {
+    .shipping-estimator__layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .shipping-estimator__shell,
+    .shipping-estimator__form,
+    .shipping-estimator__result-card {
+      border-radius: 1.25rem;
+    }
+
+    .shipping-estimator__grid,
+    .shipping-estimator__result-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .shipping-estimator__links {
+      flex-direction: column;
+    }
+  }
+{% endstylesheet %}
+
+<script>
+  (() => {
+    const currentScript = document.currentScript;
+    const section = document.getElementById('shopify-section-{{ section.id }}') || currentScript.closest('.shopify-section');
+
+    if (!section || section.dataset.shippingEstimatorBound === 'true') {
+      return;
+    }
+
+    const root = section.querySelector('[data-shipping-estimator]');
+    if (!root) {
+      return;
+    }
+
+    section.dataset.shippingEstimatorBound = 'true';
+
+    const inputLength = root.querySelector('[data-length]');
+    const inputWidth = root.querySelector('[data-width]');
+    const inputHeight = root.querySelector('[data-height]');
+    const inputWeight = root.querySelector('[data-weight]');
+    const inputCarrier = root.querySelector('[data-carrier]');
+    const inputDistance = root.querySelector('[data-distance]');
+
+    const outputPrice = root.querySelector('[data-estimate-price]');
+    const outputService = root.querySelector('[data-estimate-service]');
+    const outputBillable = root.querySelector('[data-billable-weight]');
+    const outputDimensional = root.querySelector('[data-dimensional-note]');
+    const outputTransit = root.querySelector('[data-transit-time]');
+    const outputEligibility = root.querySelector('[data-carrier-eligibility]');
+
+    const carrierConfig = {
+      usps: {
+        label: 'USPS Ground Advantage',
+        base: 9.5,
+        weightRate: 0.52,
+        cubicRate: 6.5,
+        oversizeThreshold: 108,
+        oversizeFee: 18,
+        weightLimit: 70,
+        sizeLimit: 130,
+        transit: { local: '1 to 2', regional: '2 to 3', national: '2 to 5', remote: '3 to 6' }
+      },
+      ups: {
+        label: 'UPS Ground',
+        base: 13.5,
+        weightRate: 0.76,
+        cubicRate: 8.25,
+        oversizeThreshold: 130,
+        oversizeFee: 24,
+        weightLimit: 150,
+        sizeLimit: 165,
+        transit: { local: '1 to 2', regional: '1 to 3', national: '1 to 5', remote: '4 to 7' }
+      },
+      fedex: {
+        label: 'FedEx Home Delivery',
+        base: 14.25,
+        weightRate: 0.79,
+        cubicRate: 8.6,
+        oversizeThreshold: 130,
+        oversizeFee: 26,
+        weightLimit: 150,
+        sizeLimit: 165,
+        transit: { local: '1 to 2', regional: '1 to 3', national: '1 to 5', remote: '4 to 7' }
+      }
+    };
+
+    const distanceMultiplier = {
+      local: 0.5,
+      regional: 0.85,
+      national: 1,
+      remote: 1.35
+    };
+
+    const readPositiveNumber = (element) => {
+      const value = Number(element.value);
+      return Number.isFinite(value) && value > 0 ? value : 0;
+    };
+
+    const formatCurrency = (value) => {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0
+      }).format(value);
+    };
+
+    const updateEstimate = () => {
+      const length = readPositiveNumber(inputLength);
+      const width = readPositiveNumber(inputWidth);
+      const height = readPositiveNumber(inputHeight);
+      const actualWeight = readPositiveNumber(inputWeight);
+      const carrierKey = inputCarrier.value;
+      const distanceKey = inputDistance.value;
+      const carrier = carrierConfig[carrierKey];
+
+      if (!carrier || !length || !width || !height || !actualWeight) {
+        outputPrice.textContent = '$0 to $0';
+        outputService.textContent = 'Enter valid dimensions and weight to compare shipping options.';
+        outputBillable.textContent = '0 lb';
+        outputDimensional.textContent = 'Dimensional weight uses a 166 divisor for rough parcel planning.';
+        outputTransit.textContent = '0 business days';
+        outputEligibility.textContent = 'Carrier eligibility will appear here.';
+        return;
+      }
+
+      const cubicFeet = (length * width * height) / 1728;
+      const girthAndLength = length + (2 * width) + (2 * height);
+      const dimensionalWeight = Math.ceil((length * width * height) / 166);
+      const billableWeight = Math.max(actualWeight, dimensionalWeight);
+      const oversizeFee = girthAndLength > carrier.oversizeThreshold || length > 48 ? carrier.oversizeFee : 0;
+      const rawEstimate = (carrier.base + (billableWeight * carrier.weightRate) + (cubicFeet * carrier.cubicRate) + oversizeFee) * distanceMultiplier[distanceKey];
+      const lowEstimate = Math.max(8, Math.round(rawEstimate * 0.88));
+      const highEstimate = Math.round(rawEstimate * 1.22);
+      const eligible = actualWeight <= carrier.weightLimit && girthAndLength <= carrier.sizeLimit;
+      const transit = carrier.transit[distanceKey] || carrier.transit.national;
+
+      outputPrice.textContent = `${formatCurrency(lowEstimate)} to ${formatCurrency(highEstimate)}`;
+      outputService.textContent = eligible
+        ? `${carrier.label} is a reasonable parcel option for this size. Use the official quote tool for the exact total.`
+        : `${carrier.label} is likely too large for standard parcel service. Plan on a freight-style quote or local delivery instead.`;
+      outputBillable.textContent = `${billableWeight} lb`;
+      outputDimensional.textContent = `Actual weight: ${actualWeight} lb. Dimensional weight: ${dimensionalWeight} lb. Length plus girth: ${Math.round(girthAndLength)} in.`;
+      outputTransit.textContent = `${transit} business days`;
+      outputEligibility.textContent = eligible
+        ? `Approximate parcel limits used here: up to ${carrier.weightLimit} lb and ${carrier.sizeLimit} in combined length plus girth.`
+        : `This package exceeds the rough ${carrier.label} parcel limit of ${carrier.weightLimit} lb or ${carrier.sizeLimit} in combined length plus girth.`;
+    };
+
+    [inputLength, inputWidth, inputHeight, inputWeight, inputCarrier, inputDistance].forEach((element) => {
+      element.addEventListener('input', updateEstimate);
+      element.addEventListener('change', updateEstimate);
+    });
+
+    updateEstimate();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Shipping estimator",
+  "class": "section-wrapper",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Delivery planning"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Estimate shipping by size, weight, and carrier"
+    },
+    {
+      "type": "textarea",
+      "id": "intro",
+      "label": "Intro",
+      "default": "Use the dimensions and approximate weight from a ready-made item description, or enter the measurements from your custom-order plan. These are planning estimates only and should be confirmed with the carrier quote pages below."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f7f1ea"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shipping estimator"
+    }
+  ]
+}
+{% endschema %}

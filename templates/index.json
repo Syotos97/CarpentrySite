@@ -133,46 +133,28 @@
           "settings": {
             "tab_label": "Shipping info",
             "kicker": "Delivery planning",
-            "title": "Set shipping expectations before customers ask",
-            "text": "<p>Explain the difference between parcel, local delivery, and freight service. That gives buyers a clearer idea of timing, access requirements, and how larger pieces arrive.</p>",
-            "feature_list": "Local delivery for regional orders\nFreight coordination for oversized builds\nPackaging details and inspection on arrival",
+            "title": "Compare parcel carriers before customers ask for the final number",
+            "text": "<p>Show buyers how size, weight, and destination change the shipping range. The shipping page now includes a planning estimator for USPS, UPS, and FedEx along with delivery windows.</p>",
+            "feature_list": "Local delivery for regional orders\nCarrier comparison by dimensions and weight\nPackaging details and inspection on arrival",
             "callout_title": "Reduce surprises",
-            "callout_text": "A clear shipping page lowers abandoned carts and cuts repeat support questions.",
+            "callout_text": "A shipping estimator gives buyers a rough total before they request the exact carrier quote.",
             "asset_gallery_key": "home-shipping",
             "asset_gallery_layout": "grid",
             "asset_gallery_alt": "Delivered carpentry project",
-            "button_label": "Read shipping details",
+            "button_label": "Estimate shipping options",
             "button_link": "/pages/shipping"
-          }
-        },
-        "panel_reviews": {
-          "type": "panel",
-          "settings": {
-            "tab_label": "Reviews",
-            "kicker": "Client feedback",
-            "title": "Show what clients say after the piece is in place",
-            "text": "<p>Feature testimonials that mention fit, durability, communication, and how the project changed the room. Those details are more persuasive than star ratings alone.</p>",
-            "feature_list": "Quote the delivery and install experience\nHighlight durability and finish quality\nShow repeat customers and referral work",
-            "callout_title": "Strong review prompt",
-            "callout_text": "Ask clients what problem the piece solved and what stands out now that they live with it.",
-            "asset_gallery_key": "home-reviews",
-            "asset_gallery_layout": "grid",
-            "asset_gallery_alt": "Finished room with custom woodwork",
-            "button_label": "Read client reviews",
-            "button_link": "/pages/reviews"
           }
         }
       },
       "block_order": [
         "panel_projects",
         "panel_orders",
-        "panel_shipping",
-        "panel_reviews"
+        "panel_shipping"
       ],
       "settings": {
         "eyebrow": "Crafted to last",
         "heading": "A storefront shaped around craftsmanship, process, and proof",
-        "intro": "<p>Guide visitors from finished project photos to custom ordering, shipping expectations, and client feedback before they ever need to send a message.</p>",
+        "intro": "<p>Guide visitors from finished project photos to custom ordering and shipping expectations before they ever need to send a message.</p>",
         "enable_tabs": true,
         "section_width": "page-width",
         "background_color": "#f7f1ea",
@@ -184,8 +166,8 @@
       "type": "project-catalog",
       "settings": {
         "eyebrow": "Catalog",
-        "heading": "Past projects live here until new inventory is ready",
-        "intro": "<p>The currently available tab stays empty for live inventory, while every finished build stays visible under past projects so visitors can browse the full range of your work.</p>",
+        "heading": "Inspiration from previous projects",
+        "intro": "<p>If there is no inventory currently available, use the design tool to create your own project blueprint.</p>",
         "background_color": "{{ settings.color_palette.background }}",
         "padding-block-start": 48,
         "padding-block-end": 48

@@ -83,11 +83,11 @@
           "settings": {
             "tab_label": "Timelines",
             "kicker": "Lead times",
-            "title": "Separate build lead time from shipping transit time",
-            "text": "<p>Customers need to understand that handcrafted work often has two clocks: fabrication time and delivery time. Spell both out so expectations stay realistic.</p>",
-            "feature_list": "Build queue estimates\nTransit windows after completion\nHoliday or weather delays\nStorage policy for delayed receipt",
+            "title": "Estimate parcel cost and delivery time before you book the shipment",
+            "text": "<p>Customers need to understand that handcrafted work often has two clocks: fabrication time and delivery time. The estimator below uses rough dimensions and weight so buyers can compare USPS, UPS, and FedEx before requesting a final quote.</p>",
+            "feature_list": "Build queue estimates\nTransit windows after completion\nCarrier comparison by size and weight\nStorage policy for delayed receipt",
             "callout_title": "Keep this current",
-            "callout_text": "Update the copy here when lead times change seasonally or after major order volume swings.",
+            "callout_text": "Use the dimensions and approximate weight from each item description, then confirm the final total with the official carrier calculator.",
             "asset_gallery_key": "shipping-timeline",
             "asset_gallery_layout": "grid",
             "asset_gallery_alt": "Completed build awaiting delivery"
@@ -102,9 +102,20 @@
       "settings": {
         "eyebrow": "Shipping and delivery",
         "heading": "Shipping information should answer practical questions before checkout",
-        "intro": "<p>Assign this template to a page named Shipping so customers can self-serve the basics around delivery method, freight handling, and timing.</p>",
+        "intro": "<p>Use this page to explain delivery method, freight handling, timing, and rough parcel pricing before a customer reaches out.</p>",
         "enable_tabs": false,
         "section_width": "page-width",
+        "background_color": "#f7f1ea",
+        "padding-block-start": 0,
+        "padding-block-end": 72
+      }
+    },
+    "shipping_estimator": {
+      "type": "shipping-estimator",
+      "settings": {
+        "eyebrow": "Delivery planning",
+        "heading": "Estimate shipping by carrier before requesting the final quote",
+        "intro": "Use the dimensions and approximate weight from a ready-made item description, or enter the measurements from your custom-order plan. Choose USPS, UPS, or FedEx to compare a rough shipping range and delivery window, then confirm the final numbers on the carrier site.",
         "background_color": "#f7f1ea",
         "padding-block-start": 0,
         "padding-block-end": 72
@@ -113,6 +124,7 @@
   },
   "order": [
     "main",
-    "shipping_content"
+    "shipping_content",
+    "shipping_estimator"
   ]
 }

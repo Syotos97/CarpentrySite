@@ -73,10 +73,10 @@
             "tab_label": "Project scope",
             "kicker": "Before you submit",
             "title": "Share the details that shape the build and the estimate",
-            "text": "<p>Ask for the room, approximate dimensions, intended use, preferred materials, and any finish direction. That gives you enough context to reply with a real next step.</p>",
-            "feature_list": "Room location and function\nWidth, depth, and height targets\nWood species or finish preference\nReference photos, sketches, or inspiration links",
+            "text": "<p>Ask for the room, approximate dimensions, intended use, preferred materials, finish direction, and rough piece weight when possible. That gives you enough context to reply with a real next step and a shipping plan.</p>",
+            "feature_list": "Room location and function\nWidth, depth, and height targets\nApproximate finished weight for shipping\nReference photos, sketches, or inspiration links",
             "callout_title": "Best first inquiry",
-            "callout_text": "A strong request includes dimensions, style references, delivery ZIP code, and a realistic timing target.",
+            "callout_text": "A strong request includes dimensions, rough weight, style references, delivery ZIP code, and a realistic timing target.",
             "asset_gallery_key": "quote-scope",
             "asset_gallery_layout": "grid",
             "asset_gallery_alt": "Project scope example"
@@ -121,9 +121,20 @@
       "settings": {
         "eyebrow": "Quote request",
         "heading": "A quote request page should qualify the project before the conversation starts",
-        "intro": "<p>Assign this template to a page named Quote Request, then use the page body above for your short intro and the contact form below for the actual inquiry.</p>",
+        "intro": "<p>Use this page to collect dimensions, rough weight, access details, and timing so the first reply can include a realistic build and shipping plan.</p>",
         "enable_tabs": false,
         "section_width": "page-width",
+        "background_color": "#f7f1ea",
+        "padding-block-start": 0,
+        "padding-block-end": 48
+      }
+    },
+    "quote_shipping_estimator": {
+      "type": "shipping-estimator",
+      "settings": {
+        "eyebrow": "Shipping preview",
+        "heading": "Test a rough shipping range while planning a custom order",
+        "intro": "If you already have target dimensions and a rough finished weight, use this estimator to compare USPS, UPS, and FedEx before you submit the quote form below.",
         "background_color": "#f7f1ea",
         "padding-block-start": 0,
         "padding-block-end": 48
@@ -198,6 +209,7 @@
   "order": [
     "main",
     "quote_request_details",
+    "quote_shipping_estimator",
     "form"
   ]
 }

@@ -28,8 +28,16 @@
 
     {% liquid
       assign form_matches = false
+      assign is_quote_request_form = false
+
       if form.id == form_id or form.id == blank
         assign form_matches = true
+      endif
+
+      if request.page_type == 'page' and template.suffix == 'quote-request'
+        assign is_quote_request_form = true
+      elsif template contains 'page.quote-request'
+        assign is_quote_request_form = true
       endif
     %}
 
@@ -116,6 +124,96 @@
       placeholder="{{ 'blocks.contact_form.phone' | t }}"
     >
 
+    {% if is_quote_request_form %}
+      <div class="contact-form__quote-fields">
+        <p class="contact-form__quote-heading">Shipping details for the estimate</p>
+
+        <div class="contact-form__form-row">
+          <label class="contact-form__field" for="ContactForm-dimensions-width">
+            <span>Width (inches)</span>
+            <input
+              type="number"
+              id="ContactForm-dimensions-width"
+              class="contact-form__input"
+              name="contact[Width in inches]"
+              min="1"
+              step="0.5"
+              placeholder="36"
+            >
+          </label>
+
+          <label class="contact-form__field" for="ContactForm-dimensions-depth">
+            <span>Depth (inches)</span>
+            <input
+              type="number"
+              id="ContactForm-dimensions-depth"
+              class="contact-form__input"
+              name="contact[Depth in inches]"
+              min="1"
+              step="0.5"
+              placeholder="18"
+            >
+          </label>
+
+          <label class="contact-form__field" for="ContactForm-dimensions-height">
+            <span>Height (inches)</span>
+            <input
+              type="number"
+              id="ContactForm-dimensions-height"
+              class="contact-form__input"
+              name="contact[Height in inches]"
+              min="1"
+              step="0.5"
+              placeholder="18"
+            >
+          </label>
+        </div>
+
+        <div class="contact-form__form-row contact-form__form-row--quote-meta">
+          <label class="contact-form__field" for="ContactForm-weight">
+            <span>Approximate finished weight (lb)</span>
+            <input
+              type="number"
+              id="ContactForm-weight"
+              class="contact-form__input"
+              name="contact[Approximate weight in pounds]"
+              min="1"
+              step="1"
+              placeholder="28"
+            >
+          </label>
+
+          <label class="contact-form__field" for="ContactForm-destination-zip">
+            <span>Delivery ZIP code</span>
+            <input
+              type="text"
+              id="ContactForm-destination-zip"
+              class="contact-form__input"
+              name="contact[Delivery ZIP code]"
+              inputmode="numeric"
+              pattern="[0-9]{5}(-[0-9]{4})?"
+              placeholder="48060"
+            >
+          </label>
+
+          <label class="contact-form__field" for="ContactForm-carrier-preference">
+            <span>Preferred carrier</span>
+            <select
+              id="ContactForm-carrier-preference"
+              class="contact-form__input"
+              name="contact[Preferred carrier]"
+            >
+              <option value="No preference">No preference</option>
+              <option value="USPS">USPS</option>
+              <option value="UPS">UPS</option>
+              <option value="FedEx">FedEx</option>
+              <option value="Local delivery or pickup">Local delivery or pickup</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    {% endif %}
+
     <label
       class="visually-hidden"
       for="ContactForm-body"
@@ -164,6 +262,35 @@
     border-radius: var(--style-border-radius-inputs);
     border: var(--style-border-width-inputs) solid var(--color-input-border);
     -webkit-font-smoothing: antialiased;
+  }
+
+  .contact-form__field {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: var(--gap-xs);
+  }
+
+  .contact-form__quote-fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-md);
+    padding: var(--padding-lg);
+    border: var(--style-border-width-inputs) solid var(--color-input-border);
+    border-radius: var(--style-border-radius-inputs);
+    background: color-mix(in srgb, var(--color-input-background) 92%, #ead7bf 8%);
+  }
+
+  .contact-form__quote-heading {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .contact-form__form-row--quote-meta {
+    align-items: stretch;
   }
 
   .contact-form__input--textarea {
