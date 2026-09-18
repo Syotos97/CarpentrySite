@@ -6,6 +6,8 @@
   assign project_assets = 'IMG_0317.jpg|IMG_0319.jpg|IMG_0320.jpg|IMG_0335.jpg|IMG_0336.jpg|IMG_0337.jpg|IMG_0338.jpg|IMG_0675.jpg|IMG_0676.jpg|IMG_1158.jpg|IMG_1159.jpg|IMG_1207.jpg|IMG_1208.jpg|IMG_1209.jpg|IMG_1210.jpg|IMG_1211.jpg|IMG_1212.jpg|IMG_1213.jpg|IMG_1252.jpg|IMG_1253.jpg|IMG_1258.jpg|IMG_1259.jpg|IMG_1273.jpg|IMG_1289.jpg|IMG_1290.jpg|IMG_1296.jpg|IMG_1297.jpg|IMG_1387.jpg|IMG_1388.jpg|IMG_1432.jpg|IMG_1433.jpg|IMG_1533.jpg|IMG_1753.jpg|IMG_1754.jpg|IMG_7434.jpg|IMG_7437.jpg' | split: '|'
 %}
 
+{% assign preview_limit = 6 %}
+
 <div class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"></div>
 <section
   class="section section--page-width project-catalog spacing-style{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
@@ -20,13 +22,13 @@
         {% if section.settings.custom_order_button_label != blank or section.settings.shipping_button_label != blank %}
           <div class="project-catalog__actions">
             {% if section.settings.custom_order_button_label != blank %}
-              <a class="button" href="{{ section.settings.custom_order_button_link | default: '#made-for-your-space' }}">
+              <a class="button" href="{{ section.settings.custom_order_button_link | default: '/#made-for-your-space' }}">
                 {{ section.settings.custom_order_button_label }}
               </a>
             {% endif %}
 
             {% if section.settings.shipping_button_label != blank %}
-              <a class="button button-secondary" href="{{ section.settings.shipping_button_link | default: '#delivery-planning' }}">
+              <a class="button button-secondary" href="{{ section.settings.shipping_button_link | default: '/#delivery-planning' }}">
                 {{ section.settings.shipping_button_label }}
               </a>
             {% endif %}
@@ -75,7 +77,7 @@
     >
       <div class="project-catalog__grid">
         {% for project_asset in project_assets %}
-          <article class="project-catalog__card">
+          <article class="project-catalog__card{% if forloop.index > preview_limit %} project-catalog__card--extra{% endif %}"{% if forloop.index > preview_limit %} hidden data-project-catalog-extra-card{% endif %}>
             <div class="project-catalog__media">
               <img src="{{ project_asset | asset_url }}" alt="Past project {{ forloop.index }}" loading="lazy">
             </div>
@@ -85,6 +87,13 @@
           </article>
         {% endfor %}
       </div>
+      {% if project_assets.size > preview_limit %}
+        <div class="project-catalog__footer">
+          <button type="button" class="button button-secondary" data-project-catalog-show-more>
+            See more projects
+          </button>
+        </div>
+      {% endif %}
     </div>
 
     <div
@@ -106,13 +115,11 @@
 
 {% stylesheet %}
   .project-catalog__shell {
-    background:
-      linear-gradient(180deg, color-mix(in srgb, var(--color-background) 95%, #f4e6d4 5%), var(--color-background)),
-      radial-gradient(circle at top left, rgba(183, 130, 73, 0.14), transparent 34%);
-    border: 1px solid rgba(143, 91, 49, 0.14);
-    border-radius: 2rem;
-    padding: clamp(1.25rem, 2vw, 2rem);
-    box-shadow: 0 1.25rem 3rem rgba(32, 19, 9, 0.08);
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
   }
 
   .project-catalog__header {
@@ -226,6 +233,12 @@
     gap: 1rem;
   }
 
+  .project-catalog__footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+
   .project-catalog__card {
     overflow: hidden;
     border-radius: 1.25rem;
@@ -267,8 +280,8 @@
 
   @media screen and (max-width: 749px) {
     .project-catalog__shell {
-      border-radius: 1.5rem;
-      padding: 1rem;
+      border-radius: 0;
+      padding: 0;
     }
 
     .project-catalog__tab {
@@ -293,6 +306,8 @@
 
     const tabs = Array.from(section.querySelectorAll('[data-project-catalog-trigger]'));
     const panels = Array.from(section.querySelectorAll('[data-project-catalog-panel]'));
+    const showMoreButton = section.querySelector('[data-project-catalog-show-more]');
+    const extraCards = Array.from(section.querySelectorAll('[data-project-catalog-extra-card]'));
 
     if (!tabs.length || !panels.length) {
       return;
@@ -334,6 +349,15 @@
         tabs[nextIndex].focus();
       });
     });
+
+    if (showMoreButton && extraCards.length) {
+      showMoreButton.addEventListener('click', () => {
+        extraCards.forEach((card) => {
+          card.hidden = false;
+        });
+        showMoreButton.hidden = true;
+      });
+    }
   })();
 </script>
 
@@ -370,7 +394,7 @@
       "type": "text",
       "id": "custom_order_button_link",
       "label": "Custom ordering button link",
-      "default": "#made-for-your-space"
+      "default": "/#made-for-your-space"
     },
     {
       "type": "text",
@@ -382,13 +406,13 @@
       "type": "text",
       "id": "shipping_button_link",
       "label": "Shipping button link",
-      "default": "#delivery-planning"
+      "default": "/#delivery-planning"
     },
     {
       "type": "color",
       "id": "background_color",
       "label": "Background color",
-      "default": "#ffffff"
+      "default": "#e8ddd0"
     },
     {
       "type": "header",
