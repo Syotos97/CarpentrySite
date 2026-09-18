@@ -7,6 +7,10 @@
 %}
 
 {% assign preview_limit = 6 %}
+{% assign custom_order_href = section.settings.custom_order_button_link | default: '#made-for-your-space' %}
+{% assign shipping_href = section.settings.shipping_button_link | default: '#delivery-planning' %}
+{% assign custom_order_target = custom_order_href | split: '#' | last %}
+{% assign shipping_target = shipping_href | split: '#' | last %}
 
 <div class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"></div>
 <section
@@ -22,13 +26,21 @@
         {% if section.settings.custom_order_button_label != blank or section.settings.shipping_button_label != blank %}
           <div class="project-catalog__actions">
             {% if section.settings.custom_order_button_label != blank %}
-              <a class="button" href="{{ section.settings.custom_order_button_link | default: '/#made-for-your-space' }}">
+              <a
+                class="button"
+                href="{{ routes.root_url }}#{{ custom_order_target }}"
+                data-project-catalog-scroll-target="{{ custom_order_target | escape }}"
+              >
                 {{ section.settings.custom_order_button_label }}
               </a>
             {% endif %}
 
             {% if section.settings.shipping_button_label != blank %}
-              <a class="button button-secondary" href="{{ section.settings.shipping_button_link | default: '/#delivery-planning' }}">
+              <a
+                class="button button-secondary"
+                href="{{ routes.root_url }}#{{ shipping_target }}"
+                data-project-catalog-scroll-target="{{ shipping_target | escape }}"
+              >
                 {{ section.settings.shipping_button_label }}
               </a>
             {% endif %}
@@ -115,11 +127,16 @@
 
 {% stylesheet %}
   .project-catalog__shell {
-    background: transparent;
+    background: var(--color-background);
     border: 0;
     border-radius: 0;
     padding: 0;
     box-shadow: none;
+  }
+
+  .project-catalog__panel[hidden],
+  .project-catalog__card[hidden] {
+    display: none !important;
   }
 
   .project-catalog__header {
@@ -156,7 +173,7 @@
     overflow: hidden;
     border-radius: 1.5rem;
     border: 1px solid rgba(143, 91, 49, 0.12);
-    background: rgba(255, 255, 255, 0.72);
+    background: color-mix(in srgb, var(--color-background) 88%, #fff 12%);
     box-shadow: 0 1rem 2.5rem rgba(32, 19, 9, 0.08);
   }
 
@@ -185,7 +202,7 @@
   .project-catalog__tab {
     appearance: none;
     border: 1px solid rgba(143, 91, 49, 0.18);
-    background: rgba(255, 255, 255, 0.55);
+    background: color-mix(in srgb, var(--color-background) 90%, #fff 10%);
     color: inherit;
     border-radius: 999px;
     padding: 0.85rem 1.15rem;
@@ -218,7 +235,7 @@
     padding: 1.5rem;
     border-radius: 1.5rem;
     border: 1px dashed rgba(143, 91, 49, 0.3);
-    background: rgba(255, 255, 255, 0.55);
+    background: color-mix(in srgb, var(--color-background) 90%, #fff 10%);
   }
 
   .project-catalog__empty-state h3,
@@ -242,7 +259,7 @@
   .project-catalog__card {
     overflow: hidden;
     border-radius: 1.25rem;
-    background: rgba(255, 255, 255, 0.68);
+    background: color-mix(in srgb, var(--color-background) 88%, #fff 12%);
     border: 1px solid rgba(143, 91, 49, 0.12);
   }
 
@@ -308,6 +325,7 @@
     const panels = Array.from(section.querySelectorAll('[data-project-catalog-panel]'));
     const showMoreButton = section.querySelector('[data-project-catalog-show-more]');
     const extraCards = Array.from(section.querySelectorAll('[data-project-catalog-extra-card]'));
+    const scrollLinks = Array.from(section.querySelectorAll('[data-project-catalog-scroll-target]'));
 
     if (!tabs.length || !panels.length) {
       return;
@@ -358,6 +376,26 @@
         showMoreButton.hidden = true;
       });
     }
+
+    scrollLinks.forEach((link) => {
+      link.addEventListener('click', (event) => {
+        const targetId = link.dataset.projectCatalogScrollTarget;
+        const target = targetId ? document.getElementById(targetId) : null;
+
+        if (!target) {
+          return;
+        }
+
+        event.preventDefault();
+        const scrollOffset = 120;
+        const targetTop = target.getBoundingClientRect().top + window.scrollY - scrollOffset;
+        window.scrollTo({ top: Math.max(targetTop, 0), behavior: 'smooth' });
+
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, '', `#${targetId}`);
+        }
+      });
+    });
   })();
 </script>
 
@@ -394,7 +432,7 @@
       "type": "text",
       "id": "custom_order_button_link",
       "label": "Custom ordering button link",
-      "default": "/#made-for-your-space"
+      "default": "#made-for-your-space"
     },
     {
       "type": "text",
@@ -406,7 +444,7 @@
       "type": "text",
       "id": "shipping_button_link",
       "label": "Shipping button link",
-      "default": "/#delivery-planning"
+      "default": "#delivery-planning"
     },
     {
       "type": "color",
