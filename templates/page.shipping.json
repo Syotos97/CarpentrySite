@@ -86,8 +86,8 @@
             "title": "Estimate parcel cost and delivery time before you book the shipment",
             "text": "<p>Customers need to understand that handcrafted work often has two clocks: fabrication time and delivery time. The estimator below uses rough dimensions and weight so buyers can compare USPS, UPS, and FedEx before requesting a final quote.</p>",
             "feature_list": "Build queue estimates\nTransit windows after completion\nCarrier comparison by size and weight\nStorage policy for delayed receipt",
-            "callout_title": "Keep this current",
-            "callout_text": "Use the dimensions and approximate weight from each item description, then confirm the final total with the official carrier calculator.",
+            "callout_title": "",
+            "callout_text": "",
             "asset_gallery_key": "shipping-timeline",
             "asset_gallery_layout": "grid",
             "asset_gallery_alt": "Completed build awaiting delivery"
@@ -124,7 +124,7 @@
   },
   "order": [
     "main",
-    "shipping_content",
-    "shipping_estimator"
+    "shipping_estimator",
+    "shipping_content"
   ]
 }

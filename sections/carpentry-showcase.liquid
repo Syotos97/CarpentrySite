@@ -11,6 +11,9 @@
 
 <div class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"></div>
 <section
+  {% if section.settings.anchor_id != blank %}
+    id="{{ section.settings.anchor_id | escape }}"
+  {% endif %}
   class="section section--{{ section.settings.section_width }} carpentry-showcase spacing-style{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
   style="{% render 'spacing-padding', settings: section.settings %}"
 >
@@ -29,6 +32,12 @@
       </div>
     {% endif %}
 
+      "type": "text",
+      "id": "anchor_id",
+      "label": "Anchor ID",
+      "default": ""
+    },
+    {
     {% if use_tabs %}
       <div class="carpentry-showcase__tablist" role="tablist" aria-label="{{ section.settings.heading | escape }}" data-showcase-tabs>
         {% for block in section.blocks %}
@@ -62,7 +71,7 @@
           {% when 'home-orders' %}
             {% assign asset_gallery_files = 'IMG_1387.jpg|IMG_1432.jpg|IMG_1754.jpg' %}
           {% when 'home-shipping' %}
-            {% assign asset_gallery_files = 'IMG_0319.jpg|IMG_0320.jpg|IMG_0338.jpg|IMG_1259.jpg' %}
+            {% assign asset_gallery_files = 'IMG_0319.jpg|IMG_0320.jpg|IMG_0338.jpg' %}
           {% when 'home-reviews' %}
             {% assign asset_gallery_files = 'IMG_1207.jpg|IMG_1290.jpg|IMG_1753.jpg|IMG_0675.jpg' %}
           {% when 'custom-orders-start' %}

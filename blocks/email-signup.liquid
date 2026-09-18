@@ -25,6 +25,8 @@
     </div>
   {% endif %}
   {%- form 'customer', class: 'email-signup__form spacing-style' %}
+    <input type="hidden" name="contact[tags]" value="newsletter,workshop-updates">
+
     {% comment %} --- Input group classes --- {% endcomment %}
     {%- liquid
       assign input_group_classes = 'email-signup__input-group'

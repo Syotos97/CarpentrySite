@@ -1,0 +1,398 @@
+{% liquid
+  if section.settings.background_color != blank
+    render 'contrast-override', background_color: section.settings.background_color, section_id: section.id, skip_contrast: true
+  endif
+
+  assign review_cards = '★★★★★|The piece fit the room exactly the way we hoped, and the finish looks even better in person.;★★★★★|Communication was clear from the first measurements through delivery, which made the whole custom process easy.;★★★★★|The build feels solid, the details are clean, and it has held up beautifully with daily use.' | split: ';'
+%}
+
+<div class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"></div>
+<section
+  class="section section--page-width reviews-hub spacing-style{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
+  style="{% render 'spacing-padding', settings: section.settings %}"
+>
+  <div class="reviews-hub__shell">
+    <div class="reviews-hub__header">
+      <p class="reviews-hub__eyebrow">Client reviews</p>
+      <h2 class="reviews-hub__heading">Read past feedback or leave a new review</h2>
+      <p class="reviews-hub__intro">Use the first tab to browse existing feedback, or open the second tab to send a new review with a star rating.</p>
+    </div>
+
+    <div class="reviews-hub__tablist" role="tablist" aria-label="Reviews options" data-reviews-tabs>
+      <button
+        type="button"
+        class="reviews-hub__tab"
+        id="ReviewsTab-{{ section.id }}-view"
+        role="tab"
+        aria-controls="ReviewsPanel-{{ section.id }}-view"
+        aria-selected="true"
+        tabindex="0"
+        data-reviews-trigger
+      >
+        View existing reviews
+      </button>
+      <button
+        type="button"
+        class="reviews-hub__tab"
+        id="ReviewsTab-{{ section.id }}-create"
+        role="tab"
+        aria-controls="ReviewsPanel-{{ section.id }}-create"
+        aria-selected="false"
+        tabindex="-1"
+        data-reviews-trigger
+      >
+        Create a review
+      </button>
+    </div>
+
+    <div
+      class="reviews-hub__panel"
+      id="ReviewsPanel-{{ section.id }}-view"
+      role="tabpanel"
+      aria-labelledby="ReviewsTab-{{ section.id }}-view"
+      data-reviews-panel
+    >
+      <div class="reviews-hub__grid">
+        {% for review_card in review_cards %}
+          {% assign review_parts = review_card | split: '|' %}
+          <article class="reviews-hub__card">
+            <p class="reviews-hub__stars" aria-label="5 out of 5 stars">{{ review_parts[0] }}</p>
+            <p class="reviews-hub__quote">{{ review_parts[1] }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div
+      class="reviews-hub__panel"
+      id="ReviewsPanel-{{ section.id }}-create"
+      role="tabpanel"
+      aria-labelledby="ReviewsTab-{{ section.id }}-create"
+      hidden
+      data-reviews-panel
+    >
+      {%- form 'contact', id: 'ReviewForm-' | append: section.id, class: 'reviews-hub__form' -%}
+        <input type="hidden" name="contact[review_type]" value="Review submission">
+
+        {%- if form.errors -%}
+          <div class="reviews-hub__message reviews-hub__message--error" tabindex="-1" autofocus>
+            {{- 'icon-error.svg' | inline_asset_content -}}
+            {{ form.errors.translated_fields.email | capitalize }} {{ form.errors.messages.email }}
+          </div>
+        {%- endif -%}
+
+        {%- if form.posted_successfully? -%}
+          <div class="reviews-hub__message reviews-hub__message--success" tabindex="-1" autofocus>
+            {{- 'icon-checkmark.svg' | inline_asset_content -}}
+            Thanks for sending a review.
+          </div>
+        {%- endif -%}
+
+        <div class="reviews-hub__form-row">
+          <input
+            type="text"
+            name="contact[name]"
+            class="reviews-hub__input"
+            autocomplete="name"
+            value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}"
+            placeholder="Your name"
+          >
+          <input
+            type="email"
+            name="contact[email]"
+            class="reviews-hub__input"
+            autocomplete="email"
+            spellcheck="false"
+            autocapitalize="off"
+            value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"
+            aria-required="true"
+            placeholder="Your email"
+          >
+        </div>
+
+        <fieldset class="reviews-hub__rating" aria-label="Review rating">
+          <legend class="reviews-hub__label">Choose a star rating</legend>
+          <div class="reviews-hub__rating-options">
+            {% for star in (1..5) %}
+              <label class="reviews-hub__rating-option">
+                <input type="radio" name="contact[star_rating]" value="{{ star }}" {% if forloop.last %}checked{% endif %}>
+                <span>{{ star }} star{% unless star == 1 %}s{% endunless %}</span>
+              </label>
+            {% endfor %}
+          </div>
+        </fieldset>
+
+        <label class="reviews-hub__label" for="ReviewBody-{{ section.id }}">Write your review</label>
+        <textarea
+          id="ReviewBody-{{ section.id }}"
+          name="contact[body]"
+          class="reviews-hub__input reviews-hub__input--textarea"
+          rows="8"
+          placeholder="Share what you ordered, how it fits your space, and what stood out about the experience."
+        >{{- form.body -}}</textarea>
+
+        <button type="submit" class="button reviews-hub__submit">Submit review</button>
+      {%- endform -%}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .reviews-hub__shell {
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--color-background) 95%, #f4e6d4 5%), var(--color-background)),
+      radial-gradient(circle at top left, rgba(183, 130, 73, 0.14), transparent 34%);
+    border: 1px solid rgba(143, 91, 49, 0.14);
+    border-radius: 2rem;
+    padding: clamp(1.25rem, 2vw, 2rem);
+    box-shadow: 0 1.25rem 3rem rgba(32, 19, 9, 0.08);
+  }
+
+  .reviews-hub__header {
+    max-width: 44rem;
+    margin-block-end: 1.5rem;
+  }
+
+  .reviews-hub__eyebrow,
+  .reviews-hub__stars {
+    margin: 0 0 0.6rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #8f5b31;
+  }
+
+  .reviews-hub__heading,
+  .reviews-hub__quote {
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .reviews-hub__intro {
+    margin: 0.9rem 0 0;
+    color: color-mix(in srgb, var(--color-foreground) 76%, transparent);
+  }
+
+  .reviews-hub__tablist {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-block-end: 1.5rem;
+  }
+
+  .reviews-hub__tab {
+    appearance: none;
+    border: 1px solid rgba(143, 91, 49, 0.18);
+    background: rgba(255, 255, 255, 0.55);
+    color: inherit;
+    border-radius: 999px;
+    padding: 0.85rem 1.15rem;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  }
+
+  .reviews-hub__tab:hover,
+  .reviews-hub__tab:focus-visible,
+  .reviews-hub__tab[aria-selected='true'] {
+    background: #8f5b31;
+    border-color: #8f5b31;
+    color: #fff;
+    transform: translateY(-1px);
+  }
+
+  .reviews-hub__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .reviews-hub__card,
+  .reviews-hub__form {
+    border-radius: 1.5rem;
+    border: 1px solid rgba(143, 91, 49, 0.12);
+    background: rgba(255, 255, 255, 0.68);
+  }
+
+  .reviews-hub__card {
+    padding: 1.25rem;
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .reviews-hub__form {
+    padding: clamp(1rem, 2vw, 1.5rem);
+    display: grid;
+    gap: 1rem;
+  }
+
+  .reviews-hub__form-row,
+  .reviews-hub__rating-options {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .reviews-hub__form-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .reviews-hub__label {
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .reviews-hub__rating {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .reviews-hub__rating-option {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+
+  .reviews-hub__input {
+    width: 100%;
+    color: var(--color-input-text, inherit);
+    background-color: var(--color-input-background, #fff);
+    padding: 0.9rem 1rem;
+    border-radius: var(--style-border-radius-inputs);
+    border: var(--style-border-width-inputs) solid var(--color-input-border, rgba(143, 91, 49, 0.18));
+  }
+
+  .reviews-hub__input--textarea {
+    min-height: 12rem;
+    resize: vertical;
+  }
+
+  .reviews-hub__message {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .reviews-hub__submit {
+    justify-self: start;
+  }
+
+  @media screen and (max-width: 989px) {
+    .reviews-hub__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .reviews-hub__shell {
+      border-radius: 1.5rem;
+      padding: 1rem;
+    }
+
+    .reviews-hub__tab,
+    .reviews-hub__form-row {
+      width: 100%;
+      grid-template-columns: 1fr;
+    }
+  }
+{% endstylesheet %}
+
+<script>
+  (() => {
+    const currentScript = document.currentScript;
+    const section = document.getElementById('shopify-section-{{ section.id }}') || currentScript.closest('.shopify-section');
+
+    if (!section || section.dataset.reviewsHubBound === 'true') {
+      return;
+    }
+
+    const tabs = Array.from(section.querySelectorAll('[data-reviews-trigger]'));
+    const panels = Array.from(section.querySelectorAll('[data-reviews-panel]'));
+
+    if (!tabs.length || !panels.length) {
+      return;
+    }
+
+    section.dataset.reviewsHubBound = 'true';
+
+    const activateTab = (index) => {
+      tabs.forEach((tab, tabIndex) => {
+        const isActive = tabIndex === index;
+        tab.setAttribute('aria-selected', String(isActive));
+        tab.setAttribute('tabindex', isActive ? '0' : '-1');
+      });
+
+      panels.forEach((panel, panelIndex) => {
+        panel.hidden = panelIndex !== index;
+      });
+    };
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => activateTab(index));
+      tab.addEventListener('keydown', (event) => {
+        let nextIndex = index;
+
+        if (event.key === 'ArrowRight') {
+          nextIndex = (index + 1) % tabs.length;
+        } else if (event.key === 'ArrowLeft') {
+          nextIndex = (index - 1 + tabs.length) % tabs.length;
+        } else if (event.key === 'Home') {
+          nextIndex = 0;
+        } else if (event.key === 'End') {
+          nextIndex = tabs.length - 1;
+        } else {
+          return;
+        }
+
+        event.preventDefault();
+        activateTab(nextIndex);
+        tabs[nextIndex].focus();
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Reviews hub",
+  "class": "section-wrapper",
+  "settings": [
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f7f1ea"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    }
+  ],
+  "presets": [
+    {
+      "name": "Reviews hub"
+    }
+  ]
+}
+{% endschema %}

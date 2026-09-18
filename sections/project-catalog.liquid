@@ -13,9 +13,30 @@
 >
   <div class="project-catalog__shell">
     <div class="project-catalog__header">
-      <p class="project-catalog__eyebrow">{{ section.settings.eyebrow }}</p>
-      <h2 class="project-catalog__heading">{{ section.settings.heading }}</h2>
-      <div class="project-catalog__intro rte">{{ section.settings.intro }}</div>
+      <div class="project-catalog__header-copy">
+        <p class="project-catalog__eyebrow">{{ section.settings.eyebrow }}</p>
+        <h2 class="project-catalog__heading">{{ section.settings.heading }}</h2>
+        <div class="project-catalog__intro rte">{{ section.settings.intro }}</div>
+        {% if section.settings.custom_order_button_label != blank or section.settings.shipping_button_label != blank %}
+          <div class="project-catalog__actions">
+            {% if section.settings.custom_order_button_label != blank %}
+              <a class="button" href="{{ section.settings.custom_order_button_link | default: '#made-for-your-space' }}">
+                {{ section.settings.custom_order_button_label }}
+              </a>
+            {% endif %}
+
+            {% if section.settings.shipping_button_label != blank %}
+              <a class="button button-secondary" href="{{ section.settings.shipping_button_link | default: '#delivery-planning' }}">
+                {{ section.settings.shipping_button_label }}
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="project-catalog__header-media">
+        <img src="{{ 'IMG_0317.jpg' | asset_url }}" alt="Cedar plant holder" loading="lazy">
+      </div>
     </div>
 
     <div class="project-catalog__tablist" role="tablist" aria-label="Project catalog" data-project-catalog-tabs>
@@ -95,8 +116,15 @@
   }
 
   .project-catalog__header {
-    max-width: 42rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 24rem);
+    gap: 1.25rem;
+    align-items: center;
     margin-block-end: 1.5rem;
+  }
+
+  .project-catalog__header-copy {
+    max-width: 42rem;
   }
 
   .project-catalog__eyebrow {
@@ -115,6 +143,29 @@
   .project-catalog__intro {
     margin-top: 0.9rem;
     color: color-mix(in srgb, var(--color-foreground) 76%, transparent);
+  }
+
+  .project-catalog__header-media {
+    overflow: hidden;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(143, 91, 49, 0.12);
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow: 0 1rem 2.5rem rgba(32, 19, 9, 0.08);
+  }
+
+  .project-catalog__header-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 22rem;
+    object-fit: cover;
+  }
+
+  .project-catalog__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
   }
 
   .project-catalog__tablist {
@@ -205,6 +256,10 @@
   }
 
   @media screen and (max-width: 989px) {
+    .project-catalog__header {
+      grid-template-columns: 1fr;
+    }
+
     .project-catalog__grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -304,6 +359,30 @@
       "id": "intro",
       "label": "Intro",
       "default": "<p>Use the past-projects tab as a visual archive of finished pieces, and keep the current tab ready for inventory whenever you have work available.</p>"
+    },
+    {
+      "type": "text",
+      "id": "custom_order_button_label",
+      "label": "Custom ordering button label",
+      "default": "Custom ordering"
+    },
+    {
+      "type": "text",
+      "id": "custom_order_button_link",
+      "label": "Custom ordering button link",
+      "default": "#made-for-your-space"
+    },
+    {
+      "type": "text",
+      "id": "shipping_button_label",
+      "label": "Shipping button label",
+      "default": "Shipping info"
+    },
+    {
+      "type": "text",
+      "id": "shipping_button_link",
+      "label": "Shipping button link",
+      "default": "#delivery-planning"
     },
     {
       "type": "color",

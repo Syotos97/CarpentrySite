@@ -6,6 +6,15 @@
   assign estimator_heading = section.settings.heading | default: 'Estimate shipping before you reach out'
   assign estimator_intro = section.settings.intro | default: 'Use the dimensions and approximate weight from a ready-made item description, or enter the measurements from your custom-order plan. These are planning estimates only and should be confirmed with the carrier quote pages below.'
   assign estimator_product = closest.product
+  assign estimator_anchor_id = section.settings.anchor_id | default: 'shipping-estimator-' | append: section.id
+
+  if request.page_type == 'page' and template.suffix == 'shipping'
+    assign estimator_anchor_id = 'shipping-estimator'
+  elsif request.page_type == 'page' and template.suffix == 'quote-request'
+    assign estimator_anchor_id = 'quote-shipping-estimator'
+  elsif request.page_type == 'product'
+    assign estimator_anchor_id = 'product-shipping-estimator'
+  endif
 
   if estimator_product != blank
     assign metafield_length = estimator_product.metafields.custom.shipping_length.value | default: estimator_product.metafields.custom.length.value
@@ -19,6 +28,7 @@
 
 <div class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"></div>
 <section
+  id="{{ estimator_anchor_id }}"
   class="section section--page-width shipping-estimator spacing-style{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
   style="{% render 'spacing-padding', settings: section.settings %}"
 >
@@ -530,6 +540,12 @@
       "id": "intro",
       "label": "Intro",
       "default": "Use the dimensions and approximate weight from a ready-made item description, or enter the measurements from your custom-order plan. These are planning estimates only and should be confirmed with the carrier quote pages below."
+    },
+    {
+      "type": "text",
+      "id": "anchor_id",
+      "label": "Anchor ID",
+      "default": ""
     },
     {
       "type": "color",

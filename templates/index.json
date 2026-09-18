@@ -91,26 +91,24 @@
         "padding-block-end": 72
       }
     },
-    "carpentry_showcase_Rq9fTW": {
+    "product_list_fa6P9H": {
+      "type": "project-catalog",
+      "settings": {
+        "eyebrow": "Catalog",
+        "heading": "Inspiration from previous projects",
+        "intro": "<p>If there is no inventory currently available, use the design tool to create your own project blueprint.</p>",
+        "custom_order_button_label": "Custom ordering",
+        "custom_order_button_link": "#made-for-your-space",
+        "shipping_button_label": "Shipping info",
+        "shipping_button_link": "#delivery-planning",
+        "background_color": "{{ settings.color_palette.background }}",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "home_custom_orders": {
       "type": "carpentry-showcase",
       "blocks": {
-        "panel_projects": {
-          "type": "panel",
-          "settings": {
-            "tab_label": "Project photos",
-            "kicker": "Portfolio",
-            "title": "Finished work that shows the details clients ask about",
-            "text": "<p>Use this tab to rotate through cabinetry, built-ins, tables, and trim work. The slideshow now pulls from your full project-photo library so visitors can see grain, joinery, finish, and how each piece lives in the room.</p>",
-            "feature_list": "Before-and-after room shots\nClose-ups of joinery and finish work\nNotes on wood species and dimensions",
-            "callout_title": "What to upload",
-            "callout_text": "This panel now rotates every photo from assets/photos so the homepage stays visually full without manual image picking.",
-            "asset_gallery_key": "home-projects-all",
-            "asset_gallery_layout": "slideshow",
-            "asset_gallery_alt": "Completed custom carpentry project",
-            "button_label": "Browse the full catalog",
-            "button_link": "shopify://collections/all"
-          }
-        },
         "panel_orders": {
           "type": "panel",
           "settings": {
@@ -127,56 +125,40 @@
             "button_label": "Open custom order guide",
             "button_link": "/pages/quote-request"
           }
-        },
-        "panel_shipping": {
-          "type": "panel",
-          "settings": {
-            "tab_label": "Shipping info",
-            "kicker": "Delivery planning",
-            "title": "Compare parcel carriers before customers ask for the final number",
-            "text": "<p>Show buyers how size, weight, and destination change the shipping range. The shipping page now includes a planning estimator for USPS, UPS, and FedEx along with delivery windows.</p>",
-            "feature_list": "Local delivery for regional orders\nCarrier comparison by dimensions and weight\nPackaging details and inspection on arrival",
-            "callout_title": "Reduce surprises",
-            "callout_text": "A shipping estimator gives buyers a rough total before they request the exact carrier quote.",
-            "asset_gallery_key": "home-shipping",
-            "asset_gallery_layout": "grid",
-            "asset_gallery_alt": "Delivered carpentry project",
-            "button_label": "Estimate shipping options",
-            "button_link": "/pages/shipping"
-          }
         }
       },
       "block_order": [
-        "panel_projects",
-        "panel_orders",
-        "panel_shipping"
+        "panel_orders"
       ],
       "settings": {
-        "eyebrow": "Crafted to last",
-        "heading": "A storefront shaped around craftsmanship, process, and proof",
-        "intro": "<p>Guide visitors from finished project photos to custom ordering and shipping expectations before they ever need to send a message.</p>",
-        "enable_tabs": true,
+        "anchor_id": "made-for-your-space",
+        "eyebrow": "Custom ordering",
+        "heading": "Made for your space",
+        "intro": "<p>Use this section to guide visitors from inspiration to the exact measurements and material choices you need for a serious quote request.</p>",
+        "enable_tabs": false,
         "section_width": "page-width",
         "background_color": "#f7f1ea",
-        "padding-block-start": 48,
+        "padding-block-start": 0,
         "padding-block-end": 48
       }
     },
-    "product_list_fa6P9H": {
-      "type": "project-catalog",
+    "home_shipping_estimator": {
+      "type": "shipping-estimator",
       "settings": {
-        "eyebrow": "Catalog",
-        "heading": "Inspiration from previous projects",
-        "intro": "<p>If there is no inventory currently available, use the design tool to create your own project blueprint.</p>",
-        "background_color": "{{ settings.color_palette.background }}",
-        "padding-block-start": 48,
-        "padding-block-end": 48
+        "anchor_id": "delivery-planning",
+        "eyebrow": "Delivery planning",
+        "heading": "Estimate shipping by carrier before requesting the final quote",
+        "intro": "Use the dimensions and approximate weight from a ready-made item description, or enter the measurements from your custom-order plan. Choose USPS, UPS, or FedEx to compare a rough shipping range and delivery window.",
+        "background_color": "#f7f1ea",
+        "padding-block-start": 0,
+        "padding-block-end": 72
       }
     }
   },
   "order": [
     "hero_jVaWmY",
-    "carpentry_showcase_Rq9fTW",
-    "product_list_fa6P9H"
+    "product_list_fa6P9H",
+    "home_custom_orders",
+    "home_shipping_estimator"
   ]
 }
