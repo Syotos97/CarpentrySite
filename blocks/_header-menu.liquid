@@ -13,7 +13,7 @@
 
   if block_settings.menu != blank
     for link in block_settings.menu.links
-      if link.url == '/pages/reviews' or link.title == 'Reviews'
+      if link.url == '/pages/contact#reviews' or link.url == '/pages/reviews' or link.title == 'Reviews'
         assign has_reviews_link = true
         break
       endif
@@ -72,7 +72,7 @@
             {% unless has_reviews_link %}
               <li>
                 <a
-                  href="/pages/reviews"
+                  href="/pages/contact#reviews"
                   id="MenuItem-reviews"
                   class="menu-list__item"
                 >
@@ -193,7 +193,7 @@
       {% unless has_reviews_link %}
         <li class="menu-list__list-item">
           <a
-            href="/pages/reviews"
+            href="/pages/contact#reviews"
             data-skip-node-update="true"
             class="menu-list__link"
             ref="menuitem"

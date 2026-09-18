@@ -21,7 +21,7 @@
 
   if linklist != blank
     for link in linklist.links
-      if link.url == '/pages/reviews' or link.title == 'Reviews'
+      if link.url == '/pages/contact#reviews' or link.url == '/pages/reviews' or link.title == 'Reviews'
         assign has_reviews_link = true
         break
       endif
@@ -397,7 +397,7 @@
                       >
                         <a
                           id="HeaderDrawer-reviews"
-                          href="/pages/reviews"
+                          href="/pages/contact#reviews"
                           class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element"
                         >
                           <span class="menu-drawer__menu-item-text wrap-text">Reviews</span>

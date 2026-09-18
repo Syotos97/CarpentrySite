@@ -4,10 +4,20 @@
   endif
 
   assign review_cards = '★★★★★|The piece fit the room exactly the way we hoped, and the finish looks even better in person.;★★★★★|Communication was clear from the first measurements through delivery, which made the whole custom process easy.;★★★★★|The build feels solid, the details are clean, and it has held up beautifully with daily use.' | split: ';'
+  assign reviews_anchor_id = ''
+
+  if request.page_type == 'page' and template.suffix == 'contact'
+    assign reviews_anchor_id = 'reviews'
+  elsif request.page_type == 'page' and template.suffix == 'reviews'
+    assign reviews_anchor_id = 'reviews'
+  endif
 %}
 
 <div class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"></div>
 <section
+  {% if reviews_anchor_id != blank %}
+    id="{{ reviews_anchor_id }}"
+  {% endif %}
   class="section section--page-width reviews-hub spacing-style{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
   style="{% render 'spacing-padding', settings: section.settings %}"
 >
