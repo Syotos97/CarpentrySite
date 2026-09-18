@@ -111,6 +111,7 @@
   assign fallback_asset_image = 'IMG_1533.jpg'
   assign fallback_asset_alt = 'Custom carpentry showcase'
   assign rendered_media_count = media_count
+  assign show_full_homepage_image = false
 
   if rendered_media_count == 0
     assign rendered_media_count = 1
@@ -118,6 +119,10 @@
 
   if section.index == 1
     assign fetch_priority = 'high'
+  endif
+
+  if request.page_type == 'index' and section.index == 1
+    assign show_full_homepage_image = true
   endif
 %}
 
@@ -485,7 +490,7 @@
 
 <div
   id="Hero-{{ section.id }}"
-  class="hero{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}{% if section.blocks.size == 0 and section.settings.section_height == 'auto' %} hero--no-blocks-auto-height{% endif %}{% if section.settings.stack_media_on_mobile %} hero--stack-mobile{% endif %}"
+  class="hero{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}{% if section.blocks.size == 0 and section.settings.section_height == 'auto' %} hero--no-blocks-auto-height{% endif %}{% if section.settings.stack_media_on_mobile %} hero--stack-mobile{% endif %}{% if show_full_homepage_image %} hero--show-full-image{% endif %}"
   style="
     --hero-border-style: {{ section.settings.border }};
     --hero-border-width: {{ section.settings.border_width }}px;
@@ -658,6 +663,15 @@
     overflow: hidden;
     position: relative;
     z-index: var(--layer-base);
+  }
+
+  .hero--show-full-image .hero__media-grid,
+  .hero--show-full-image .hero__media-wrapper {
+    background: color-mix(in srgb, var(--color-foreground) 82%, #000 18%);
+  }
+
+  .hero--show-full-image .hero__media {
+    object-fit: contain;
   }
 
   /* Mobile/Desktop media visibility */

@@ -7,10 +7,6 @@
 %}
 
 {% assign preview_limit = 6 %}
-{% assign custom_order_href = section.settings.custom_order_button_link | default: '#made-for-your-space' %}
-{% assign shipping_href = section.settings.shipping_button_link | default: '#delivery-planning' %}
-{% assign custom_order_target = custom_order_href | split: '#' | last %}
-{% assign shipping_target = shipping_href | split: '#' | last %}
 
 <div class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"></div>
 <section
@@ -23,29 +19,6 @@
         <p class="project-catalog__eyebrow">{{ section.settings.eyebrow }}</p>
         <h2 class="project-catalog__heading">{{ section.settings.heading }}</h2>
         <div class="project-catalog__intro rte">{{ section.settings.intro }}</div>
-        {% if section.settings.custom_order_button_label != blank or section.settings.shipping_button_label != blank %}
-          <div class="project-catalog__actions">
-            {% if section.settings.custom_order_button_label != blank %}
-              <a
-                class="button"
-                href="#{{ custom_order_target }}"
-                data-project-catalog-scroll-target="{{ custom_order_target | escape }}"
-              >
-                {{ section.settings.custom_order_button_label }}
-              </a>
-            {% endif %}
-
-            {% if section.settings.shipping_button_label != blank %}
-              <a
-                class="button button-secondary"
-                href="#{{ shipping_target }}"
-                data-project-catalog-scroll-target="{{ shipping_target | escape }}"
-              >
-                {{ section.settings.shipping_button_label }}
-              </a>
-            {% endif %}
-          </div>
-        {% endif %}
       </div>
 
       <div class="project-catalog__header-media">
@@ -185,13 +158,6 @@
     object-fit: cover;
   }
 
-  .project-catalog__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-top: 1.25rem;
-  }
-
   .project-catalog__tablist {
     display: flex;
     flex-wrap: wrap;
@@ -325,8 +291,6 @@
     const panels = Array.from(section.querySelectorAll('[data-project-catalog-panel]'));
     const showMoreButton = section.querySelector('[data-project-catalog-show-more]');
     const extraCards = Array.from(section.querySelectorAll('[data-project-catalog-extra-card]'));
-    const scrollLinks = Array.from(section.querySelectorAll('[data-project-catalog-scroll-target]'));
-
     if (!tabs.length || !panels.length) {
       return;
     }
@@ -377,25 +341,6 @@
       });
     }
 
-    scrollLinks.forEach((link) => {
-      link.addEventListener('click', (event) => {
-        const targetId = link.dataset.projectCatalogScrollTarget;
-        const target = targetId ? document.getElementById(targetId) : null;
-
-        if (!target) {
-          return;
-        }
-
-        event.preventDefault();
-        const scrollOffset = 120;
-        const targetTop = target.getBoundingClientRect().top + window.scrollY - scrollOffset;
-        window.scrollTo({ top: Math.max(targetTop, 0), behavior: 'smooth' });
-
-        if (window.history && window.history.replaceState) {
-          window.history.replaceState(null, '', `#${targetId}`);
-        }
-      });
-    });
   })();
 </script>
 

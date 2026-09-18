@@ -1,7 +1,12 @@
 {% liquid
   assign use_tabs = section.settings.enable_tabs
+  assign showcase_anchor_id = section.settings.anchor_id
   if section.blocks.size < 2
     assign use_tabs = false
+  endif
+
+  if showcase_anchor_id == blank and request.page_type == 'index' and section.id == 'home_custom_orders'
+    assign showcase_anchor_id = 'made-for-your-space'
   endif
 
   if section.settings.background_color != blank
@@ -11,8 +16,8 @@
 
 <div class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"></div>
 <section
-  {% if section.settings.anchor_id != blank %}
-    id="{{ section.settings.anchor_id | escape }}"
+  {% if showcase_anchor_id != blank %}
+    id="{{ showcase_anchor_id | escape }}"
   {% endif %}
   class="section section--{{ section.settings.section_width }} carpentry-showcase spacing-style{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
   style="{% render 'spacing-padding', settings: section.settings %}"
@@ -686,12 +691,6 @@
       "id": "background_color",
       "label": "Background color",
       "default": "#e8ddd0"
-    },
-    {
-      "type": "text",
-      "id": "anchor_id",
-      "label": "Anchor ID",
-      "default": ""
     },
     {
       "type": "header",
