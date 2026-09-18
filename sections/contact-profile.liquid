@@ -17,11 +17,11 @@
       <p class="contact-profile__eyebrow">Contact Photo</p>
       <h2 class="contact-profile__heading">Reach out directly for custom work or local pickup</h2>
       <p class="contact-profile__text">
-        Call or text <a href="tel:17085151012">708-515-1012</a> if you want to talk through a project, ask a question,
+        Call or text <span class="contact-profile__phone">708-515-1012</span> if you want to talk through a project, ask a question,
         or line up a pickup.
       </p>
       <p class="contact-profile__text">Located in Port Huron, MI for local pickups.</p>
-      <a class="button contact-profile__button" href="tel:17085151012">Call 708-515-1012</a>
+      <a class="button contact-profile__button" href="tel:+17085151012" aria-label="Call 708-515-1012">Call 708-515-1012</a>
     </div>
   </div>
 </section>
@@ -73,9 +73,9 @@
     color: color-mix(in srgb, var(--color-foreground) 80%, transparent);
   }
 
-  .contact-profile__text a {
+  .contact-profile__phone {
+    font-weight: 600;
     color: inherit;
-    text-decoration-thickness: 0.08em;
   }
 
   .contact-profile__button {

@@ -15,7 +15,7 @@
           "type": "text",
           "name": "t:names.heading",
           "settings": {
-            "text": "<p>Stop searching for the right fit. I'll build it.</p>",
+            "text": "<p>Stop searching for the right fit.<br>I'll build it.</p>",
             "text_color": "{{ settings.color_palette.background }}",
             "width": "fit-content",
             "max_width": "normal",
