@@ -390,20 +390,6 @@
                                   if first_accordion_open == false and block_settings.drawer_accordion and block_settings.drawer_accordion_expand_first
                                     assign first_accordion_open = true
                                     assign should_open_first_nested = true
-                    {% unless has_reviews_link %}
-                      <li
-                        style="--menu-drawer-animation-index: 99;"
-                        class="menu-drawer__list-item--flat{% if block_settings.drawer_dividers %} menu-drawer__list-item--divider{% endif %}"
-                      >
-                        <a
-                          id="HeaderDrawer-reviews"
-                          href="/pages/contact#reviews"
-                          class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element"
-                        >
-                          <span class="menu-drawer__menu-item-text wrap-text">Reviews</span>
-                        </a>
-                      </li>
-                    {% endunless %}
                                   endif
                                 %}
                                 {% if block_settings.drawer_accordion %}
@@ -610,6 +596,20 @@
                 {%- endif -%}
               </li>
             {%- endfor -%}
+            {% unless has_reviews_link %}
+              <li
+                style="--menu-drawer-animation-index: 99;"
+                class="menu-drawer__list-item--flat"
+              >
+                <a
+                  id="HeaderDrawer-reviews"
+                  href="/pages/reviews"
+                  class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element"
+                >
+                  <span class="menu-drawer__menu-item-text wrap-text">Reviews</span>
+                </a>
+              </li>
+            {% endunless %}
           {% endif %}
         </ul>
       </nav>

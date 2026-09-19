@@ -185,6 +185,7 @@
                                 src="{{ asset_gallery_item | asset_url }}"
                                 alt="{{ asset_gallery_alt | escape }} photo {{ forloop.index }}"
                                 loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                                decoding="async"
                               >
                             </div>
                           {% endif %}
@@ -213,6 +214,7 @@
                               src="{{ asset_gallery_item | asset_url }}"
                               alt="{{ asset_gallery_alt | escape }} photo {{ forloop.index }}"
                               loading="lazy"
+                              decoding="async"
                             >
                           </div>
                         {% endif %}

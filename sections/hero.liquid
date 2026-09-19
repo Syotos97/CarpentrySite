@@ -345,6 +345,7 @@
       class="hero__media"
       loading="eager"
       fetchpriority="high"
+      decoding="async"
       data-testid="hero-fallback-image"
     >
   {%- endif -%}
@@ -663,6 +664,20 @@
     overflow: hidden;
     position: relative;
     z-index: var(--layer-base);
+  }
+
+  /* Mobile keeps the natural aspect ratio, since the crop already fits small screens well. */
+  @media screen and (min-width: 750px) and (max-width: 1399px) {
+    .hero__media {
+      transform: scale(1.06);
+    }
+  }
+
+  /* Extra wide viewports: stretch slightly and zoom in so the image fills the wider space without excessive empty crop. */
+  @media screen and (min-width: 1400px) {
+    .hero__media {
+      transform: scale(1.12, 1.2);
+    }
   }
 
   .hero--show-full-image .hero__media-grid,
