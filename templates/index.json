@@ -42,7 +42,7 @@
           "name": "t:names.button",
           "settings": {
             "label": "Shop available pieces",
-            "link": "shopify://collections/all",
+            "link": "/",
             "open_in_new_tab": false,
             "style_class": "button-custom",
             "custom_button_background": "rgba(0,0,0,0)",
