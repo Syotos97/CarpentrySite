@@ -22,7 +22,7 @@
       </div>
 
       <div class="project-catalog__header-media">
-        <img src="{{ 'IMG_0317.jpg' | asset_url }}" alt="Cedar plant holder" loading="lazy">
+        <img src="{{ 'IMG_0317.jpg' | asset_url }}" alt="Cedar plant holder" loading="lazy" decoding="async" width="2400" height="1800">
       </div>
     </div>
 
@@ -64,7 +64,7 @@
         {% for project_asset in project_assets %}
           <article class="project-catalog__card{% if forloop.index > preview_limit %} project-catalog__card--extra{% endif %}"{% if forloop.index > preview_limit %} hidden data-project-catalog-extra-card{% endif %}>
             <div class="project-catalog__media">
-              <img src="{{ project_asset | asset_url }}" alt="Past project {{ forloop.index }}" loading="lazy">
+              <img src="{{ project_asset | asset_url }}" alt="Past project {{ forloop.index }}" loading="lazy" decoding="async">
             </div>
             <div class="project-catalog__card-body">
               <p class="project-catalog__badge">Past project</p>
