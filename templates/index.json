@@ -60,7 +60,7 @@
           "name": "t:names.button",
           "settings": {
             "label": "Create custom piece",
-            "link": "/pages/quote-request",
+            "link": "/#custom-build",
             "open_in_new_tab": false,
             "style_class": "button-custom",
             "custom_button_background": "{{ settings.color_palette.background }}",
@@ -142,7 +142,7 @@
             "asset_gallery_layout": "grid",
             "asset_gallery_alt": "Custom order project detail",
             "button_label": "Open custom order guide",
-            "button_link": "/pages/quote-request"
+            "button_link": "/#custom-build"
           }
         }
       },
@@ -172,12 +172,35 @@
         "padding-block-start": 0,
         "padding-block-end": 72
       }
+    },
+    "home_custom_project_builder": {
+      "type": "custom-project-builder",
+      "settings": {
+        "anchor_id": "custom-build",
+        "eyebrow": "Custom builds",
+        "heading": "Design your custom project before you request pricing",
+        "intro": "<p>Choose the type of build, wood preferences, dimensions, and sketch notes here. When you send the request, I will review it and get back to you with an ETA and a cost estimate within 7 days.</p>",
+        "background_color": "#e8ddd0",
+        "padding-block-start": 0,
+        "padding-block-end": 72
+      }
+    },
+    "home_reviews": {
+      "type": "reviews-hub",
+      "settings": {
+        "anchor_id": "reviews",
+        "background_color": "#e8ddd0",
+        "padding-block-start": 0,
+        "padding-block-end": 72
+      }
     }
   },
   "order": [
     "hero_jVaWmY",
     "product_list_fa6P9H",
     "home_custom_orders",
-    "home_shipping_estimator"
+    "home_shipping_estimator",
+    "home_custom_project_builder",
+    "home_reviews"
   ]
 }

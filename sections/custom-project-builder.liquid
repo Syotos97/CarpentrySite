@@ -4,10 +4,14 @@
   endif
 
   assign form_id = 'CustomProjectBuilder-' | append: section.id
+  assign builder_anchor_id = section.settings.anchor_id
 %}
 
 <div class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"></div>
 <section
+  {% if builder_anchor_id != blank %}
+    id="{{ builder_anchor_id | escape }}"
+  {% endif %}
   class="section section--page-width custom-project-builder spacing-style{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
   style="{% render 'spacing-padding', settings: section.settings %}"
 >
@@ -663,6 +667,12 @@
   "name": "Custom project builder",
   "class": "section-wrapper",
   "settings": [
+    {
+      "type": "text",
+      "id": "anchor_id",
+      "label": "Anchor ID",
+      "default": ""
+    },
     {
       "type": "text",
       "id": "eyebrow",

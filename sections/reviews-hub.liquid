@@ -4,11 +4,11 @@
   endif
 
   assign review_cards = '★★★★★|The piece fit the room exactly the way we hoped, and the finish looks even better in person.;★★★★★|Communication was clear from the first measurements through delivery, which made the whole custom process easy.;★★★★★|The build feels solid, the details are clean, and it has held up beautifully with daily use.' | split: ';'
-  assign reviews_anchor_id = ''
+  assign reviews_anchor_id = section.settings.anchor_id
 
-  if request.page_type == 'page' and template.suffix == 'contact'
+  if reviews_anchor_id == blank and request.page_type == 'page' and template.suffix == 'contact'
     assign reviews_anchor_id = 'reviews'
-  elsif request.page_type == 'page' and template.suffix == 'reviews'
+  elsif reviews_anchor_id == blank and request.page_type == 'page' and template.suffix == 'reviews'
     assign reviews_anchor_id = 'reviews'
   endif
 %}
@@ -368,6 +368,12 @@
   "name": "Reviews hub",
   "class": "section-wrapper",
   "settings": [
+    {
+      "type": "text",
+      "id": "anchor_id",
+      "label": "Anchor ID",
+      "default": ""
+    },
     {
       "type": "color",
       "id": "background_color",
