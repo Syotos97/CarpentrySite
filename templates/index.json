@@ -184,15 +184,6 @@
         "padding-block-start": 0,
         "padding-block-end": 72
       }
-    },
-    "home_reviews": {
-      "type": "reviews-hub",
-      "settings": {
-        "anchor_id": "reviews",
-        "background_color": "#e8ddd0",
-        "padding-block-start": 0,
-        "padding-block-end": 72
-      }
     }
   },
   "order": [
@@ -200,7 +191,6 @@
     "product_list_fa6P9H",
     "home_custom_orders",
     "home_shipping_estimator",
-    "home_custom_project_builder",
-    "home_reviews"
+    "home_custom_project_builder"
   ]
 }

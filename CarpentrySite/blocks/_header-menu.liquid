@@ -9,6 +9,16 @@
 {% liquid
   assign block_settings = block.settings
   assign effective_submenu_color = block_settings.background_color | default: settings.page_background_color
+  assign has_reviews_link = false
+
+  if block_settings.menu != blank
+    for link in block_settings.menu.links
+      if link.url == '/pages/contact#reviews' or link.url == '/pages/reviews' or link.title == 'Reviews'
+        assign has_reviews_link = true
+        break
+      endif
+    endfor
+  endif
 %}
 
 {% case variant %}
@@ -59,6 +69,17 @@
                 </a>
               </li>
             {% endfor %}
+            {% unless has_reviews_link %}
+              <li>
+                <a
+                  href="/pages/reviews"
+                  id="MenuItem-reviews"
+                  class="menu-list__item"
+                >
+                  Reviews
+                </a>
+              </li>
+            {% endunless %}
           </ul>
         </div>
       </div>
@@ -169,6 +190,18 @@
           {%- endif -%}
         </li>
       {% endfor %}
+      {% unless has_reviews_link %}
+        <li class="menu-list__list-item">
+          <a
+            href="/pages/reviews"
+            data-skip-node-update="true"
+            class="menu-list__link"
+            ref="menuitem"
+          >
+            <span class="menu-list__link-title">Reviews</span>
+          </a>
+        </li>
+      {% endunless %}
       <li
         class="menu-list__list-item"
         slot="more"

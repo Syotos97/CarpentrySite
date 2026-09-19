@@ -66,7 +66,7 @@
         {% for review_card in review_cards %}
           {% assign review_parts = review_card | split: '|' %}
           <article class="reviews-hub__card">
-            <p class="reviews-hub__stars" aria-label="5 out of 5 stars">{{ review_parts[0] }}</p>
+            <p class="reviews-hub__star-rating" aria-label="5 out of 5 stars">{{ review_parts[0] }}</p>
             <p class="reviews-hub__quote">{{ review_parts[1] }}</p>
           </article>
         {% endfor %}
@@ -163,13 +163,19 @@
     margin-block-end: 1.5rem;
   }
 
-  .reviews-hub__eyebrow,
-  .reviews-hub__stars {
+  .reviews-hub__eyebrow {
     margin: 0 0 0.6rem;
     font-size: 0.82rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: #8f5b31;
+  }
+
+  .reviews-hub__star-rating {
+    margin: 0 0 0.6rem;
+    font-size: 1.35rem;
+    letter-spacing: 0.15em;
+    color: #d9a441;
   }
 
   .reviews-hub__heading,

@@ -17,6 +17,16 @@
   assign block_settings = block.settings
   assign max_featured_items = 4
   assign image_border_radius = block_settings.image_border_radius
+  assign has_reviews_link = false
+
+  if linklist != blank
+    for link in linklist.links
+      if link.url == '/pages/contact#reviews' or link.url == '/pages/reviews' or link.title == 'Reviews'
+        assign has_reviews_link = true
+        break
+      endif
+    endfor
+  endif
 
   if block_settings.menu_style == 'featured_collections'
     assign ratio = block_settings.featured_collections_aspect_ratio
@@ -586,6 +596,20 @@
                 {%- endif -%}
               </li>
             {%- endfor -%}
+            {% unless has_reviews_link %}
+              <li
+                style="--menu-drawer-animation-index: 99;"
+                class="menu-drawer__list-item--flat"
+              >
+                <a
+                  id="HeaderDrawer-reviews"
+                  href="/pages/reviews"
+                  class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element"
+                >
+                  <span class="menu-drawer__menu-item-text wrap-text">Reviews</span>
+                </a>
+              </li>
+            {% endunless %}
           {% endif %}
         </ul>
       </nav>

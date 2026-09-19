@@ -1,0 +1,431 @@
+{% liquid
+  if section.settings.background_color != blank
+    render 'contrast-override', background_color: section.settings.background_color, section_id: section.id, skip_contrast: true
+  endif
+
+  assign project_assets = 'IMG_7437.jpg|IMG_7434.jpg|IMG_1754.jpg|IMG_1753.jpg|IMG_1533.jpg|IMG_1433.jpg|IMG_1432.jpg|IMG_1388.jpg|IMG_1387.jpg|IMG_1297.jpg|IMG_1296.jpg|IMG_1290.jpg|IMG_1289.jpg|IMG_1273.jpg|IMG_1259.jpg|IMG_1258.jpg|IMG_1253.jpg|IMG_1252.jpg|IMG_1213.jpg|IMG_1212.jpg|IMG_1211.jpg|IMG_1210.jpg|IMG_1209.jpg|IMG_1208.jpg|IMG_1207.jpg|IMG_1159.jpg|IMG_1158.jpg|IMG_0676.jpg|IMG_0675.jpg|IMG_0338.jpg|IMG_0337.jpg|IMG_0336.jpg|IMG_0335.jpg|IMG_0320.jpg|IMG_0319.jpg|IMG_0317.jpg' | split: '|'
+%}
+
+{% assign preview_limit = 6 %}
+
+<div class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"></div>
+<section
+  class="section section--page-width project-catalog spacing-style{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
+  style="{% render 'spacing-padding', settings: section.settings %}"
+>
+  <div class="project-catalog__shell">
+    <div class="project-catalog__header">
+      <div class="project-catalog__header-copy">
+        <p class="project-catalog__eyebrow">{{ section.settings.eyebrow }}</p>
+        <h2 class="project-catalog__heading">{{ section.settings.heading }}</h2>
+        <div class="project-catalog__intro rte">{{ section.settings.intro }}</div>
+      </div>
+
+      <div class="project-catalog__header-media">
+        <img src="{{ 'IMG_0317.jpg' | asset_url }}" alt="Cedar plant holder" loading="lazy" decoding="async" width="2400" height="1800">
+      </div>
+    </div>
+
+    <div class="project-catalog__tablist" role="tablist" aria-label="Project catalog" data-project-catalog-tabs>
+      <button
+        type="button"
+        class="project-catalog__tab"
+        id="ProjectCatalogTab-{{ section.id }}-past"
+        role="tab"
+        aria-controls="ProjectCatalogPanel-{{ section.id }}-past"
+        aria-selected="true"
+        tabindex="0"
+        data-project-catalog-trigger
+      >
+        Past projects
+      </button>
+      <button
+        type="button"
+        class="project-catalog__tab"
+        id="ProjectCatalogTab-{{ section.id }}-available"
+        role="tab"
+        aria-controls="ProjectCatalogPanel-{{ section.id }}-available"
+        aria-selected="false"
+        tabindex="-1"
+        data-project-catalog-trigger
+      >
+        Currently available
+      </button>
+    </div>
+
+    <div
+      class="project-catalog__panel"
+      id="ProjectCatalogPanel-{{ section.id }}-past"
+      role="tabpanel"
+      aria-labelledby="ProjectCatalogTab-{{ section.id }}-past"
+      data-project-catalog-panel
+    >
+      <div class="project-catalog__grid">
+        {% for project_asset in project_assets %}
+          <article class="project-catalog__card{% if forloop.index > preview_limit %} project-catalog__card--extra{% endif %}"{% if forloop.index > preview_limit %} hidden data-project-catalog-extra-card{% endif %}>
+            <div class="project-catalog__media">
+              <img src="{{ project_asset | asset_url }}" alt="Past project {{ forloop.index }}" loading="lazy" decoding="async">
+            </div>
+            <div class="project-catalog__card-body">
+              <p class="project-catalog__badge">Past project</p>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+      {% if project_assets.size > preview_limit %}
+        <div class="project-catalog__footer">
+          <button type="button" class="button button-secondary" data-project-catalog-show-more>
+            See more projects
+          </button>
+        </div>
+      {% endif %}
+    </div>
+
+    <div
+      class="project-catalog__panel project-catalog__panel--empty"
+      id="ProjectCatalogPanel-{{ section.id }}-available"
+      role="tabpanel"
+      aria-labelledby="ProjectCatalogTab-{{ section.id }}-available"
+      hidden
+      data-project-catalog-panel
+    >
+      <div class="project-catalog__empty-state">
+        <h3>Currently available</h3>
+        <p>No pieces are listed here right now.</p>
+        <p>Check back soon or use the contact page if you want to ask about an upcoming piece.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .project-catalog__shell {
+    background: var(--color-background);
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .project-catalog__panel[hidden],
+  .project-catalog__card[hidden] {
+    display: none !important;
+  }
+
+  .project-catalog__header {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 24rem);
+    gap: 1.25rem;
+    align-items: center;
+    margin-block-end: 1.5rem;
+  }
+
+  .project-catalog__header-copy {
+    max-width: 42rem;
+  }
+
+  .project-catalog__eyebrow {
+    margin: 0 0 0.6rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #8f5b31;
+  }
+
+  .project-catalog__heading {
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .project-catalog__intro {
+    margin-top: 0.9rem;
+    color: color-mix(in srgb, var(--color-foreground) 76%, transparent);
+  }
+
+  .project-catalog__header-media {
+    overflow: hidden;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(143, 91, 49, 0.12);
+    background: color-mix(in srgb, var(--color-background) 88%, #fff 12%);
+    box-shadow: 0 1rem 2.5rem rgba(32, 19, 9, 0.08);
+  }
+
+  .project-catalog__header-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 22rem;
+    object-fit: cover;
+  }
+
+  .project-catalog__tablist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-block-end: 1.5rem;
+  }
+
+  .project-catalog__tab {
+    appearance: none;
+    border: 1px solid rgba(143, 91, 49, 0.18);
+    background: color-mix(in srgb, var(--color-background) 90%, #fff 10%);
+    color: inherit;
+    border-radius: 999px;
+    padding: 0.85rem 1.15rem;
+    cursor: pointer;
+    transition:
+      background 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .project-catalog__tab:hover,
+  .project-catalog__tab:focus-visible,
+  .project-catalog__tab[aria-selected='true'] {
+    background: #8f5b31;
+    border-color: #8f5b31;
+    color: #fff;
+    transform: translateY(-1px);
+  }
+
+  .project-catalog__panel--empty {
+    min-height: 16rem;
+  }
+
+  .project-catalog__empty-state {
+    display: grid;
+    place-items: center;
+    text-align: center;
+    min-height: 16rem;
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+    border: 1px dashed rgba(143, 91, 49, 0.3);
+    background: color-mix(in srgb, var(--color-background) 90%, #fff 10%);
+  }
+
+  .project-catalog__empty-state h3,
+  .project-catalog__empty-state p,
+  .project-catalog__badge {
+    margin: 0;
+  }
+
+  .project-catalog__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .project-catalog__footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+
+  .project-catalog__card {
+    overflow: hidden;
+    border-radius: 1.25rem;
+    background: color-mix(in srgb, var(--color-background) 88%, #fff 12%);
+    border: 1px solid rgba(143, 91, 49, 0.12);
+  }
+
+  .project-catalog__media img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .project-catalog__card-body {
+    padding: 0.85rem 0.95rem 1rem;
+  }
+
+  .project-catalog__badge {
+    display: inline-flex;
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(143, 91, 49, 0.12);
+    color: #6d441e;
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  @media screen and (max-width: 989px) {
+    .project-catalog__header {
+      grid-template-columns: 1fr;
+    }
+
+    .project-catalog__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .project-catalog__shell {
+      border-radius: 0;
+      padding: 0;
+    }
+
+    .project-catalog__tab {
+      width: 100%;
+      justify-content: flex-start;
+    }
+
+    .project-catalog__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+{% endstylesheet %}
+
+<script>
+  (() => {
+    const currentScript = document.currentScript;
+    const section = document.getElementById('shopify-section-{{ section.id }}') || currentScript.closest('.shopify-section');
+
+    if (!section || section.dataset.projectCatalogBound === 'true') {
+      return;
+    }
+
+    const tabs = Array.from(section.querySelectorAll('[data-project-catalog-trigger]'));
+    const panels = Array.from(section.querySelectorAll('[data-project-catalog-panel]'));
+    const showMoreButton = section.querySelector('[data-project-catalog-show-more]');
+    const extraCards = Array.from(section.querySelectorAll('[data-project-catalog-extra-card]'));
+    if (!tabs.length || !panels.length) {
+      return;
+    }
+
+    section.dataset.projectCatalogBound = 'true';
+
+    const activateTab = (index) => {
+      tabs.forEach((tab, tabIndex) => {
+        const isActive = tabIndex === index;
+        tab.setAttribute('aria-selected', String(isActive));
+        tab.setAttribute('tabindex', isActive ? '0' : '-1');
+      });
+
+      panels.forEach((panel, panelIndex) => {
+        panel.hidden = panelIndex !== index;
+      });
+    };
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => activateTab(index));
+      tab.addEventListener('keydown', (event) => {
+        let nextIndex = index;
+
+        if (event.key === 'ArrowRight') {
+          nextIndex = (index + 1) % tabs.length;
+        } else if (event.key === 'ArrowLeft') {
+          nextIndex = (index - 1 + tabs.length) % tabs.length;
+        } else if (event.key === 'Home') {
+          nextIndex = 0;
+        } else if (event.key === 'End') {
+          nextIndex = tabs.length - 1;
+        } else {
+          return;
+        }
+
+        event.preventDefault();
+        activateTab(nextIndex);
+        tabs[nextIndex].focus();
+      });
+    });
+
+    if (showMoreButton && extraCards.length) {
+      showMoreButton.addEventListener('click', () => {
+        extraCards.forEach((card) => {
+          card.hidden = false;
+        });
+        showMoreButton.hidden = true;
+      });
+    }
+
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Project catalog",
+  "class": "section-wrapper",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Catalog"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Browse finished work and keep space ready for current inventory"
+    },
+    {
+      "type": "richtext",
+      "id": "intro",
+      "label": "Intro",
+      "default": "<p>Use the past-projects tab as a visual archive of finished pieces, and keep the current tab ready for inventory whenever you have work available.</p>"
+    },
+    {
+      "type": "text",
+      "id": "custom_order_button_label",
+      "label": "Custom ordering button label",
+      "default": "Custom ordering"
+    },
+    {
+      "type": "text",
+      "id": "custom_order_button_link",
+      "label": "Custom ordering button link",
+      "default": "#made-for-your-space"
+    },
+    {
+      "type": "text",
+      "id": "shipping_button_label",
+      "label": "Shipping button label",
+      "default": "Shipping info"
+    },
+    {
+      "type": "text",
+      "id": "shipping_button_link",
+      "label": "Shipping button link",
+      "default": "#delivery-planning"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#e8ddd0"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "Project catalog"
+    }
+  ]
+}
+{% endschema %}
