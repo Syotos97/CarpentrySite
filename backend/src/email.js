@@ -42,11 +42,11 @@ export async function sendAdminNotification(env, order) {
         </tbody>
       </table>
       <p style="white-space: pre-wrap; background:#f4ece0; padding: 0.75rem 1rem; border-radius: 0.5rem;">${order.projectNotes || 'No additional notes.'}</p>
-      ${sketchUrl ? `<p><strong>Sketch:</strong></p><img src="${sketchUrl}" alt="Customer sketch" style="max-width: 100%; border: 1px solid #d8c6ab; border-radius: 0.5rem;">` : '<p>No sketch was drawn.</p>'}
+      ${sketchUrl ? `<p><a href="${sketchUrl}">View the customer's sketch</a></p>` : '<p>No sketch was drawn.</p>'}
       <p style="margin-top: 1.5rem;">
         <a href="${viewUrl}" style="background:#6d441e; color:#fff; padding: 0.65rem 1.25rem; border-radius: 0.4rem; text-decoration:none;">View full request &amp; manage status</a>
       </p>
-      <p style="font-size: 0.8rem; color: #8a7960;">Opening this link marks the invoice as Viewed. From that page you can move it to In Progress and Awaiting Response as you work the order.</p>
+      <p style="font-size: 0.8rem; color: #8a7960;">Opening this link marks the invoice as Viewed. From that page you can move it to In Progress and Awaiting Response as you work the order, and view the sketch inline.</p>
     </div>
   `;
 

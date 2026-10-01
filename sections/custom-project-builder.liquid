@@ -26,7 +26,7 @@
       <article class="custom-project-builder__highlight-card">
         <p class="custom-project-builder__highlight-label">Start with the essentials</p>
         <ul class="custom-project-builder__highlight-list">
-          <li>Tell me what we are building: furniture, charcuterie boards, shelving, decor, or something else.</li>
+          <li>Tell me what we are building: charcuterie boards, shelving, a table or desk, decor, or something else.</li>
           <li>Choose hardwood or softwood, or name a species if you already know what you want.</li>
           <li>Add exact dimensions or leave sizing open if you want help developing the plan.</li>
         </ul>
@@ -120,7 +120,6 @@
             <label class="custom-project-builder__field">
               <span>What are we building?</span>
               <select class="custom-project-builder__input" name="contact[What are we building?]" data-category-select>
-                <option value="Furniture">Furniture</option>
                 <option value="Charcuterie boards">Charcuterie boards</option>
                 <option value="Shelving">Shelving</option>
                 <option value="Table or desk">Table or desk</option>
@@ -132,8 +131,8 @@
             </label>
 
             <label class="custom-project-builder__field" data-subcategory-field hidden>
-              <span>What type of furniture?</span>
-              <select class="custom-project-builder__input" name="contact[Subcategory]" data-subcategory-select></select>
+              <span>What would you like built?</span>
+              <input type="text" class="custom-project-builder__input" name="contact[Subcategory]" data-subcategory-input placeholder="Example: jewelry box, wine rack, picture frame">
             </label>
 
             <label class="custom-project-builder__field">
@@ -501,7 +500,7 @@
     const form = root?.querySelector('form');
     const categorySelect = root?.querySelector('[data-category-select]');
     const subcategoryField = root?.querySelector('[data-subcategory-field]');
-    const subcategorySelect = root?.querySelector('[data-subcategory-select]');
+    const subcategoryInput = root?.querySelector('[data-subcategory-input]');
     const successMessage = root?.querySelector('[data-success-message]');
     const successText = root?.querySelector('[data-success-text]');
     const errorMessage = root?.querySelector('[data-error-message]');
@@ -514,41 +513,17 @@
 
     section.dataset.customProjectBuilderBound = 'true';
 
-    const CATEGORY_SUBCATEGORIES = {
-      Furniture: [
-        'Dresser',
-        'Desk',
-        'Bed frame or headboard',
-        'Nightstand',
-        'Bookshelf',
-        'Entertainment console',
-        'Dining table',
-        'Coffee table',
-        'Bench',
-        'Cabinet',
-        'Chair',
-        'Other furniture',
-      ],
-    };
-
-    const syncSubcategoryOptions = () => {
-      if (!categorySelect || !subcategoryField || !subcategorySelect) {
+    const syncSubcategoryField = () => {
+      if (!categorySelect || !subcategoryField || !subcategoryInput) {
         return;
       }
 
-      const options = CATEGORY_SUBCATEGORIES[categorySelect.value];
+      const showField = categorySelect.value === 'Other';
+      subcategoryField.hidden = !showField;
 
-      if (!options) {
-        subcategoryField.hidden = true;
-        subcategorySelect.innerHTML = '';
-        subcategorySelect.value = '';
-        return;
+      if (!showField) {
+        subcategoryInput.value = '';
       }
-
-      subcategoryField.hidden = false;
-      subcategorySelect.innerHTML = options
-        .map((option) => `<option value="${option}">${option}</option>`)
-        .join('');
     };
 
     const context = canvas.getContext('2d');
@@ -709,7 +684,7 @@
       input.addEventListener('input', syncDimensions);
     });
 
-    categorySelect?.addEventListener('change', syncSubcategoryOptions);
+    categorySelect?.addEventListener('change', syncSubcategoryField);
 
     const setBusy = (busy) => {
       if (submitButton) {
@@ -760,7 +735,7 @@
         customerEmail: form.querySelector('[name="contact[email]"]')?.value || '',
         customerPhone: form.querySelector('[name="contact[phone]"]')?.value || '',
         category: categorySelect?.value || '',
-        subcategory: subcategoryField && !subcategoryField.hidden ? subcategorySelect?.value || '' : '',
+        subcategory: subcategoryField && !subcategoryField.hidden ? subcategoryInput?.value.trim() || '' : '',
         woodFamily: form.querySelector('[name="contact[Wood family]"]')?.value || '',
         woodSpecies: form.querySelector('[name="contact[Specific wood type]"]')?.value || '',
         dimensionPreference: builderMode ? 'Leave dimensions to the builder' : 'Customer provided exact dimensions',
@@ -787,7 +762,7 @@
         redraw();
         syncSketchData();
         syncDimensions();
-        syncSubcategoryOptions();
+        syncSubcategoryField();
       } catch (error) {
         showError(error.message || 'Something went wrong sending your request. Please try again.');
       } finally {
@@ -798,7 +773,7 @@
     setTool('pen');
     syncDimensions();
     syncSketchData();
-    syncSubcategoryOptions();
+    syncSubcategoryField();
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
   })();

@@ -4,11 +4,11 @@ compatibility_date = "2024-09-23"
 
 # Non-secret configuration. Update these for your shop before deploying.
 [vars]
-SHOP_ORIGIN = "https://your-shop-domain.myshopify.com"
-WORKER_BASE_URL = "https://carpentry-invoice-backend.<your-subdomain>.workers.dev"
-FROM_EMAIL = "Carpentry Shop <orders@yourdomain.com>"
-ADMIN_EMAIL = "you@yourdomain.com"
-BUSINESS_NAME = "Your Carpentry Shop"
+SHOP_ORIGIN = "https://brianscustomcarpentry.myshopify.com"
+WORKER_BASE_URL = "https://carpentry-invoice-backend.brianscustomcarpentry.workers.dev"
+FROM_EMAIL = "Brian's Custom Carpentry <orders@brianscustomcarpentry.com>"
+ADMIN_EMAIL = "bmalbert997@gmail.com"
+BUSINESS_NAME = "Brian's Custom Carpentry"
 
 # Secrets (do NOT put real values here). Set with:
 #   wrangler secret put RESEND_API_KEY
@@ -19,7 +19,7 @@ BUSINESS_NAME = "Your Carpentry Shop"
 [[d1_databases]]
 binding = "DB"
 database_name = "carpentry-invoices"
-database_id = "<run `wrangler d1 create carpentry-invoices` and paste the id here>"
+database_id = "74ac608c-3b48-48e8-8af5-aee19119030b"
 
 [[r2_buckets]]
 binding = "SKETCHES"

@@ -5,6 +5,7 @@
       "settings": {
         "eyebrow": "Custom build request",
         "heading": "Track your request status",
+        "api_endpoint": "https://carpentry-invoice-backend.brianscustomcarpentry.workers.dev",
         "padding-block-start": 40,
         "padding-block-end": 72
       }
