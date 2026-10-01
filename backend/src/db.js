@@ -7,8 +7,8 @@ export async function insertOrder(env, order) {
       customer_name, customer_email, customer_phone,
       category, subcategory, wood_family, wood_species,
       dimension_preference, dimensions_summary, project_notes,
-      has_sketch, payment_method, created_at, updated_at
-    ) VALUES (?, ?, ?, 'invoice_sent', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      has_sketch, payment_method, sketch_bytes, created_at, updated_at
+    ) VALUES (?, ?, ?, 'invoice_sent', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
     .bind(
       order.id,
@@ -26,6 +26,7 @@ export async function insertOrder(env, order) {
       order.projectNotes,
       order.hasSketch ? 1 : 0,
       order.paymentMethod || '',
+      order.sketchBytes || 0,
       now,
       now
     )
@@ -55,6 +56,19 @@ export async function listOrders(env) {
   return results || [];
 }
 
+export async function getTotalSketchBytes(env) {
+  const row = await env.DB.prepare('SELECT total_sketch_bytes FROM app_state WHERE id = 1').first();
+  return row ? Number(row.total_sketch_bytes) : 0;
+}
+
+export async function adjustSketchBytes(env, delta) {
+  await env.DB.prepare(
+    'UPDATE app_state SET total_sketch_bytes = MAX(0, total_sketch_bytes + ?) WHERE id = 1'
+  )
+    .bind(delta)
+    .run();
+}
+
 export async function getStatusHistory(env, orderId) {
   const { results } = await env.DB
     .prepare('SELECT status, changed_at FROM status_log WHERE order_id = ? ORDER BY changed_at ASC')
@@ -70,5 +84,36 @@ export async function updateStatus(env, orderId, status) {
     .run();
   await env.DB.prepare('INSERT INTO status_log (order_id, status, changed_at) VALUES (?, ?, ?)')
     .bind(orderId, status, now)
+    .run();
+}
+
+export async function cancelOrder(env, orderId) {
+  const now = new Date().toISOString();
+  await env.DB.prepare('UPDATE orders SET cancelled_at = ?, updated_at = ? WHERE id = ?')
+    .bind(now, now, orderId)
+    .run();
+  await env.DB.prepare('INSERT INTO status_log (order_id, status, changed_at) VALUES (?, ?, ?)')
+    .bind(orderId, 'cancelled', now)
+    .run();
+}
+
+export async function setInvoiceAmounts(env, orderId, amounts) {
+  const now = new Date().toISOString();
+  await env.DB.prepare(
+    `UPDATE orders SET
+      materials_cost = ?, labor_cost = ?, total_cost = ?,
+      deposit_amount = ?, balance_due = ?, invoice_notes = ?, updated_at = ?
+    WHERE id = ?`
+  )
+    .bind(
+      amounts.materialsCost,
+      amounts.laborCost,
+      amounts.totalCost,
+      amounts.depositAmount,
+      amounts.balanceDue,
+      amounts.invoiceNotes || '',
+      now,
+      orderId
+    )
     .run();
 }

@@ -12,6 +12,8 @@ BUSINESS_NAME = "Brian's Custom Carpentry"
 PAYPAL_LINK = "https://paypal.me/briancustomcarpentry"
 VENMO_HANDLE = "@Brian-Albert-35"
 ZELLE_CONTACT = "7085151012"
+# Keep this comfortably under R2's 10GB/month free tier so sketch uploads never risk a charge.
+R2_STORAGE_CAP_BYTES = "9000000000"
 
 # Secrets (do NOT put real values here). Set with:
 #   wrangler secret put RESEND_API_KEY

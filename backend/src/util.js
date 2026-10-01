@@ -7,6 +7,7 @@ export const STATUS_LABELS = {
   invoice_viewed: 'Invoice Viewed',
   invoice_in_progress: 'Invoice In Progress',
   awaiting_response: 'Awaiting Your Response',
+  cancelled: 'Cancelled',
 };
 
 export function statusIndex(status) {

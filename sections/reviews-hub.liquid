@@ -3,7 +3,6 @@
     render 'contrast-override', background_color: section.settings.background_color, section_id: section.id, skip_contrast: true
   endif
 
-  assign review_cards = '★★★★★|The piece fit the room exactly the way we hoped, and the finish looks even better in person.;★★★★★|Communication was clear from the first measurements through delivery, which made the whole custom process easy.;★★★★★|The build feels solid, the details are clean, and it has held up beautifully with daily use.' | split: ';'
   assign reviews_anchor_id = section.settings.anchor_id
 
   if reviews_anchor_id == blank and request.page_type == 'page' and template.suffix == 'contact'
@@ -23,9 +22,9 @@
 >
   <div class="reviews-hub__shell">
     <div class="reviews-hub__header">
-      <p class="reviews-hub__eyebrow">Client reviews</p>
-      <h2 class="reviews-hub__heading">Read past feedback or leave a new review</h2>
-      <p class="reviews-hub__intro">Use the first tab to browse existing feedback, or open the second tab to send a new review with a star rating.</p>
+      <p class="reviews-hub__eyebrow">★ Customer Reviews ★</p>
+      <h2 class="reviews-hub__heading">What past customers are saying</h2>
+      <p class="reviews-hub__intro">Browse real feedback from finished projects, or leave your own star rating and review below.</p>
     </div>
 
     <div class="reviews-hub__tablist" role="tablist" aria-label="Reviews options" data-reviews-tabs>
@@ -63,13 +62,26 @@
       data-reviews-panel
     >
       <div class="reviews-hub__grid">
-        {% for review_card in review_cards %}
-          {% assign review_parts = review_card | split: '|' %}
-          <article class="reviews-hub__card">
-            <p class="reviews-hub__star-rating" aria-label="5 out of 5 stars">{{ review_parts[0] }}</p>
-            <p class="reviews-hub__quote">{{ review_parts[1] }}</p>
-          </article>
-        {% endfor %}
+        {% assign review_blocks = section.blocks | where: 'type', 'review' %}
+        {% if review_blocks.size == 0 %}
+          <div class="reviews-hub__empty">
+            <p class="reviews-hub__empty-stars" aria-hidden="true">☆☆☆☆☆</p>
+            <p class="reviews-hub__empty-title">Currently No Reviews</p>
+            <p class="reviews-hub__empty-subtitle">Be the first to share a star rating and tell us about your custom build.</p>
+          </div>
+        {% else %}
+          {% for block in review_blocks %}
+            <article class="reviews-hub__card" {{ block.shopify_attributes }}>
+              <p class="reviews-hub__star-rating" aria-label="{{ block.settings.rating }} out of 5 stars">
+                {% for i in (1..5) %}{% if i <= block.settings.rating %}★{% else %}☆{% endif %}{% endfor %}
+              </p>
+              <p class="reviews-hub__quote">{{ block.settings.quote }}</p>
+              {% if block.settings.author != blank %}
+                <p class="reviews-hub__author">— {{ block.settings.author }}</p>
+              {% endif %}
+            </article>
+          {% endfor %}
+        {% endif %}
       </div>
     </div>
 
@@ -176,6 +188,43 @@
     font-size: 1.35rem;
     letter-spacing: 0.15em;
     color: #d9a441;
+  }
+
+  .reviews-hub__author {
+    margin: 0.75rem 0 0;
+    font-size: 0.85rem;
+    color: color-mix(in srgb, var(--color-foreground) 70%, transparent);
+  }
+
+  .reviews-hub__empty {
+    grid-column: 1 / -1;
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    gap: 0.4rem;
+    padding: 2.5rem 1.5rem;
+    border: 1px dashed rgba(143, 91, 49, 0.35);
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  .reviews-hub__empty-stars {
+    margin: 0;
+    font-size: 2rem;
+    letter-spacing: 0.3em;
+    color: #d9a441;
+  }
+
+  .reviews-hub__empty-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+  }
+
+  .reviews-hub__empty-subtitle {
+    margin: 0;
+    max-width: 28rem;
+    color: color-mix(in srgb, var(--color-foreground) 76%, transparent);
   }
 
   .reviews-hub__heading,
@@ -409,6 +458,33 @@
       "step": 4,
       "unit": "px",
       "default": 72
+    }
+  ],
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Review",
+      "settings": [
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "Star rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 5
+        },
+        {
+          "type": "textarea",
+          "id": "quote",
+          "label": "Review text"
+        },
+        {
+          "type": "text",
+          "id": "author",
+          "label": "Customer name (optional)"
+        }
+      ]
     }
   ],
   "presets": [

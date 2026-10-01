@@ -110,6 +110,9 @@ export async function sendCustomerConfirmation(env, order) {
 export async function sendInvoiceFinalizedEmail(env, order) {
   const trackingUrl = `${env.SHOP_ORIGIN}/pages/order-status?token=${order.customerToken}`;
   const preferred = order.paymentMethod || null;
+  const hasAmounts = order.totalCost != null && order.depositAmount != null;
+
+  const formatCurrency = (value) => `$${Number(value || 0).toFixed(2)}`;
 
   const paymentOptions = [
     { key: 'PayPal', detail: env.PAYPAL_LINK },
@@ -129,18 +132,36 @@ export async function sendInvoiceFinalizedEmail(env, order) {
     })
     .join('');
 
+  const breakdownBlock = hasAmounts
+    ? `
+      <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+        <tbody>
+          <tr><td style="padding: 4px 0; color:#6d5a46;">Materials</td><td style="padding:4px 0; text-align:right;">${formatCurrency(order.materialsCost)}</td></tr>
+          <tr><td style="padding: 4px 0; color:#6d5a46;">Labor</td><td style="padding:4px 0; text-align:right;">${formatCurrency(order.laborCost)}</td></tr>
+          <tr style="border-top: 1px solid #d8c6ab;"><td style="padding: 6px 0; font-weight:bold;">Total</td><td style="padding:6px 0; text-align:right; font-weight:bold;">${formatCurrency(order.totalCost)}</td></tr>
+          <tr><td style="padding: 4px 0; color:#6d5a46;">Deposit due now</td><td style="padding:4px 0; text-align:right;">${formatCurrency(order.depositAmount)}</td></tr>
+          <tr><td style="padding: 4px 0; color:#6d5a46;">Balance due at completion</td><td style="padding:4px 0; text-align:right;">${formatCurrency(order.balanceDue)}</td></tr>
+        </tbody>
+      </table>
+      ${order.invoiceNotes ? `<p style="white-space: pre-wrap; background:#f4ece0; padding: 0.75rem 1rem; border-radius: 0.5rem;">${order.invoiceNotes}</p>` : ''}
+    `
+    : '';
+
   const htmlBody = `
     <div style="font-family: Georgia, 'Times New Roman', serif; max-width: 640px; margin: 0 auto; color: #2b1d12; line-height: 1.6;">
       <h2 style="margin-bottom: 0.25rem;">Your invoice details are confirmed</h2>
       <p>Hi ${order.customerName}, we've gone over the details of your project together and your invoice is ready.</p>
 
+      ${hasAmounts ? '<h3 style="margin-bottom: 0.25rem;">Cost breakdown</h3>' : ''}
+      ${breakdownBlock}
+
       <div style="background:#fff4e5; border: 1px solid #e8c88f; padding: 1rem 1.25rem; border-radius: 0.5rem; margin: 1.25rem 0;">
         <p style="margin: 0 0 0.5rem; font-weight: bold;">Payment schedule</p>
         <p style="margin: 0 0 0.5rem;">
-          A <strong>deposit</strong> covering the cost of materials is due now, upon approval of this invoice, before work on your piece begins.
+          A <strong>deposit${hasAmounts ? ` of ${formatCurrency(order.depositAmount)}` : ''}</strong> covering the cost of materials is due now, upon approval of this invoice, before work on your piece begins.
         </p>
         <p style="margin: 0;">
-          The <strong>remaining balance</strong> is due as final payment once your piece is complete and ready to ship or be picked up —
+          The <strong>remaining balance${hasAmounts ? ` of ${formatCurrency(order.balanceDue)}` : ''}</strong> is due as final payment once your piece is complete and ready to ship or be picked up —
           it will not be shipped or handed over until this outstanding balance is paid in full.
         </p>
       </div>
@@ -160,6 +181,37 @@ export async function sendInvoiceFinalizedEmail(env, order) {
   await sendEmail(env, {
     to: order.customerEmail,
     subject: 'Your invoice details are confirmed',
+    htmlBody,
+  });
+}
+
+export async function sendCustomerCancellationEmail(env, order) {
+  const htmlBody = `
+    <div style="font-family: Georgia, 'Times New Roman', serif; max-width: 640px; margin: 0 auto; color: #2b1d12; line-height: 1.6;">
+      <h2 style="margin-bottom: 0.25rem;">Your order has been cancelled</h2>
+      <p>Hi ${order.customerName}, your custom build request has been cancelled and no further action is needed. If this was a mistake or you'd like to start a new request, just reach out or submit a new build request any time.</p>
+      <p style="font-size: 0.85rem; color: #8a7960;">${env.BUSINESS_NAME}</p>
+    </div>
+  `;
+
+  await sendEmail(env, {
+    to: order.customerEmail,
+    subject: 'Your custom build request has been cancelled',
+    htmlBody,
+  });
+}
+
+export async function sendAdminCancellationNotice(env, order) {
+  const htmlBody = `
+    <div style="font-family: Georgia, 'Times New Roman', serif; max-width: 640px; margin: 0 auto; color: #2b1d12;">
+      <h2 style="margin-bottom: 0.25rem;">A customer cancelled their request</h2>
+      <p><strong>${order.customerName}</strong> (${order.customerEmail}) cancelled their custom build request.</p>
+    </div>
+  `;
+
+  await sendEmail(env, {
+    to: env.ADMIN_EMAIL,
+    subject: `Order cancelled: ${order.customerName}`,
     htmlBody,
   });
 }

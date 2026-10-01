@@ -30,6 +30,14 @@
           piece gets the time and care it deserves.
         </p>
       </div>
+      <div class="order-status-tracker__cancel" data-tracker-cancel-wrap>
+        <button type="button" class="order-status-tracker__cancel-button" data-tracker-cancel-button>Cancel this order</button>
+        <p class="order-status-tracker__cancel-note" data-tracker-cancel-message hidden></p>
+      </div>
+    </template>
+
+    <template data-tracker-cancelled-template>
+      <div class="order-status-tracker__cancelled-banner">This order has been cancelled.</div>
     </template>
   </div>
 </section>
@@ -110,6 +118,40 @@
     font-size: 0.9rem;
   }
 
+  .order-status-tracker__cancel {
+    display: grid;
+    gap: 0.5rem;
+    justify-items: start;
+  }
+
+  .order-status-tracker__cancel-button {
+    background: none;
+    border: 1px solid rgba(170, 51, 51, 0.5);
+    color: #a33;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .order-status-tracker__cancel-button:hover {
+    background: rgba(170, 51, 51, 0.08);
+  }
+
+  .order-status-tracker__cancel-note {
+    font-size: 0.85rem;
+    color: #a33;
+  }
+
+  .order-status-tracker__cancelled-banner {
+    background: rgba(170, 51, 51, 0.1);
+    border: 1px solid rgba(170, 51, 51, 0.3);
+    color: #a33;
+    padding: 1rem 1.25rem;
+    border-radius: 1rem;
+    font-weight: bold;
+  }
+
   @media screen and (max-width: 749px) {
     .order-status-tracker__steps {
       grid-template-columns: repeat(2, 1fr);
@@ -124,6 +166,7 @@
     const root = section?.querySelector('[data-order-status-tracker]');
     const body = root?.querySelector('[data-tracker-body]');
     const template = root?.querySelector('[data-tracker-template]');
+    const cancelledTemplate = root?.querySelector('[data-tracker-cancelled-template]');
 
     if (!root || !body || !template) {
       return;
@@ -149,11 +192,59 @@
       return;
     }
 
+    const cancelOrder = async (button, messageEl) => {
+      if (!window.confirm('Are you sure you want to cancel this order? This cannot be undone.')) {
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = 'Cancelling…';
+
+      try {
+        const response = await fetch(`${apiEndpoint}/cancel`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || 'Something went wrong cancelling your order.');
+        }
+
+        const cancelledFragment = cancelledTemplate?.content.cloneNode(true);
+        body.innerHTML = '';
+        if (cancelledFragment) {
+          body.appendChild(cancelledFragment);
+        } else {
+          showMessage('This order has been cancelled.');
+        }
+      } catch (error) {
+        button.disabled = false;
+        button.textContent = 'Cancel this order';
+        if (messageEl) {
+          messageEl.hidden = false;
+          messageEl.textContent = error.message || 'Something went wrong cancelling your order.';
+        }
+      }
+    };
+
     fetch(`${apiEndpoint}/status?token=${encodeURIComponent(token)}`)
       .then((response) => response.json())
       .then((data) => {
         if (!data.ok) {
           throw new Error(data.error || 'Request not found.');
+        }
+
+        if (data.cancelled) {
+          const cancelledFragment = cancelledTemplate?.content.cloneNode(true);
+          body.innerHTML = '';
+          if (cancelledFragment) {
+            body.appendChild(cancelledFragment);
+          } else {
+            showMessage('This order has been cancelled.');
+          }
+          return;
         }
 
         const fragment = template.content.cloneNode(true);
@@ -187,6 +278,10 @@
 
         body.innerHTML = '';
         body.appendChild(fragment);
+
+        const cancelButton = body.querySelector('[data-tracker-cancel-button]');
+        const cancelMessage = body.querySelector('[data-tracker-cancel-message]');
+        cancelButton?.addEventListener('click', () => cancelOrder(cancelButton, cancelMessage));
       })
       .catch((error) => {
         showMessage(error.message || 'We could not load your request status. Please try again later.');

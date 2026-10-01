@@ -1,7 +1,25 @@
 import { corsHeaders, json, html, newToken, statusIndex, STATUSES } from './util.js';
-import { insertOrder, getOrderByAdminToken, getOrderByCustomerToken, listOrders, getStatusHistory, updateStatus, getOrderById } from './db.js';
-import { sendAdminNotification, sendCustomerConfirmation, sendInvoiceFinalizedEmail } from './email.js';
-import { renderOrderView, renderOrdersLog, renderSimpleMessage } from './adminViews.js';
+import {
+  insertOrder,
+  getOrderByAdminToken,
+  getOrderByCustomerToken,
+  listOrders,
+  getStatusHistory,
+  updateStatus,
+  getOrderById,
+  setInvoiceAmounts,
+  getTotalSketchBytes,
+  adjustSketchBytes,
+  cancelOrder,
+} from './db.js';
+import {
+  sendAdminNotification,
+  sendCustomerConfirmation,
+  sendInvoiceFinalizedEmail,
+  sendCustomerCancellationEmail,
+  sendAdminCancellationNotice,
+} from './email.js';
+import { renderOrderView, renderOrdersLog, renderSimpleMessage, renderInvoiceForm, renderCancelConfirm } from './adminViews.js';
 
 function dataUrlToBytes(dataUrl) {
   const match = /^data:image\/png;base64,(.+)$/.exec(dataUrl || '');
@@ -36,12 +54,23 @@ async function handleSubmit(request, env) {
   const adminToken = newToken();
 
   const sketchBytes = dataUrlToBytes(payload.sketchImage);
-  const hasSketch = Boolean(sketchBytes && sketchBytes.length);
+  let hasSketch = Boolean(sketchBytes && sketchBytes.length);
+  let sketchOmittedNote = '';
 
   if (hasSketch) {
-    await env.SKETCHES.put(`${id}.png`, sketchBytes, {
-      httpMetadata: { contentType: 'image/png' },
-    });
+    const cap = Number(env.R2_STORAGE_CAP_BYTES) || 9_000_000_000;
+    const currentTotal = await getTotalSketchBytes(env);
+
+    if (currentTotal + sketchBytes.length > cap) {
+      // Safety cap reached: skip storing the sketch rather than risk exceeding R2's free tier.
+      hasSketch = false;
+      sketchOmittedNote = '\n\n(Note: the sketch could not be saved because the storage safety cap was reached. Follow up with the customer directly for an image.)';
+    } else {
+      await env.SKETCHES.put(`${id}.png`, sketchBytes, {
+        httpMetadata: { contentType: 'image/png' },
+      });
+      await adjustSketchBytes(env, sketchBytes.length);
+    }
   }
 
   const order = {
@@ -57,9 +86,10 @@ async function handleSubmit(request, env) {
     woodSpecies: payload.woodSpecies || '',
     dimensionPreference: payload.dimensionPreference || '',
     dimensionsSummary: payload.dimensionsSummary || '',
-    projectNotes: payload.projectNotes || '',
+    projectNotes: (payload.projectNotes || '') + sketchOmittedNote,
     paymentMethod: payload.paymentMethod || '',
     hasSketch,
+    sketchBytes: hasSketch ? sketchBytes.length : 0,
   };
 
   await insertOrder(env, order);
@@ -94,7 +124,8 @@ async function handleStatus(request, env, url) {
   return json(
     {
       ok: true,
-      status: order.status,
+      status: order.cancelled_at ? 'cancelled' : order.status,
+      cancelled: Boolean(order.cancelled_at),
       category: order.category,
       subcategory: order.subcategory,
       createdAt: order.created_at,
@@ -131,7 +162,7 @@ async function handleAdminView(env, url) {
     return html(renderSimpleMessage('Not found', 'No request matches this link.'), { status: 404 });
   }
 
-  if (order.status === 'invoice_sent') {
+  if (!order.cancelled_at && order.status === 'invoice_sent') {
     await updateStatus(env, order.id, 'invoice_viewed');
     order.status = 'invoice_viewed';
   }
@@ -150,18 +181,59 @@ async function handleAdminAction(env, url) {
     return html(renderSimpleMessage('Not found', 'No request matches this link.'), { status: 404 });
   }
 
-  if (STATUSES.includes(nextStatus) && statusIndex(nextStatus) > statusIndex(order.status)) {
+  // Awaiting Response must go through the itemized invoice form so the customer always gets a cost breakdown.
+  if (STATUSES.includes(nextStatus) && nextStatus !== 'awaiting_response' && statusIndex(nextStatus) > statusIndex(order.status)) {
     await updateStatus(env, order.id, nextStatus);
-
-    if (nextStatus === 'awaiting_response') {
-      await sendInvoiceFinalizedEmail(env, {
-        customerName: order.customer_name,
-        customerEmail: order.customer_email,
-        customerToken: order.customer_token,
-        paymentMethod: order.payment_method,
-      });
-    }
   }
+
+  return Response.redirect(`${env.WORKER_BASE_URL}/admin/view?token=${token}`, 302);
+}
+
+async function handleAdminInvoiceForm(env, url) {
+  const token = url.searchParams.get('token');
+  const order = await getOrderByAdminToken(env, token);
+
+  if (!order) {
+    return html(renderSimpleMessage('Not found', 'No request matches this link.'), { status: 404 });
+  }
+
+  return html(renderInvoiceForm(order, { adminToken: token }));
+}
+
+async function handleAdminInvoiceSubmit(request, env, url) {
+  const token = url.searchParams.get('token');
+  const order = await getOrderByAdminToken(env, token);
+
+  if (!order) {
+    return html(renderSimpleMessage('Not found', 'No request matches this link.'), { status: 404 });
+  }
+
+  const formData = await request.formData();
+  const materialsCost = Number.parseFloat(formData.get('materialsCost')) || 0;
+  const laborCost = Number.parseFloat(formData.get('laborCost')) || 0;
+  const depositAmount = Number.parseFloat(formData.get('depositAmount')) || 0;
+  const invoiceNotes = (formData.get('invoiceNotes') || '').toString().trim();
+  const totalCost = materialsCost + laborCost;
+  const balanceDue = Math.max(totalCost - depositAmount, 0);
+
+  await setInvoiceAmounts(env, order.id, { materialsCost, laborCost, totalCost, depositAmount, balanceDue, invoiceNotes });
+
+  if (statusIndex('awaiting_response') > statusIndex(order.status)) {
+    await updateStatus(env, order.id, 'awaiting_response');
+  }
+
+  await sendInvoiceFinalizedEmail(env, {
+    customerName: order.customer_name,
+    customerEmail: order.customer_email,
+    customerToken: order.customer_token,
+    paymentMethod: order.payment_method,
+    materialsCost,
+    laborCost,
+    totalCost,
+    depositAmount,
+    balanceDue,
+    invoiceNotes,
+  });
 
   return Response.redirect(`${env.WORKER_BASE_URL}/admin/view?token=${token}`, 302);
 }
@@ -173,7 +245,83 @@ async function handleAdminOrders(env, url) {
   }
 
   const orders = await listOrders(env);
-  return html(renderOrdersLog(orders, key));
+  const cap = Number(env.R2_STORAGE_CAP_BYTES) || 9_000_000_000;
+  const used = await getTotalSketchBytes(env);
+  const storageInfo = {
+    usedMb: (used / 1_000_000).toFixed(1),
+    capMb: (cap / 1_000_000).toFixed(0),
+    percent: Math.min(100, Math.round((used / cap) * 100)),
+  };
+
+  return html(renderOrdersLog(orders, key, storageInfo));
+}
+
+async function handleCancelByCustomer(request, env) {
+  let payload;
+  try {
+    payload = await request.json();
+  } catch {
+    return json({ ok: false, error: 'Invalid request body.' }, env, { status: 400 });
+  }
+
+  const order = await getOrderByCustomerToken(env, payload.token);
+  if (!order) {
+    return json({ ok: false, error: 'Request not found.' }, env, { status: 404 });
+  }
+
+  if (order.cancelled_at) {
+    return json({ ok: true, alreadyCancelled: true }, env);
+  }
+
+  if (order.has_sketch) {
+    await env.SKETCHES.delete(`${order.id}.png`);
+    await adjustSketchBytes(env, -(order.sketch_bytes || 0));
+  }
+
+  await cancelOrder(env, order.id);
+
+  await sendAdminCancellationNotice(env, {
+    customerName: order.customer_name,
+    customerEmail: order.customer_email,
+  });
+
+  return json({ ok: true }, env);
+}
+
+async function handleAdminCancelForm(env, url) {
+  const token = url.searchParams.get('token');
+  const order = await getOrderByAdminToken(env, token);
+
+  if (!order) {
+    return html(renderSimpleMessage('Not found', 'No request matches this link.'), { status: 404 });
+  }
+
+  return html(renderCancelConfirm(order, { adminToken: token }));
+}
+
+async function handleAdminCancelSubmit(env, url) {
+  const token = url.searchParams.get('token');
+  const order = await getOrderByAdminToken(env, token);
+
+  if (!order) {
+    return html(renderSimpleMessage('Not found', 'No request matches this link.'), { status: 404 });
+  }
+
+  if (!order.cancelled_at) {
+    if (order.has_sketch) {
+      await env.SKETCHES.delete(`${order.id}.png`);
+      await adjustSketchBytes(env, -(order.sketch_bytes || 0));
+    }
+
+    await cancelOrder(env, order.id);
+
+    await sendCustomerCancellationEmail(env, {
+      customerName: order.customer_name,
+      customerEmail: order.customer_email,
+    });
+  }
+
+  return Response.redirect(`${env.WORKER_BASE_URL}/admin/view?token=${token}`, 302);
 }
 
 export default {
@@ -200,6 +348,21 @@ export default {
       }
       if (pathname === '/admin/action' && request.method === 'GET') {
         return await handleAdminAction(env, url);
+      }
+      if (pathname === '/admin/invoice' && request.method === 'GET') {
+        return await handleAdminInvoiceForm(env, url);
+      }
+      if (pathname === '/admin/invoice' && request.method === 'POST') {
+        return await handleAdminInvoiceSubmit(request, env, url);
+      }
+      if (pathname === '/cancel' && request.method === 'POST') {
+        return await handleCancelByCustomer(request, env);
+      }
+      if (pathname === '/admin/cancel' && request.method === 'GET') {
+        return await handleAdminCancelForm(env, url);
+      }
+      if (pathname === '/admin/cancel' && request.method === 'POST') {
+        return await handleAdminCancelSubmit(env, url);
       }
       if (pathname === '/admin/orders' && request.method === 'GET') {
         return await handleAdminOrders(env, url);
