@@ -90,6 +90,7 @@ export async function sendCustomerConfirmation(env, order) {
           Once you approve the final invoice, a deposit covering the cost of materials is due before work begins.
           The remaining balance is due as final payment once your piece is complete and ready to ship or be picked up.
           You will receive a follow-up email with the exact amounts and payment options once your invoice is finalized.
+          Please note: once work on your project has started, the materials deposit is non-refundable.
         </p>
       </div>
 
@@ -163,6 +164,9 @@ export async function sendInvoiceFinalizedEmail(env, order) {
         <p style="margin: 0;">
           The <strong>remaining balance${hasAmounts ? ` of ${formatCurrency(order.balanceDue)}` : ''}</strong> is due as final payment once your piece is complete and ready to ship or be picked up —
           it will not be shipped or handed over until this outstanding balance is paid in full.
+        </p>
+        <p style="margin: 0.75rem 0 0; font-weight: bold;">
+          Once work on your project has started, the materials deposit is non-refundable.
         </p>
       </div>
 

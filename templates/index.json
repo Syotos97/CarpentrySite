@@ -178,7 +178,7 @@
       "settings": {
         "anchor_id": "custom-build",
         "eyebrow": "Custom builds",
-        "heading": "Design your custom project before you request pricing",
+        "heading": "Design your custom project",
         "intro": "<p>Choose the type of build, wood preferences, dimensions, and sketch notes here. When you send the request, I will review it and get back to you with an ETA and a cost estimate within 7 days.</p>",
         "background_color": "#e8ddd0",
         "api_endpoint": "https://carpentry-invoice-backend.brianscustomcarpentry.workers.dev",

@@ -32,6 +32,7 @@
       </div>
       <div class="order-status-tracker__cancel" data-tracker-cancel-wrap>
         <button type="button" class="order-status-tracker__cancel-button" data-tracker-cancel-button>Cancel this order</button>
+        <p class="order-status-tracker__cancel-disclaimer">Once work on your project has started, the materials deposit is non-refundable.</p>
         <p class="order-status-tracker__cancel-note" data-tracker-cancel-message hidden></p>
       </div>
     </template>
@@ -143,6 +144,12 @@
     color: #a33;
   }
 
+  .order-status-tracker__cancel-disclaimer {
+    font-size: 0.8rem;
+    color: color-mix(in srgb, var(--color-foreground) 70%, transparent);
+    margin: 0;
+  }
+
   .order-status-tracker__cancelled-banner {
     background: rgba(170, 51, 51, 0.1);
     border: 1px solid rgba(170, 51, 51, 0.3);
@@ -193,7 +200,7 @@
     }
 
     const cancelOrder = async (button, messageEl) => {
-      if (!window.confirm('Are you sure you want to cancel this order? This cannot be undone.')) {
+      if (!window.confirm('Are you sure you want to cancel this order? This cannot be undone. If work on your project has already started, the materials deposit is non-refundable.')) {
         return;
       }
 

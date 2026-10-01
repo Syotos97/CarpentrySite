@@ -103,6 +103,7 @@ export function renderCancelConfirm(order, { adminToken }) {
   const body = `
     <h2 style="margin-top:0;">Cancel this order?</h2>
     <p>This will cancel the request from <strong>${escapeHtml(order.customer_name)}</strong> (${escapeHtml(order.customer_email)}) and notify them by email. This cannot be undone.</p>
+    <p style="font-weight:bold;color:#a33;">Reminder: if work on this project has already started, the materials deposit is non-refundable.</p>
     <form method="POST" action="/admin/cancel?token=${adminToken}">
       <div class="actions">
         <button type="submit" style="background:#a33;color:#fff;border:none;padding:0.6rem 1.1rem;border-radius:0.4rem;font-size:0.9rem;cursor:pointer;">Yes, cancel this order</button>
