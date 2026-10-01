@@ -84,6 +84,15 @@ export async function sendCustomerConfirmation(env, order) {
         </p>
       </div>
 
+      <div style="background:#fff4e5; border: 1px solid #e8c88f; padding: 1rem 1.25rem; border-radius: 0.5rem; margin: 1.5rem 0;">
+        <p style="margin: 0 0 0.5rem; font-weight: bold;">A note on payment</p>
+        <p style="margin: 0;">
+          Once you approve the final invoice, a deposit covering the cost of materials is due before work begins.
+          The remaining balance is due as final payment once your piece is complete and ready to ship or be picked up.
+          You will receive a follow-up email with the exact amounts and payment options once your invoice is finalized.
+        </p>
+      </div>
+
       <p>
         <a href="${trackingUrl}" style="background:#6d441e; color:#fff; padding: 0.65rem 1.25rem; border-radius: 0.4rem; text-decoration:none;">Track your request status</a>
       </p>
@@ -123,7 +132,20 @@ export async function sendInvoiceFinalizedEmail(env, order) {
   const htmlBody = `
     <div style="font-family: Georgia, 'Times New Roman', serif; max-width: 640px; margin: 0 auto; color: #2b1d12; line-height: 1.6;">
       <h2 style="margin-bottom: 0.25rem;">Your invoice details are confirmed</h2>
-      <p>Hi ${order.customerName}, we've gone over the details of your project together and your invoice is ready. Here's how you can send payment:</p>
+      <p>Hi ${order.customerName}, we've gone over the details of your project together and your invoice is ready.</p>
+
+      <div style="background:#fff4e5; border: 1px solid #e8c88f; padding: 1rem 1.25rem; border-radius: 0.5rem; margin: 1.25rem 0;">
+        <p style="margin: 0 0 0.5rem; font-weight: bold;">Payment schedule</p>
+        <p style="margin: 0 0 0.5rem;">
+          A <strong>deposit</strong> covering the cost of materials is due now, upon approval of this invoice, before work on your piece begins.
+        </p>
+        <p style="margin: 0;">
+          The <strong>remaining balance</strong> is due as final payment once your piece is complete and ready to ship or be picked up —
+          it will not be shipped or handed over until this outstanding balance is paid in full.
+        </p>
+      </div>
+
+      <p>Here's how you can send payment:</p>
       <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
         <tbody>${paymentRows}</tbody>
       </table>
