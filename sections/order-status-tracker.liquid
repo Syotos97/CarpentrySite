@@ -164,6 +164,16 @@
       grid-template-columns: repeat(2, 1fr);
     }
   }
+
+  @media screen and (max-width: 420px) {
+    .order-status-tracker__steps {
+      grid-template-columns: 1fr;
+    }
+
+    .order-status-tracker__summary {
+      grid-template-columns: 1fr;
+    }
+  }
 {% endstylesheet %}
 
 <script>
