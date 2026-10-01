@@ -97,7 +97,7 @@
         </label>
 
         <label class="custom-project-builder__field">
-          <span>Phone</span>
+          <span>Phone (Optional)</span>
           <input
             type="tel"
             class="custom-project-builder__input"
@@ -126,7 +126,7 @@
                 <option value="Storage piece">Storage piece</option>
                 <option value="Wall decor">Wall decor</option>
                 <option value="Outdoor piece">Outdoor piece</option>
-                <option value="Other">Other</option>
+                <option value="Other">Other (Please Specify)</option>
               </select>
             </label>
 
@@ -329,6 +329,10 @@
   .custom-project-builder__choice-group {
     display: grid;
     gap: 0.45rem;
+  }
+
+  .custom-project-builder__field[hidden] {
+    display: none;
   }
 
   .custom-project-builder__field--full {
@@ -719,6 +723,35 @@
       syncDimensions();
       syncSketchData();
 
+      const payload = {
+        customerName: form.querySelector('[name="contact[name]"]')?.value.trim() || '',
+        customerEmail: form.querySelector('[name="contact[email]"]')?.value.trim() || '',
+        customerPhone: form.querySelector('[name="contact[phone]"]')?.value.trim() || '',
+        category: categorySelect?.value || '',
+        subcategory: subcategoryField && !subcategoryField.hidden ? subcategoryInput?.value.trim() || '' : '',
+        woodFamily: form.querySelector('[name="contact[Wood family]"]')?.value || '',
+        woodSpecies: form.querySelector('[name="contact[Specific wood type]"]')?.value || '',
+        dimensionPreference: dimensionModeInputs.some((input) => input.checked && input.dataset.dimensionMode === 'builder')
+          ? 'Leave dimensions to the builder'
+          : 'Customer provided exact dimensions',
+        dimensionsSummary: dimensionSummaryInput.value,
+        projectNotes: form.querySelector('[name="contact[body]"]')?.value || '',
+        sketchImage: strokes.length ? canvas.toDataURL('image/png') : null,
+      };
+
+      const missing = [];
+      if (!payload.customerName) missing.push('Name');
+      if (!payload.customerEmail) missing.push('Email');
+      if (!payload.category) missing.push('What are we building?');
+      if (payload.category === 'Other' && !payload.subcategory) missing.push('What would you like built?');
+
+      if (missing.length) {
+        event.preventDefault();
+        showError(`Please fill in: ${missing.join(', ')}. Everything else you entered has been kept.`);
+        setBusy(false);
+        return;
+      }
+
       if (!apiEndpoint) {
         return;
       }
@@ -727,22 +760,6 @@
       errorMessage && (errorMessage.hidden = true);
       successMessage && (successMessage.hidden = true);
       setBusy(true);
-
-      const builderMode = dimensionModeInputs.some((input) => input.checked && input.dataset.dimensionMode === 'builder');
-
-      const payload = {
-        customerName: form.querySelector('[name="contact[name]"]')?.value || '',
-        customerEmail: form.querySelector('[name="contact[email]"]')?.value || '',
-        customerPhone: form.querySelector('[name="contact[phone]"]')?.value || '',
-        category: categorySelect?.value || '',
-        subcategory: subcategoryField && !subcategoryField.hidden ? subcategoryInput?.value.trim() || '' : '',
-        woodFamily: form.querySelector('[name="contact[Wood family]"]')?.value || '',
-        woodSpecies: form.querySelector('[name="contact[Specific wood type]"]')?.value || '',
-        dimensionPreference: builderMode ? 'Leave dimensions to the builder' : 'Customer provided exact dimensions',
-        dimensionsSummary: dimensionSummaryInput.value,
-        projectNotes: form.querySelector('[name="contact[body]"]')?.value || '',
-        sketchImage: strokes.length ? canvas.toDataURL('image/png') : null,
-      };
 
       try {
         const response = await fetch(`${apiEndpoint}/submit`, {
