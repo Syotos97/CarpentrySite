@@ -15,7 +15,7 @@
   class="section section--page-width custom-project-builder spacing-style{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
   style="{% render 'spacing-padding', settings: section.settings %}"
 >
-  <div class="custom-project-builder__shell" data-custom-project-builder>
+  <div class="custom-project-builder__shell" data-custom-project-builder data-api-endpoint="{{ section.settings.api_endpoint }}">
     <div class="custom-project-builder__header">
       <p class="custom-project-builder__eyebrow">{{ section.settings.eyebrow }}</p>
       <h2 class="custom-project-builder__heading">{{ section.settings.heading }}</h2>
@@ -61,6 +61,12 @@
           Request received. I will get back to you with an ETA and a cost estimate within 7 days.
         </div>
       {%- endif -%}
+
+      <div class="custom-project-builder__message custom-project-builder__message--success" data-success-message hidden tabindex="-1">
+        {{- 'icon-checkmark.svg' | inline_asset_content -}}
+        <span data-success-text>Request received. I will get back to you with an ETA and a cost estimate within 7 days.</span>
+      </div>
+      <div class="custom-project-builder__message custom-project-builder__message--error" data-error-message hidden tabindex="-1"></div>
 
       <div class="custom-project-builder__grid custom-project-builder__grid--contact">
         <label class="custom-project-builder__field">
@@ -113,7 +119,7 @@
           <div class="custom-project-builder__grid">
             <label class="custom-project-builder__field">
               <span>What are we building?</span>
-              <select class="custom-project-builder__input" name="contact[What are we building?]">
+              <select class="custom-project-builder__input" name="contact[What are we building?]" data-category-select>
                 <option value="Furniture">Furniture</option>
                 <option value="Charcuterie boards">Charcuterie boards</option>
                 <option value="Shelving">Shelving</option>
@@ -123,6 +129,11 @@
                 <option value="Outdoor piece">Outdoor piece</option>
                 <option value="Other">Other</option>
               </select>
+            </label>
+
+            <label class="custom-project-builder__field" data-subcategory-field hidden>
+              <span>What type of furniture?</span>
+              <select class="custom-project-builder__input" name="contact[Subcategory]" data-subcategory-select></select>
             </label>
 
             <label class="custom-project-builder__field">
@@ -423,6 +434,10 @@
     border-radius: 1rem;
   }
 
+  .custom-project-builder__message[hidden] {
+    display: none;
+  }
+
   .custom-project-builder__message--error {
     background: rgba(170, 52, 52, 0.12);
     color: #7d1e1e;
@@ -484,12 +499,57 @@
     const clearButton = root?.querySelector('[data-sketch-clear]');
     const sizeInput = root?.querySelector('[data-sketch-size]');
     const form = root?.querySelector('form');
+    const categorySelect = root?.querySelector('[data-category-select]');
+    const subcategoryField = root?.querySelector('[data-subcategory-field]');
+    const subcategorySelect = root?.querySelector('[data-subcategory-select]');
+    const successMessage = root?.querySelector('[data-success-message]');
+    const successText = root?.querySelector('[data-success-text]');
+    const errorMessage = root?.querySelector('[data-error-message]');
+    const submitButton = form?.querySelector('.custom-project-builder__submit');
+    const apiEndpoint = root?.dataset.apiEndpoint;
 
     if (!root || !canvas || !sketchInput || !dimensionSummaryInput || !form) {
       return;
     }
 
     section.dataset.customProjectBuilderBound = 'true';
+
+    const CATEGORY_SUBCATEGORIES = {
+      Furniture: [
+        'Dresser',
+        'Desk',
+        'Bed frame or headboard',
+        'Nightstand',
+        'Bookshelf',
+        'Entertainment console',
+        'Dining table',
+        'Coffee table',
+        'Bench',
+        'Cabinet',
+        'Chair',
+        'Other furniture',
+      ],
+    };
+
+    const syncSubcategoryOptions = () => {
+      if (!categorySelect || !subcategoryField || !subcategorySelect) {
+        return;
+      }
+
+      const options = CATEGORY_SUBCATEGORIES[categorySelect.value];
+
+      if (!options) {
+        subcategoryField.hidden = true;
+        subcategorySelect.innerHTML = '';
+        subcategorySelect.value = '';
+        return;
+      }
+
+      subcategoryField.hidden = false;
+      subcategorySelect.innerHTML = options
+        .map((option) => `<option value="${option}">${option}</option>`)
+        .join('');
+    };
 
     const context = canvas.getContext('2d');
     let strokes = [];
@@ -649,14 +709,96 @@
       input.addEventListener('input', syncDimensions);
     });
 
-    form.addEventListener('submit', () => {
+    categorySelect?.addEventListener('change', syncSubcategoryOptions);
+
+    const setBusy = (busy) => {
+      if (submitButton) {
+        submitButton.disabled = busy;
+        submitButton.textContent = busy ? 'Sending…' : 'Create Invoice';
+      }
+    };
+
+    const showError = (messageText) => {
+      if (!errorMessage) {
+        return;
+      }
+      errorMessage.textContent = messageText;
+      errorMessage.hidden = false;
+      errorMessage.focus();
+    };
+
+    const showSuccess = (trackingUrl) => {
+      if (!successMessage) {
+        return;
+      }
+      if (successText) {
+        successText.innerHTML = trackingUrl
+          ? `Request received. I will get back to you with an ETA and a cost estimate within 7 days. <a href="${trackingUrl}">Track your request status</a>.`
+          : 'Request received. I will get back to you with an ETA and a cost estimate within 7 days.';
+      }
+      successMessage.hidden = false;
+      successMessage.focus();
+    };
+
+    form.addEventListener('submit', async (event) => {
       syncDimensions();
       syncSketchData();
+
+      if (!apiEndpoint) {
+        return;
+      }
+
+      event.preventDefault();
+      errorMessage && (errorMessage.hidden = true);
+      successMessage && (successMessage.hidden = true);
+      setBusy(true);
+
+      const builderMode = dimensionModeInputs.some((input) => input.checked && input.dataset.dimensionMode === 'builder');
+
+      const payload = {
+        customerName: form.querySelector('[name="contact[name]"]')?.value || '',
+        customerEmail: form.querySelector('[name="contact[email]"]')?.value || '',
+        customerPhone: form.querySelector('[name="contact[phone]"]')?.value || '',
+        category: categorySelect?.value || '',
+        subcategory: subcategoryField && !subcategoryField.hidden ? subcategorySelect?.value || '' : '',
+        woodFamily: form.querySelector('[name="contact[Wood family]"]')?.value || '',
+        woodSpecies: form.querySelector('[name="contact[Specific wood type]"]')?.value || '',
+        dimensionPreference: builderMode ? 'Leave dimensions to the builder' : 'Customer provided exact dimensions',
+        dimensionsSummary: dimensionSummaryInput.value,
+        projectNotes: form.querySelector('[name="contact[body]"]')?.value || '',
+        sketchImage: strokes.length ? canvas.toDataURL('image/png') : null,
+      };
+
+      try {
+        const response = await fetch(`${apiEndpoint}/submit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || 'Something went wrong sending your request.');
+        }
+
+        showSuccess(data.trackingUrl);
+        form.reset();
+        strokes = [];
+        redraw();
+        syncSketchData();
+        syncDimensions();
+        syncSubcategoryOptions();
+      } catch (error) {
+        showError(error.message || 'Something went wrong sending your request. Please try again.');
+      } finally {
+        setBusy(false);
+      }
     });
 
     setTool('pen');
     syncDimensions();
     syncSketchData();
+    syncSubcategoryOptions();
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
   })();
@@ -696,6 +838,12 @@
       "id": "background_color",
       "label": "Background color",
       "default": "#e8ddd0"
+    },
+    {
+      "type": "url",
+      "id": "api_endpoint",
+      "label": "Invoice backend API endpoint",
+      "info": "Base URL of the deployed invoice backend (no trailing slash), e.g. https://carpentry-invoice-backend.yourname.workers.dev. Leave blank to fall back to the plain contact form."
     },
     {
       "type": "header",

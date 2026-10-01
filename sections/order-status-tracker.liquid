@@ -1,0 +1,255 @@
+{% liquid
+  if section.settings.background_color != blank
+    render 'contrast-override', background_color: section.settings.background_color, section_id: section.id, skip_contrast: true
+  endif
+%}
+
+<div class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"></div>
+<section
+  class="section section--page-width order-status-tracker spacing-style{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
+  style="{% render 'spacing-padding', settings: section.settings %}"
+>
+  <div class="order-status-tracker__shell" data-order-status-tracker data-api-endpoint="{{ section.settings.api_endpoint }}">
+    <div class="order-status-tracker__header">
+      <p class="order-status-tracker__eyebrow">{{ section.settings.eyebrow }}</p>
+      <h1 class="order-status-tracker__heading">{{ section.settings.heading }}</h1>
+    </div>
+
+    <div class="order-status-tracker__body" data-tracker-body>
+      <p data-tracker-loading>Looking up your request…</p>
+    </div>
+
+    <template data-tracker-template>
+      <ol class="order-status-tracker__steps" data-tracker-steps></ol>
+      <dl class="order-status-tracker__summary" data-tracker-summary></dl>
+      <div class="order-status-tracker__disclaimer">
+        <p>
+          Every piece is handmade to order, built, sanded, and finished by hand rather than mass produced.
+          That craftsmanship is what gives a custom piece its quality and durability, but it also means your
+          project may take longer than a store-bought alternative. Thank you for your patience while your
+          piece gets the time and care it deserves.
+        </p>
+      </div>
+    </template>
+  </div>
+</section>
+
+{% stylesheet %}
+  .order-status-tracker__shell {
+    display: grid;
+    gap: 1.5rem;
+    padding: clamp(1.25rem, 2vw, 2rem);
+    border-radius: 2rem;
+    border: 1px solid rgba(143, 91, 49, 0.14);
+    background: var(--color-background);
+    box-shadow: 0 1.25rem 3rem rgba(32, 19, 9, 0.08);
+    max-width: 48rem;
+    margin: 0 auto;
+  }
+
+  .order-status-tracker__eyebrow {
+    margin: 0 0 0.6rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(43, 29, 18, 0.6);
+  }
+
+  .order-status-tracker__heading {
+    margin: 0;
+  }
+
+  .order-status-tracker__steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .order-status-tracker__step {
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    background: rgba(143, 91, 49, 0.08);
+    text-align: center;
+    font-size: 0.85rem;
+    color: rgba(43, 29, 18, 0.55);
+  }
+
+  .order-status-tracker__step.is-complete {
+    background: rgba(59, 122, 74, 0.16);
+    color: #204f2a;
+  }
+
+  .order-status-tracker__step.is-current {
+    background: #6d441e;
+    color: #fff;
+    font-weight: bold;
+  }
+
+  .order-status-tracker__summary {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.35rem 1rem;
+    margin: 0;
+  }
+
+  .order-status-tracker__summary dt {
+    color: rgba(43, 29, 18, 0.6);
+  }
+
+  .order-status-tracker__summary dd {
+    margin: 0;
+  }
+
+  .order-status-tracker__disclaimer {
+    background: rgba(143, 91, 49, 0.08);
+    padding: 1rem 1.25rem;
+    border-radius: 1rem;
+    font-size: 0.9rem;
+  }
+
+  @media screen and (max-width: 749px) {
+    .order-status-tracker__steps {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+{% endstylesheet %}
+
+<script>
+  (() => {
+    const currentScript = document.currentScript;
+    const section = document.getElementById('shopify-section-{{ section.id }}') || currentScript.closest('.shopify-section');
+    const root = section?.querySelector('[data-order-status-tracker]');
+    const body = root?.querySelector('[data-tracker-body]');
+    const template = root?.querySelector('[data-tracker-template]');
+
+    if (!root || !body || !template) {
+      return;
+    }
+
+    const apiEndpoint = root.dataset.apiEndpoint;
+    const STATUS_LABELS = {
+      invoice_sent: 'Invoice Sent',
+      invoice_viewed: 'Invoice Viewed',
+      invoice_in_progress: 'Invoice In Progress',
+      awaiting_response: 'Awaiting Your Response',
+    };
+    const STATUSES = Object.keys(STATUS_LABELS);
+
+    const showMessage = (message) => {
+      body.innerHTML = `<p>${message}</p>`;
+    };
+
+    const token = new URLSearchParams(window.location.search).get('token');
+
+    if (!token || !apiEndpoint) {
+      showMessage('We could not find a tracking token for this request. Use the link from your confirmation email.');
+      return;
+    }
+
+    fetch(`${apiEndpoint}/status?token=${encodeURIComponent(token)}`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (!data.ok) {
+          throw new Error(data.error || 'Request not found.');
+        }
+
+        const fragment = template.content.cloneNode(true);
+        const stepsList = fragment.querySelector('[data-tracker-steps]');
+        const summary = fragment.querySelector('[data-tracker-summary]');
+        const currentIndex = STATUSES.indexOf(data.status);
+
+        STATUSES.forEach((status, index) => {
+          const item = document.createElement('li');
+          item.className = 'order-status-tracker__step';
+          if (index < currentIndex) item.classList.add('is-complete');
+          if (index === currentIndex) item.classList.add('is-current');
+          item.textContent = STATUS_LABELS[status];
+          stepsList.appendChild(item);
+        });
+
+        const summaryRows = [
+          ['Project', `${data.category || ''}${data.subcategory ? ` — ${data.subcategory}` : ''}`],
+          ['Submitted', data.createdAt ? new Date(data.createdAt).toLocaleDateString() : '—'],
+          ['Current status', STATUS_LABELS[data.status] || data.status],
+        ];
+
+        summaryRows.forEach(([label, value]) => {
+          const dt = document.createElement('dt');
+          dt.textContent = label;
+          const dd = document.createElement('dd');
+          dd.textContent = value;
+          summary.appendChild(dt);
+          summary.appendChild(dd);
+        });
+
+        body.innerHTML = '';
+        body.appendChild(fragment);
+      })
+      .catch((error) => {
+        showMessage(error.message || 'We could not load your request status. Please try again later.');
+      });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Order status tracker",
+  "class": "section-wrapper",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Custom build request"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Track your request status"
+    },
+    {
+      "type": "url",
+      "id": "api_endpoint",
+      "label": "Invoice backend API endpoint",
+      "info": "Base URL of the deployed invoice backend (no trailing slash), e.g. https://carpentry-invoice-backend.yourname.workers.dev."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    }
+  ],
+  "presets": [
+    {
+      "name": "Order status tracker"
+    }
+  ]
+}

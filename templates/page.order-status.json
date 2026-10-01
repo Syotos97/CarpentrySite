@@ -1,0 +1,16 @@
+{
+  "sections": {
+    "order_status_tracker": {
+      "type": "order-status-tracker",
+      "settings": {
+        "eyebrow": "Custom build request",
+        "heading": "Track your request status",
+        "padding-block-start": 40,
+        "padding-block-end": 72
+      }
+    }
+  },
+  "order": [
+    "order_status_tracker"
+  ]
+}

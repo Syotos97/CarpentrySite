@@ -1,0 +1,26 @@
+name = "carpentry-invoice-backend"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+
+# Non-secret configuration. Update these for your shop before deploying.
+[vars]
+SHOP_ORIGIN = "https://your-shop-domain.myshopify.com"
+WORKER_BASE_URL = "https://carpentry-invoice-backend.<your-subdomain>.workers.dev"
+FROM_EMAIL = "Carpentry Shop <orders@yourdomain.com>"
+ADMIN_EMAIL = "you@yourdomain.com"
+BUSINESS_NAME = "Your Carpentry Shop"
+
+# Secrets (do NOT put real values here). Set with:
+#   wrangler secret put RESEND_API_KEY
+#   wrangler secret put ADMIN_MASTER_KEY
+# RESEND_API_KEY  - API key from https://resend.com
+# ADMIN_MASTER_KEY - a long random string you choose, used to view the admin order log
+
+[[d1_databases]]
+binding = "DB"
+database_name = "carpentry-invoices"
+database_id = "<run `wrangler d1 create carpentry-invoices` and paste the id here>"
+
+[[r2_buckets]]
+binding = "SKETCHES"
+bucket_name = "carpentry-invoice-sketches"
