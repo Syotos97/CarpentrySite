@@ -140,9 +140,7 @@
             "callout_text": "All custom orders require a deposit for cost of materials after approval of the project details.",
             "asset_gallery_key": "home-orders",
             "asset_gallery_layout": "grid",
-            "asset_gallery_alt": "Custom order project detail",
-            "button_label": "Open custom order guide",
-            "button_link": "/#custom-build"
+            "asset_gallery_alt": "Custom order project detail"
           }
         }
       },
