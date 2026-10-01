@@ -4,6 +4,7 @@ import {
   getOrderByAdminToken,
   getOrderByCustomerToken,
   listOrders,
+  listPastOrders,
   getStatusHistory,
   updateStatus,
   getOrderById,
@@ -11,15 +12,17 @@ import {
   getTotalSketchBytes,
   adjustSketchBytes,
   cancelOrder,
+  requestCancellation,
+  dismissCancellationRequest,
 } from './db.js';
 import {
   sendAdminNotification,
   sendCustomerConfirmation,
   sendInvoiceFinalizedEmail,
   sendCustomerCancellationEmail,
-  sendAdminCancellationNotice,
+  sendAdminCancellationRequestNotice,
 } from './email.js';
-import { renderOrderView, renderOrdersLog, renderSimpleMessage, renderInvoiceForm, renderCancelConfirm } from './adminViews.js';
+import { renderOrderView, renderOrdersLog, renderPastOrdersLog, renderSimpleMessage, renderInvoiceForm, renderCancelConfirm } from './adminViews.js';
 
 function dataUrlToBytes(dataUrl) {
   const match = /^data:image\/png;base64,(.+)$/.exec(dataUrl || '');
@@ -32,6 +35,27 @@ function dataUrlToBytes(dataUrl) {
     bytes[i] = binary.charCodeAt(i);
   }
   return bytes;
+}
+
+const MAX_ATTACHMENTS = 6;
+const MAX_ATTACHMENT_BYTES = 15_000_000;
+const ALLOWED_ATTACHMENT_MIME = /^(image\/(png|jpe?g|webp|gif)|application\/pdf)$/;
+
+function decodeDataUrl(dataUrl) {
+  const match = /^data:([^;,]+);base64,(.+)$/.exec(dataUrl || '');
+  if (!match) {
+    return null;
+  }
+  const binary = atob(match[2]);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return { mime: match[1], bytes };
+}
+
+function sanitizeFileName(name) {
+  return String(name || 'attachment').replace(/[\r\n"]/g, '').slice(0, 150);
 }
 
 async function handleSubmit(request, env) {
@@ -73,6 +97,36 @@ async function handleSubmit(request, env) {
     }
   }
 
+  const attachments = [];
+  let attachmentsOmittedNote = '';
+  const incomingAttachments = Array.isArray(payload.attachments) ? payload.attachments.slice(0, MAX_ATTACHMENTS) : [];
+
+  for (let i = 0; i < incomingAttachments.length; i += 1) {
+    const decoded = decodeDataUrl(incomingAttachments[i]?.dataUrl);
+    if (!decoded || !ALLOWED_ATTACHMENT_MIME.test(decoded.mime) || decoded.bytes.length > MAX_ATTACHMENT_BYTES) {
+      attachmentsOmittedNote = '\n\n(Note: one or more attachments could not be saved — unsupported file type or too large. Follow up with the customer directly if needed.)';
+      continue;
+    }
+
+    const cap = Number(env.R2_STORAGE_CAP_BYTES) || 9_000_000_000;
+    const currentTotal = await getTotalSketchBytes(env);
+    if (currentTotal + decoded.bytes.length > cap) {
+      attachmentsOmittedNote = '\n\n(Note: an attachment could not be saved because the storage safety cap was reached. Follow up with the customer directly.)';
+      continue;
+    }
+
+    const key = `${id}-attachment-${i}`;
+    await env.SKETCHES.put(key, decoded.bytes, { httpMetadata: { contentType: decoded.mime } });
+    await adjustSketchBytes(env, decoded.bytes.length);
+
+    attachments.push({
+      key,
+      name: sanitizeFileName(incomingAttachments[i]?.name),
+      mime: decoded.mime,
+      size: decoded.bytes.length,
+    });
+  }
+
   const order = {
     id,
     customerToken,
@@ -86,10 +140,11 @@ async function handleSubmit(request, env) {
     woodSpecies: payload.woodSpecies || '',
     dimensionPreference: payload.dimensionPreference || '',
     dimensionsSummary: payload.dimensionsSummary || '',
-    projectNotes: (payload.projectNotes || '') + sketchOmittedNote,
+    projectNotes: (payload.projectNotes || '') + sketchOmittedNote + attachmentsOmittedNote,
     paymentMethod: payload.paymentMethod || '',
     hasSketch,
     sketchBytes: hasSketch ? sketchBytes.length : 0,
+    attachments,
   };
 
   await insertOrder(env, order);
@@ -126,6 +181,7 @@ async function handleStatus(request, env, url) {
       ok: true,
       status: order.cancelled_at ? 'cancelled' : order.status,
       cancelled: Boolean(order.cancelled_at),
+      cancellationRequested: Boolean(order.cancellation_requested_at) && !order.cancelled_at,
       category: order.category,
       subcategory: order.subcategory,
       createdAt: order.created_at,
@@ -154,8 +210,35 @@ async function handleSketch(env, url, pathname) {
   });
 }
 
+async function handleAttachment(env, url, pathname) {
+  const key = pathname.replace('/attachment/', '');
+  const token = url.searchParams.get('token');
+  const id = key.split('-attachment-')[0];
+  const order = await getOrderById(env, id);
+
+  if (!order || order.admin_token !== token) {
+    return new Response('Not found', { status: 404 });
+  }
+
+  const attachments = JSON.parse(order.attachments || '[]');
+  const meta = attachments.find((attachment) => attachment.key === key);
+  const object = meta && (await env.SKETCHES.get(key));
+  if (!meta || !object) {
+    return new Response('Not found', { status: 404 });
+  }
+
+  return new Response(object.body, {
+    headers: {
+      'Content-Type': meta.mime,
+      'Content-Disposition': `inline; filename="${meta.name}"`,
+      'Cache-Control': 'private, max-age=3600',
+    },
+  });
+}
+
 async function handleAdminView(env, url) {
   const token = url.searchParams.get('token');
+  const adminKey = url.searchParams.get('key');
   const order = await getOrderByAdminToken(env, token);
 
   if (!order) {
@@ -169,12 +252,13 @@ async function handleAdminView(env, url) {
 
   const sketchUrl = order.has_sketch ? `/sketch/${order.id}?token=${token}` : null;
 
-  return html(renderOrderView(order, { adminToken: token, sketchUrl }));
+  return html(renderOrderView(order, { adminToken: token, sketchUrl, adminKey }));
 }
 
 async function handleAdminAction(env, url) {
   const token = url.searchParams.get('token');
   const nextStatus = url.searchParams.get('status');
+  const adminKey = url.searchParams.get('key');
   const order = await getOrderByAdminToken(env, token);
 
   if (!order) {
@@ -186,22 +270,25 @@ async function handleAdminAction(env, url) {
     await updateStatus(env, order.id, nextStatus);
   }
 
-  return Response.redirect(`${env.WORKER_BASE_URL}/admin/view?token=${token}`, 302);
+  const keyParam = adminKey ? `&key=${encodeURIComponent(adminKey)}` : '';
+  return Response.redirect(`${env.WORKER_BASE_URL}/admin/view?token=${token}${keyParam}`, 302);
 }
 
 async function handleAdminInvoiceForm(env, url) {
   const token = url.searchParams.get('token');
+  const adminKey = url.searchParams.get('key');
   const order = await getOrderByAdminToken(env, token);
 
   if (!order) {
     return html(renderSimpleMessage('Not found', 'No request matches this link.'), { status: 404 });
   }
 
-  return html(renderInvoiceForm(order, { adminToken: token }));
+  return html(renderInvoiceForm(order, { adminToken: token, adminKey }));
 }
 
 async function handleAdminInvoiceSubmit(request, env, url) {
   const token = url.searchParams.get('token');
+  const adminKey = url.searchParams.get('key');
   const order = await getOrderByAdminToken(env, token);
 
   if (!order) {
@@ -235,7 +322,7 @@ async function handleAdminInvoiceSubmit(request, env, url) {
     invoiceNotes,
   });
 
-  return Response.redirect(`${env.WORKER_BASE_URL}/admin/view?token=${token}`, 302);
+  return Response.redirect(`${env.WORKER_BASE_URL}/admin/view?token=${token}${adminKey ? `&key=${encodeURIComponent(adminKey)}` : ''}`, 302);
 }
 
 async function handleAdminOrders(env, url) {
@@ -256,6 +343,33 @@ async function handleAdminOrders(env, url) {
   return html(renderOrdersLog(orders, key, storageInfo));
 }
 
+async function handleAdminPastOrders(env, url) {
+  const key = url.searchParams.get('key');
+  if (!key || key !== env.ADMIN_MASTER_KEY) {
+    return html(renderSimpleMessage('Forbidden', 'Missing or invalid admin key.'), { status: 403 });
+  }
+
+  const orders = await listPastOrders(env);
+  return html(renderPastOrdersLog(orders, key));
+}
+
+async function handleAdminCancelDismiss(env, url) {
+  const token = url.searchParams.get('token');
+  const adminKey = url.searchParams.get('key');
+  const order = await getOrderByAdminToken(env, token);
+
+  if (!order) {
+    return html(renderSimpleMessage('Not found', 'No request matches this link.'), { status: 404 });
+  }
+
+  if (!order.cancelled_at) {
+    await dismissCancellationRequest(env, order.id);
+  }
+
+  const keyParam = adminKey ? `&key=${encodeURIComponent(adminKey)}` : '';
+  return Response.redirect(`${env.WORKER_BASE_URL}/admin/view?token=${token}${keyParam}`, 302);
+}
+
 async function handleCancelByCustomer(request, env) {
   let payload;
   try {
@@ -273,34 +387,38 @@ async function handleCancelByCustomer(request, env) {
     return json({ ok: true, alreadyCancelled: true }, env);
   }
 
-  if (order.has_sketch) {
-    await env.SKETCHES.delete(`${order.id}.png`);
-    await adjustSketchBytes(env, -(order.sketch_bytes || 0));
+  if (order.cancellation_requested_at) {
+    return json({ ok: true, alreadyRequested: true }, env);
   }
 
-  await cancelOrder(env, order.id);
+  await requestCancellation(env, order.id);
 
-  await sendAdminCancellationNotice(env, {
+  await sendAdminCancellationRequestNotice(env, {
+    adminToken: order.admin_token,
     customerName: order.customer_name,
     customerEmail: order.customer_email,
+    category: order.category,
+    subcategory: order.subcategory,
   });
 
-  return json({ ok: true }, env);
+  return json({ ok: true, requested: true }, env);
 }
 
 async function handleAdminCancelForm(env, url) {
   const token = url.searchParams.get('token');
+  const adminKey = url.searchParams.get('key');
   const order = await getOrderByAdminToken(env, token);
 
   if (!order) {
     return html(renderSimpleMessage('Not found', 'No request matches this link.'), { status: 404 });
   }
 
-  return html(renderCancelConfirm(order, { adminToken: token }));
+  return html(renderCancelConfirm(order, { adminToken: token, adminKey }));
 }
 
 async function handleAdminCancelSubmit(env, url) {
   const token = url.searchParams.get('token');
+  const adminKey = url.searchParams.get('key');
   const order = await getOrderByAdminToken(env, token);
 
   if (!order) {
@@ -313,6 +431,12 @@ async function handleAdminCancelSubmit(env, url) {
       await adjustSketchBytes(env, -(order.sketch_bytes || 0));
     }
 
+    const attachments = JSON.parse(order.attachments || '[]');
+    for (const attachment of attachments) {
+      await env.SKETCHES.delete(attachment.key);
+      await adjustSketchBytes(env, -(attachment.size || 0));
+    }
+
     await cancelOrder(env, order.id);
 
     await sendCustomerCancellationEmail(env, {
@@ -321,7 +445,8 @@ async function handleAdminCancelSubmit(env, url) {
     });
   }
 
-  return Response.redirect(`${env.WORKER_BASE_URL}/admin/view?token=${token}`, 302);
+  const keyParam = adminKey ? `&key=${encodeURIComponent(adminKey)}` : '';
+  return Response.redirect(`${env.WORKER_BASE_URL}/admin/view?token=${token}${keyParam}`, 302);
 }
 
 export default {
@@ -342,6 +467,9 @@ export default {
       }
       if (pathname.startsWith('/sketch/') && request.method === 'GET') {
         return await handleSketch(env, url, pathname);
+      }
+      if (pathname.startsWith('/attachment/') && request.method === 'GET') {
+        return await handleAttachment(env, url, pathname);
       }
       if (pathname === '/admin/view' && request.method === 'GET') {
         return await handleAdminView(env, url);
@@ -364,8 +492,14 @@ export default {
       if (pathname === '/admin/cancel' && request.method === 'POST') {
         return await handleAdminCancelSubmit(env, url);
       }
+      if (pathname === '/admin/cancel/dismiss' && request.method === 'POST') {
+        return await handleAdminCancelDismiss(env, url);
+      }
       if (pathname === '/admin/orders' && request.method === 'GET') {
         return await handleAdminOrders(env, url);
+      }
+      if (pathname === '/admin/orders/past' && request.method === 'GET') {
+        return await handleAdminPastOrders(env, url);
       }
     } catch (error) {
       return json({ ok: false, error: String(error) }, env, { status: 500 });

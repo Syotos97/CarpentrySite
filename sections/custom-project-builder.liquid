@@ -210,7 +210,7 @@
         <div class="custom-project-builder__planner-section">
           <div class="custom-project-builder__section-heading">
             <p class="custom-project-builder__section-kicker">Step 3</p>
-            <h3>Sketch the project</h3>
+            <h3>Optional Sketch</h3>
           </div>
 
           <div class="custom-project-builder__sketch-shell">
@@ -244,6 +244,19 @@
               name="contact[body]"
               placeholder="Example: I want a walnut entry bench with lower shoe storage, a lighter satin finish, and a clean modern profile."
             >{{- form.body -}}</textarea>
+          </label>
+
+          <label class="custom-project-builder__field custom-project-builder__field--full">
+            <span>Attachments (optional)</span>
+            <input
+              type="file"
+              class="custom-project-builder__input"
+              accept="image/*,.pdf"
+              multiple
+              data-attachments-input
+            >
+            <p class="custom-project-builder__field-note">Feel free to attach reference photos, inspiration images, or any other files that help show what you have in mind.</p>
+            <ul class="custom-project-builder__attachment-list" data-attachment-list></ul>
           </label>
         </div>
       </div>
@@ -354,6 +367,7 @@
   .custom-project-builder__field span,
   .custom-project-builder__choice-group legend,
   .custom-project-builder__sketch-note,
+  .custom-project-builder__field-note,
   .custom-project-builder__promise {
     color: color-mix(in srgb, var(--color-foreground) 82%, transparent);
   }
@@ -371,6 +385,34 @@
   .custom-project-builder__input--textarea {
     min-height: 11rem;
     resize: vertical;
+  }
+
+  .custom-project-builder__field-note {
+    margin: 0;
+    font-size: 0.85rem;
+  }
+
+  .custom-project-builder__attachment-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .custom-project-builder__attachment-list:empty {
+    display: none;
+  }
+
+  .custom-project-builder__attachment-remove {
+    appearance: none;
+    border: none;
+    background: none;
+    color: #a33;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0;
   }
 
   .custom-project-builder__choice-group {
@@ -522,12 +564,64 @@
     const errorMessage = root?.querySelector('[data-error-message]');
     const submitButton = form?.querySelector('.custom-project-builder__submit');
     const apiEndpoint = root?.dataset.apiEndpoint;
+    const attachmentsInput = root?.querySelector('[data-attachments-input]');
+    const attachmentList = root?.querySelector('[data-attachment-list]');
 
     if (!root || !canvas || !sketchInput || !dimensionSummaryInput || !form) {
       return;
     }
 
     section.dataset.customProjectBuilderBound = 'true';
+
+    const MAX_ATTACHMENTS = 6;
+    const MAX_ATTACHMENT_BYTES = 15_000_000;
+    let selectedAttachments = [];
+
+    const renderAttachmentList = () => {
+      if (!attachmentList) {
+        return;
+      }
+      attachmentList.innerHTML = '';
+      selectedAttachments.forEach((file, index) => {
+        const item = document.createElement('li');
+        item.textContent = `${file.name} `;
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.textContent = 'Remove';
+        removeButton.className = 'custom-project-builder__attachment-remove';
+        removeButton.addEventListener('click', () => {
+          selectedAttachments.splice(index, 1);
+          renderAttachmentList();
+        });
+        item.appendChild(removeButton);
+        attachmentList.appendChild(item);
+      });
+    };
+
+    attachmentsInput?.addEventListener('change', () => {
+      const incoming = Array.from(attachmentsInput.files || []);
+      for (const file of incoming) {
+        if (selectedAttachments.length >= MAX_ATTACHMENTS) {
+          showError(`You can attach up to ${MAX_ATTACHMENTS} files.`);
+          break;
+        }
+        if (file.size > MAX_ATTACHMENT_BYTES) {
+          showError(`${file.name} is too large (max ${Math.round(MAX_ATTACHMENT_BYTES / 1_000_000)}MB per file).`);
+          continue;
+        }
+        selectedAttachments.push(file);
+      }
+      attachmentsInput.value = '';
+      renderAttachmentList();
+    });
+
+    const readFileAsDataUrl = (file) =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
 
     const syncSubcategoryField = () => {
       if (!categorySelect || !subcategoryField || !subcategoryInput) {
@@ -775,10 +869,17 @@
       setBusy(true);
 
       try {
+        const attachments = await Promise.all(
+          selectedAttachments.map(async (file) => ({
+            name: file.name,
+            dataUrl: await readFileAsDataUrl(file),
+          }))
+        );
+
         const response = await fetch(`${apiEndpoint}/submit`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({ ...payload, attachments }),
         });
         const data = await response.json();
 
@@ -793,6 +894,8 @@
         syncSketchData();
         syncDimensions();
         syncSubcategoryField();
+        selectedAttachments = [];
+        renderAttachmentList();
       } catch (error) {
         showError(error.message || 'Something went wrong sending your request. Please try again.');
       } finally {

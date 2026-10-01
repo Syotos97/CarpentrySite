@@ -7,8 +7,8 @@ export async function insertOrder(env, order) {
       customer_name, customer_email, customer_phone,
       category, subcategory, wood_family, wood_species,
       dimension_preference, dimensions_summary, project_notes,
-      has_sketch, payment_method, sketch_bytes, created_at, updated_at
-    ) VALUES (?, ?, ?, 'invoice_sent', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      has_sketch, payment_method, sketch_bytes, attachments, created_at, updated_at
+    ) VALUES (?, ?, ?, 'invoice_sent', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
     .bind(
       order.id,
@@ -27,6 +27,7 @@ export async function insertOrder(env, order) {
       order.hasSketch ? 1 : 0,
       order.paymentMethod || '',
       order.sketchBytes || 0,
+      JSON.stringify(order.attachments || []),
       now,
       now
     )
@@ -52,7 +53,21 @@ export async function getOrderById(env, id) {
 }
 
 export async function listOrders(env) {
-  const { results } = await env.DB.prepare('SELECT * FROM orders ORDER BY created_at DESC').all();
+  // Cancelled orders drop off the main log 24h after cancellation (see listPastOrders).
+  const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { results } = await env.DB
+    .prepare('SELECT * FROM orders WHERE cancelled_at IS NULL OR cancelled_at > ? ORDER BY created_at DESC')
+    .bind(cutoff)
+    .all();
+  return results || [];
+}
+
+export async function listPastOrders(env) {
+  const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { results } = await env.DB
+    .prepare('SELECT * FROM orders WHERE cancelled_at IS NOT NULL AND cancelled_at <= ? ORDER BY cancelled_at DESC')
+    .bind(cutoff)
+    .all();
   return results || [];
 }
 
@@ -89,11 +104,25 @@ export async function updateStatus(env, orderId, status) {
 
 export async function cancelOrder(env, orderId) {
   const now = new Date().toISOString();
-  await env.DB.prepare('UPDATE orders SET cancelled_at = ?, updated_at = ? WHERE id = ?')
+  await env.DB.prepare('UPDATE orders SET cancelled_at = ?, cancellation_requested_at = NULL, updated_at = ? WHERE id = ?')
     .bind(now, now, orderId)
     .run();
   await env.DB.prepare('INSERT INTO status_log (order_id, status, changed_at) VALUES (?, ?, ?)')
     .bind(orderId, 'cancelled', now)
+    .run();
+}
+
+export async function requestCancellation(env, orderId) {
+  const now = new Date().toISOString();
+  await env.DB.prepare('UPDATE orders SET cancellation_requested_at = ?, updated_at = ? WHERE id = ?')
+    .bind(now, now, orderId)
+    .run();
+}
+
+export async function dismissCancellationRequest(env, orderId) {
+  const now = new Date().toISOString();
+  await env.DB.prepare('UPDATE orders SET cancellation_requested_at = NULL, updated_at = ? WHERE id = ?')
+    .bind(now, orderId)
     .run();
 }
 

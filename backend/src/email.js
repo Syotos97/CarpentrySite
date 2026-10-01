@@ -1,4 +1,4 @@
-import { STATUS_LABELS } from './util.js';
+import { STATUS_LABELS, escapeHtml } from './util.js';
 
 async function sendEmail(env, { to, subject, htmlBody }) {
   const response = await fetch('https://api.resend.com/emails', {
@@ -26,6 +26,9 @@ export async function sendAdminNotification(env, order) {
   const sketchUrl = order.hasSketch
     ? `${env.WORKER_BASE_URL}/sketch/${order.id}?token=${order.adminToken}`
     : null;
+  const attachmentLinks = (order.attachments || [])
+    .map((attachment) => `<a href="${env.WORKER_BASE_URL}/attachment/${attachment.key}?token=${order.adminToken}">${escapeHtml(attachment.name)}</a>`)
+    .join(', ');
 
   const htmlBody = `
     <div style="font-family: Georgia, 'Times New Roman', serif; max-width: 640px; margin: 0 auto; color: #2b1d12;">
@@ -44,6 +47,7 @@ export async function sendAdminNotification(env, order) {
       </table>
       <p style="white-space: pre-wrap; background:#f4ece0; padding: 0.75rem 1rem; border-radius: 0.5rem;">${order.projectNotes || 'No additional notes.'}</p>
       ${sketchUrl ? `<p><a href="${sketchUrl}">View the customer's sketch</a></p>` : '<p>No sketch was drawn.</p>'}
+      ${attachmentLinks ? `<p><strong>Attachments:</strong> ${attachmentLinks}</p>` : ''}
       <p style="margin-top: 1.5rem;">
         <a href="${viewUrl}" style="background:#6d441e; color:#fff; padding: 0.65rem 1.25rem; border-radius: 0.4rem; text-decoration:none;">View full request &amp; manage status</a>
       </p>
@@ -205,17 +209,24 @@ export async function sendCustomerCancellationEmail(env, order) {
   });
 }
 
-export async function sendAdminCancellationNotice(env, order) {
+export async function sendAdminCancellationRequestNotice(env, order) {
+  const reviewUrl = `${env.WORKER_BASE_URL}/admin/cancel?token=${order.adminToken}`;
+  const viewUrl = `${env.WORKER_BASE_URL}/admin/view?token=${order.adminToken}`;
+
   const htmlBody = `
     <div style="font-family: Georgia, 'Times New Roman', serif; max-width: 640px; margin: 0 auto; color: #2b1d12;">
-      <h2 style="margin-bottom: 0.25rem;">A customer cancelled their request</h2>
-      <p><strong>${order.customerName}</strong> (${order.customerEmail}) cancelled their custom build request.</p>
+      <h2 style="margin-bottom: 0.25rem;">A customer requested a cancellation</h2>
+      <p><strong>${order.customerName}</strong> (${order.customerEmail}) requested to cancel their custom build request for ${order.category}${order.subcategory ? ` — ${order.subcategory}` : ''}. Reach out to them before deciding on a refund.</p>
+      <p style="margin-top: 1.5rem;">
+        <a href="${reviewUrl}" style="background:#a33; color:#fff; padding: 0.65rem 1.25rem; border-radius: 0.4rem; text-decoration:none;">Review &amp; cancel this order</a>
+      </p>
+      <p style="font-size: 0.85rem; color: #8a7960;">Or <a href="${viewUrl}">view the full request</a> first without cancelling anything yet.</p>
     </div>
   `;
 
   await sendEmail(env, {
     to: env.ADMIN_EMAIL,
-    subject: `Order cancelled: ${order.customerName}`,
+    subject: `Cancellation requested: ${order.customerName}`,
     htmlBody,
   });
 }

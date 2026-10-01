@@ -31,10 +31,14 @@
         </p>
       </div>
       <div class="order-status-tracker__cancel" data-tracker-cancel-wrap>
-        <button type="button" class="order-status-tracker__cancel-button" data-tracker-cancel-button>Cancel this order</button>
-        <p class="order-status-tracker__cancel-disclaimer">Once work on your project has started, the materials deposit is non-refundable.</p>
+        <button type="button" class="order-status-tracker__cancel-button" data-tracker-cancel-button>Request cancellation</button>
+        <p class="order-status-tracker__cancel-disclaimer">All cancellation requests are reviewed before being finalized. Depending on how far along your project is, you may receive a full refund, a partial refund, or — if only the materials deposit has been paid — no refund at all.</p>
         <p class="order-status-tracker__cancel-note" data-tracker-cancel-message hidden></p>
       </div>
+    </template>
+
+    <template data-tracker-requested-template>
+      <div class="order-status-tracker__cancelled-banner">Your cancellation request has been submitted and is pending review. We'll reach out to you shortly.</div>
     </template>
 
     <template data-tracker-cancelled-template>
@@ -184,6 +188,7 @@
     const body = root?.querySelector('[data-tracker-body]');
     const template = root?.querySelector('[data-tracker-template]');
     const cancelledTemplate = root?.querySelector('[data-tracker-cancelled-template]');
+    const requestedTemplate = root?.querySelector('[data-tracker-requested-template]');
 
     if (!root || !body || !template) {
       return;
@@ -210,12 +215,12 @@
     }
 
     const cancelOrder = async (button, messageEl) => {
-      if (!window.confirm('Are you sure you want to cancel this order? This cannot be undone. If work on your project has already started, the materials deposit is non-refundable.')) {
+      if (!window.confirm('Are you sure you want to request cancellation? Your request will be reviewed, and depending on how far along your project is, you may receive a full refund, a partial refund, or no refund if only the materials deposit has been paid.')) {
         return;
       }
 
       button.disabled = true;
-      button.textContent = 'Cancelling…';
+      button.textContent = 'Submitting…';
 
       try {
         const response = await fetch(`${apiEndpoint}/cancel`, {
@@ -226,22 +231,22 @@
         const data = await response.json();
 
         if (!response.ok || !data.ok) {
-          throw new Error(data.error || 'Something went wrong cancelling your order.');
+          throw new Error(data.error || 'Something went wrong submitting your cancellation request.');
         }
 
-        const cancelledFragment = cancelledTemplate?.content.cloneNode(true);
+        const requestedFragment = requestedTemplate?.content.cloneNode(true);
         body.innerHTML = '';
-        if (cancelledFragment) {
-          body.appendChild(cancelledFragment);
+        if (requestedFragment) {
+          body.appendChild(requestedFragment);
         } else {
-          showMessage('This order has been cancelled.');
+          showMessage('Your cancellation request has been submitted and is pending review.');
         }
       } catch (error) {
         button.disabled = false;
-        button.textContent = 'Cancel this order';
+        button.textContent = 'Request cancellation';
         if (messageEl) {
           messageEl.hidden = false;
-          messageEl.textContent = error.message || 'Something went wrong cancelling your order.';
+          messageEl.textContent = error.message || 'Something went wrong submitting your cancellation request.';
         }
       }
     };
@@ -260,6 +265,17 @@
             body.appendChild(cancelledFragment);
           } else {
             showMessage('This order has been cancelled.');
+          }
+          return;
+        }
+
+        if (data.cancellationRequested) {
+          const requestedFragment = requestedTemplate?.content.cloneNode(true);
+          body.innerHTML = '';
+          if (requestedFragment) {
+            body.appendChild(requestedFragment);
+          } else {
+            showMessage('Your cancellation request has been submitted and is pending review.');
           }
           return;
         }

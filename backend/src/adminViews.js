@@ -6,6 +6,7 @@ function statusBadge(status) {
     invoice_viewed: '#31708f',
     invoice_in_progress: '#8a6d00',
     awaiting_response: '#3c763d',
+    cancellation_requested: '#a33',
     cancelled: '#777777',
   };
   const color = colors[status] || '#555';
@@ -39,11 +40,38 @@ function pageShell(title, body) {
 </html>`;
 }
 
-export function renderOrderView(order, { adminToken, sketchUrl }) {
+function keyQuery(adminKey) {
+  return adminKey ? `&key=${encodeURIComponent(adminKey)}` : '';
+}
+
+function renderAttachmentsList(order, adminToken) {
+  let attachments = [];
+  try {
+    attachments = JSON.parse(order.attachments || '[]');
+  } catch {
+    attachments = [];
+  }
+
+  if (!attachments.length) {
+    return '';
+  }
+
+  const items = attachments
+    .map(
+      (attachment) =>
+        `<li><a href="/attachment/${encodeURIComponent(attachment.key)}?token=${adminToken}">${escapeHtml(attachment.name)}</a> <small>(${Math.round((attachment.size || 0) / 1000)} KB)</small></li>`
+    )
+    .join('');
+
+  return `<p><strong>Attachments</strong></p><ul>${items}</ul>`;
+}
+
+export function renderOrderView(order, { adminToken, sketchUrl, adminKey }) {
   const isCancelled = Boolean(order.cancelled_at);
   const currentIndex = statusIndex(order.status);
   const awaitingIndex = statusIndex('awaiting_response');
   const hasAmounts = order.total_cost != null;
+  const kq = keyQuery(adminKey);
 
   const actions = isCancelled
     ? ''
@@ -52,17 +80,21 @@ export function renderOrderView(order, { adminToken, sketchUrl }) {
           if (index <= currentIndex || status === 'awaiting_response') {
             return null;
           }
-          return `<a href="/admin/action?token=${adminToken}&status=${status}">Mark ${STATUS_LABELS[status]}</a>`;
+          return `<a href="/admin/action?token=${adminToken}&status=${status}${kq}">Mark ${STATUS_LABELS[status]}</a>`;
         })
         .filter(Boolean)
         .join(' ');
 
   const invoiceAction = !isCancelled && currentIndex < awaitingIndex
-    ? `<a href="/admin/invoice?token=${adminToken}">${hasAmounts ? 'Edit itemized invoice' : 'Create itemized invoice & send to customer'}</a>`
+    ? `<a href="/admin/invoice?token=${adminToken}${kq}">${hasAmounts ? 'Edit itemized invoice' : 'Create itemized invoice & send to customer'}</a>`
     : null;
 
   const cancelAction = !isCancelled
-    ? `<a href="/admin/cancel?token=${adminToken}" style="background:#a33;">Cancel this order</a>`
+    ? `<a href="/admin/cancel?token=${adminToken}${kq}" style="background:#a33;">Cancel this order</a>`
+    : null;
+
+  const dismissRequestAction = !isCancelled && order.cancellation_requested_at
+    ? `<form method="POST" action="/admin/cancel/dismiss?token=${adminToken}${kq}" style="display:inline;"><button type="submit" style="background:#6d5a46;color:#fff;border:none;padding:0.6rem 1.1rem;border-radius:0.4rem;font-size:0.9rem;cursor:pointer;">Dismiss cancellation request</button></form>`
     : null;
 
   const invoiceSummary = hasAmounts
@@ -77,7 +109,8 @@ export function renderOrderView(order, { adminToken, sketchUrl }) {
 
   const body = `
     <h2 style="margin-top:0;">Custom build request</h2>
-    <p>${statusBadge(isCancelled ? 'cancelled' : order.status)}</p>
+    <p>${statusBadge(isCancelled ? 'cancelled' : order.status)}${!isCancelled && order.cancellation_requested_at ? ` ${statusBadge('cancellation_requested')}` : ''}</p>
+    ${!isCancelled && order.cancellation_requested_at ? `<p style="font-weight:bold;color:#a33;">Customer requested cancellation on ${escapeHtml(order.cancellation_requested_at)}. Reach out to them, then either cancel the order or dismiss this request.</p>` : ''}
     <table>
       <tr><td>Name</td><td><strong>${escapeHtml(order.customer_name)}</strong></td></tr>
       <tr><td>Email</td><td>${escapeHtml(order.customer_email)}</td></tr>
@@ -92,34 +125,37 @@ export function renderOrderView(order, { adminToken, sketchUrl }) {
     </table>
     <p class="notes">${escapeHtml(order.project_notes || 'No additional notes.')}</p>
     ${sketchUrl ? `<p><strong>Sketch</strong></p><img class="sketch" src="${sketchUrl}" alt="Customer sketch">` : '<p>No sketch was drawn.</p>'}
-    <div class="actions">${[actions, invoiceAction, cancelAction].filter(Boolean).join(' ') || '<em>Order is at its final status.</em>'}</div>
-    <p style="margin-top:2rem;"><a class="back" href="/admin/orders">&larr; Back to order log</a></p>
+    ${renderAttachmentsList(order, adminToken)}
+    <div class="actions">${[actions, invoiceAction, cancelAction, dismissRequestAction].filter(Boolean).join(' ') || '<em>Order is at its final status.</em>'}</div>
+    <p style="margin-top:2rem;"><a class="back" href="/admin/orders${adminKey ? `?key=${encodeURIComponent(adminKey)}` : ''}">&larr; Back to order log</a></p>
   `;
 
   return pageShell(`Request from ${order.customer_name}`, body);
 }
 
-export function renderCancelConfirm(order, { adminToken }) {
+export function renderCancelConfirm(order, { adminToken, adminKey }) {
+  const kq = keyQuery(adminKey);
   const body = `
     <h2 style="margin-top:0;">Cancel this order?</h2>
     <p>This will cancel the request from <strong>${escapeHtml(order.customer_name)}</strong> (${escapeHtml(order.customer_email)}) and notify them by email. This cannot be undone.</p>
     <p style="font-weight:bold;color:#a33;">Reminder: if work on this project has already started, the materials deposit is non-refundable.</p>
-    <form method="POST" action="/admin/cancel?token=${adminToken}">
+    <form method="POST" action="/admin/cancel?token=${adminToken}${kq}">
       <div class="actions">
         <button type="submit" style="background:#a33;color:#fff;border:none;padding:0.6rem 1.1rem;border-radius:0.4rem;font-size:0.9rem;cursor:pointer;">Yes, cancel this order</button>
       </div>
     </form>
-    <p style="margin-top:1.5rem;"><a class="back" href="/admin/view?token=${adminToken}">&larr; No, go back</a></p>
+    <p style="margin-top:1.5rem;"><a class="back" href="/admin/view?token=${adminToken}${kq}">&larr; No, go back</a></p>
   `;
 
   return pageShell(`Cancel order — ${order.customer_name}`, body);
 }
 
-export function renderInvoiceForm(order, { adminToken }) {
+export function renderInvoiceForm(order, { adminToken, adminKey }) {
+  const kq = keyQuery(adminKey);
   const body = `
     <h2 style="margin-top:0;">Itemized invoice for ${escapeHtml(order.customer_name)}</h2>
     <p>${escapeHtml(order.category)}${order.subcategory ? ` — ${escapeHtml(order.subcategory)}` : ''}</p>
-    <form method="POST" action="/admin/invoice?token=${adminToken}">
+    <form method="POST" action="/admin/invoice?token=${adminToken}${kq}">
       <table>
         <tr>
           <td>Materials cost ($)</td>
@@ -143,7 +179,7 @@ export function renderInvoiceForm(order, { adminToken }) {
         <button type="submit" style="background:#6d441e;color:#fff;border:none;padding:0.6rem 1.1rem;border-radius:0.4rem;font-size:0.9rem;cursor:pointer;">Save &amp; send to customer</button>
       </div>
     </form>
-    <p style="margin-top:1.5rem;"><a class="back" href="/admin/view?token=${adminToken}">&larr; Back to request</a></p>
+    <p style="margin-top:1.5rem;"><a class="back" href="/admin/view?token=${adminToken}${kq}">&larr; Back to request</a></p>
   `;
 
   return pageShell(`Itemized invoice — ${order.customer_name}`, body);
@@ -157,8 +193,8 @@ export function renderOrdersLog(orders, masterKey, storageInfo) {
         <td>${escapeHtml(order.created_at)}</td>
         <td>${escapeHtml(order.customer_name)}<br><small>${escapeHtml(order.customer_email)}</small></td>
         <td>${escapeHtml(order.category)}${order.subcategory ? ` — ${escapeHtml(order.subcategory)}` : ''}</td>
-        <td>${statusBadge(order.cancelled_at ? 'cancelled' : order.status)}</td>
-        <td><a href="/admin/view?token=${order.admin_token}">Open</a></td>
+        <td>${statusBadge(order.cancelled_at ? 'cancelled' : order.status)}${!order.cancelled_at && order.cancellation_requested_at ? ` ${statusBadge('cancellation_requested')}` : ''}</td>
+        <td><a href="/admin/view?token=${order.admin_token}&key=${encodeURIComponent(masterKey)}">Open</a></td>
       </tr>`
     )
     .join('');
@@ -172,10 +208,39 @@ export function renderOrdersLog(orders, masterKey, storageInfo) {
       </thead>
       <tbody>${rows || '<tr><td colspan="5">No requests yet.</td></tr>'}</tbody>
     </table>
+    <p><a class="back" href="/admin/orders/past?key=${encodeURIComponent(masterKey)}">View past (cancelled) orders &rarr;</a></p>
     <p style="font-size:0.8rem;color:#8a7960;">Bookmark this page with your key: /admin/orders?key=${escapeHtml(masterKey)}</p>
   `;
 
   return pageShell('Admin order log', body);
+}
+
+export function renderPastOrdersLog(orders, masterKey) {
+  const rows = orders
+    .map(
+      (order) => `
+      <tr>
+        <td>${escapeHtml(order.cancelled_at)}</td>
+        <td>${escapeHtml(order.customer_name)}<br><small>${escapeHtml(order.customer_email)}</small></td>
+        <td>${escapeHtml(order.category)}${order.subcategory ? ` — ${escapeHtml(order.subcategory)}` : ''}</td>
+        <td><a href="/admin/view?token=${order.admin_token}&key=${encodeURIComponent(masterKey)}">Open</a></td>
+      </tr>`
+    )
+    .join('');
+
+  const body = `
+    <h2 style="margin-top:0;">Past (cancelled) orders</h2>
+    <p style="font-size:0.85rem;color:#8a7960;">Orders move here 24 hours after being cancelled to keep the main order log tidy.</p>
+    <table>
+      <thead>
+        <tr><td>Cancelled</td><td>Customer</td><td>Project</td><td></td></tr>
+      </thead>
+      <tbody>${rows || '<tr><td colspan="4">No past orders yet.</td></tr>'}</tbody>
+    </table>
+    <p><a class="back" href="/admin/orders?key=${encodeURIComponent(masterKey)}">&larr; Back to order log</a></p>
+  `;
+
+  return pageShell('Past orders', body);
 }
 
 export function renderSimpleMessage(title, message) {
