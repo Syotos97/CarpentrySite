@@ -107,6 +107,18 @@
             placeholder="708-515-1012"
           >
         </label>
+
+        <label class="custom-project-builder__field">
+          <span>Preferred payment method</span>
+          <select class="custom-project-builder__input" name="contact[Payment method]" data-payment-method-select>
+            <option value="">No preference</option>
+            <option value="PayPal">PayPal</option>
+            <option value="Venmo">Venmo</option>
+            <option value="Zelle">Zelle</option>
+            <option value="Credit Card">Credit Card</option>
+            <option value="Cash">Cash</option>
+          </select>
+        </label>
       </div>
 
       <div class="custom-project-builder__planner">
@@ -731,6 +743,7 @@
         subcategory: subcategoryField && !subcategoryField.hidden ? subcategoryInput?.value.trim() || '' : '',
         woodFamily: form.querySelector('[name="contact[Wood family]"]')?.value || '',
         woodSpecies: form.querySelector('[name="contact[Specific wood type]"]')?.value || '',
+        paymentMethod: form.querySelector('[name="contact[Payment method]"]')?.value || '',
         dimensionPreference: dimensionModeInputs.some((input) => input.checked && input.dataset.dimensionMode === 'builder')
           ? 'Leave dimensions to the builder'
           : 'Customer provided exact dimensions',

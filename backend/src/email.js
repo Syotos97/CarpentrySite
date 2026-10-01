@@ -39,6 +39,7 @@ export async function sendAdminNotification(env, order) {
           <tr><td style="padding: 4px 0; color:#6d5a46;">Category</td><td style="padding:4px 0;">${order.category}${order.subcategory ? ` — ${order.subcategory}` : ''}</td></tr>
           <tr><td style="padding: 4px 0; color:#6d5a46;">Wood</td><td style="padding:4px 0;">${order.woodFamily || '—'} ${order.woodSpecies ? `(${order.woodSpecies})` : ''}</td></tr>
           <tr><td style="padding: 4px 0; color:#6d5a46;">Dimensions</td><td style="padding:4px 0;">${order.dimensionsSummary || '—'}</td></tr>
+          <tr><td style="padding: 4px 0; color:#6d5a46;">Preferred payment</td><td style="padding:4px 0;">${order.paymentMethod || 'Not specified'}</td></tr>
         </tbody>
       </table>
       <p style="white-space: pre-wrap; background:#f4ece0; padding: 0.75rem 1rem; border-radius: 0.5rem;">${order.projectNotes || 'No additional notes.'}</p>
@@ -93,6 +94,50 @@ export async function sendCustomerConfirmation(env, order) {
   await sendEmail(env, {
     to: order.customerEmail,
     subject: 'We received your custom build request',
+    htmlBody,
+  });
+}
+
+export async function sendInvoiceFinalizedEmail(env, order) {
+  const trackingUrl = `${env.SHOP_ORIGIN}/pages/order-status?token=${order.customerToken}`;
+  const preferred = order.paymentMethod || null;
+
+  const paymentOptions = [
+    { key: 'PayPal', detail: env.PAYPAL_LINK },
+    { key: 'Venmo', detail: env.VENMO_HANDLE },
+    { key: 'Zelle', detail: env.ZELLE_CONTACT },
+    { key: 'Credit Card', detail: "A secure Square payment link will be sent separately once the total is confirmed." },
+    { key: 'Cash', detail: 'Accepted in person at pickup or delivery.' },
+  ];
+
+  const paymentRows = paymentOptions
+    .map(({ key, detail }) => {
+      const isPreferred = preferred === key;
+      return `<tr>
+        <td style="padding: 6px 0; color:#6d5a46;">${key}${isPreferred ? ' ⭐' : ''}</td>
+        <td style="padding: 6px 0;">${detail}</td>
+      </tr>`;
+    })
+    .join('');
+
+  const htmlBody = `
+    <div style="font-family: Georgia, 'Times New Roman', serif; max-width: 640px; margin: 0 auto; color: #2b1d12; line-height: 1.6;">
+      <h2 style="margin-bottom: 0.25rem;">Your invoice details are confirmed</h2>
+      <p>Hi ${order.customerName}, we've gone over the details of your project together and your invoice is ready. Here's how you can send payment:</p>
+      <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+        <tbody>${paymentRows}</tbody>
+      </table>
+      ${preferred ? `<p style="font-size: 0.85rem; color: #8a7960;">⭐ marks the payment method you indicated you prefer.</p>` : ''}
+      <p>
+        <a href="${trackingUrl}" style="background:#6d441e; color:#fff; padding: 0.65rem 1.25rem; border-radius: 0.4rem; text-decoration:none;">Track your request status</a>
+      </p>
+      <p style="font-size: 0.85rem; color: #8a7960;">${env.BUSINESS_NAME}</p>
+    </div>
+  `;
+
+  await sendEmail(env, {
+    to: order.customerEmail,
+    subject: 'Your invoice details are confirmed',
     htmlBody,
   });
 }

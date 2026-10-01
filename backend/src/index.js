@@ -1,6 +1,6 @@
 import { corsHeaders, json, html, newToken, statusIndex, STATUSES } from './util.js';
 import { insertOrder, getOrderByAdminToken, getOrderByCustomerToken, listOrders, getStatusHistory, updateStatus, getOrderById } from './db.js';
-import { sendAdminNotification, sendCustomerConfirmation } from './email.js';
+import { sendAdminNotification, sendCustomerConfirmation, sendInvoiceFinalizedEmail } from './email.js';
 import { renderOrderView, renderOrdersLog, renderSimpleMessage } from './adminViews.js';
 
 function dataUrlToBytes(dataUrl) {
@@ -58,6 +58,7 @@ async function handleSubmit(request, env) {
     dimensionPreference: payload.dimensionPreference || '',
     dimensionsSummary: payload.dimensionsSummary || '',
     projectNotes: payload.projectNotes || '',
+    paymentMethod: payload.paymentMethod || '',
     hasSketch,
   };
 
@@ -151,6 +152,15 @@ async function handleAdminAction(env, url) {
 
   if (STATUSES.includes(nextStatus) && statusIndex(nextStatus) > statusIndex(order.status)) {
     await updateStatus(env, order.id, nextStatus);
+
+    if (nextStatus === 'awaiting_response') {
+      await sendInvoiceFinalizedEmail(env, {
+        customerName: order.customer_name,
+        customerEmail: order.customer_email,
+        customerToken: order.customer_token,
+        paymentMethod: order.payment_method,
+      });
+    }
   }
 
   return Response.redirect(`${env.WORKER_BASE_URL}/admin/view?token=${token}`, 302);

@@ -9,6 +9,9 @@ WORKER_BASE_URL = "https://carpentry-invoice-backend.brianscustomcarpentry.worke
 FROM_EMAIL = "Brian's Custom Carpentry <orders@brianscustomcarpentry.com>"
 ADMIN_EMAIL = "bmalbert997@gmail.com"
 BUSINESS_NAME = "Brian's Custom Carpentry"
+PAYPAL_LINK = "https://paypal.me/briancustomcarpentry"
+VENMO_HANDLE = "@Brian-Albert-35"
+ZELLE_CONTACT = "7085151012"
 
 # Secrets (do NOT put real values here). Set with:
 #   wrangler secret put RESEND_API_KEY

@@ -60,6 +60,7 @@ export function renderOrderView(order, { adminToken, sketchUrl }) {
       <tr><td>Category</td><td>${escapeHtml(order.category)}${order.subcategory ? ` — ${escapeHtml(order.subcategory)}` : ''}</td></tr>
       <tr><td>Wood</td><td>${escapeHtml(order.wood_family || '—')} ${order.wood_species ? `(${escapeHtml(order.wood_species)})` : ''}</td></tr>
       <tr><td>Dimensions</td><td>${escapeHtml(order.dimensions_summary || '—')}</td></tr>
+      <tr><td>Preferred payment</td><td>${escapeHtml(order.payment_method || 'Not specified')}</td></tr>
       <tr><td>Submitted</td><td>${escapeHtml(order.created_at)}</td></tr>
     </table>
     <p class="notes">${escapeHtml(order.project_notes || 'No additional notes.')}</p>

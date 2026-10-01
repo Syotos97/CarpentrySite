@@ -7,8 +7,8 @@ export async function insertOrder(env, order) {
       customer_name, customer_email, customer_phone,
       category, subcategory, wood_family, wood_species,
       dimension_preference, dimensions_summary, project_notes,
-      has_sketch, created_at, updated_at
-    ) VALUES (?, ?, ?, 'invoice_sent', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      has_sketch, payment_method, created_at, updated_at
+    ) VALUES (?, ?, ?, 'invoice_sent', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
     .bind(
       order.id,
@@ -25,6 +25,7 @@ export async function insertOrder(env, order) {
       order.dimensionsSummary,
       order.projectNotes,
       order.hasSketch ? 1 : 0,
+      order.paymentMethod || '',
       now,
       now
     )
