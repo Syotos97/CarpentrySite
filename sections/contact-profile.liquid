@@ -17,11 +17,11 @@
       <p class="contact-profile__eyebrow">Contact Photo</p>
       <h2 class="contact-profile__heading">Reach out directly for custom work or local pickup</h2>
       <p class="contact-profile__text">
-        Email <span class="contact-profile__phone">bmalbert997@gmail.com</span> if you want to talk through a project, ask a question,
+        Email <span class="contact-profile__phone" data-email-user="bmalbert997" data-email-domain="gmail.com">bmalbert997 [at] gmail [dot] com</span> if you want to talk through a project, ask a question,
         or line up a pickup.
       </p>
       <p class="contact-profile__text">Located in Port Huron, MI for local pickups.</p>
-      <a class="button contact-profile__button" href="mailto:bmalbert997@gmail.com?subject=Project%20Inquiry" aria-label="Email bmalbert997@gmail.com">Email bmalbert997@gmail.com</a>
+      <a class="button contact-profile__button" href="/pages/contact" data-email-user="bmalbert997" data-email-domain="gmail.com" data-email-link>Email me</a>
     </div>
   </div>
 </section>
@@ -94,6 +94,19 @@
     }
   }
 {% endstylesheet %}
+
+<script>
+  // Assemble the address at runtime so scrapers reading raw HTML don't find it.
+  document.querySelectorAll('[data-email-user]').forEach((el) => {
+    const address = `${el.dataset.emailUser}@${el.dataset.emailDomain}`;
+    if (el.hasAttribute('data-email-link')) {
+      el.href = `mailto:${address}?subject=Project%20Inquiry`;
+      el.setAttribute('aria-label', `Email ${address}`);
+    } else {
+      el.textContent = address;
+    }
+  });
+</script>
 
 {% schema %}
 {

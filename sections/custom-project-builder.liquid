@@ -261,6 +261,15 @@
         </div>
       </div>
 
+      <div style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+        <label>Leave this field empty<input type="text" name="website" tabindex="-1" autocomplete="off" data-honeypot></label>
+      </div>
+
+      {%- if section.settings.turnstile_site_key != blank -%}
+        <div class="cf-turnstile" data-sitekey="{{ section.settings.turnstile_site_key | escape }}" data-theme="light"></div>
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+      {%- endif -%}
+
       <div class="custom-project-builder__footer">
         <p class="custom-project-builder__promise">I will get back to you with an ETA and a cost estimate within 7 days.</p>
         <button type="submit" class="button custom-project-builder__submit">Create Invoice</button>
@@ -844,6 +853,8 @@
         dimensionsSummary: dimensionSummaryInput.value,
         projectNotes: form.querySelector('[name="contact[body]"]')?.value || '',
         sketchImage: strokes.length ? canvas.toDataURL('image/png') : null,
+        website: form.querySelector('[data-honeypot]')?.value || '',
+        turnstileToken: form.querySelector('[name="cf-turnstile-response"]')?.value || '',
       };
 
       const missing = [];
@@ -889,6 +900,7 @@
 
         showSuccess(data.trackingUrl);
         form.reset();
+        window.turnstile?.reset();
         strokes = [];
         redraw();
         syncSketchData();
@@ -951,6 +963,12 @@
       "id": "api_endpoint",
       "label": "Invoice backend API endpoint",
       "info": "Base URL of the deployed invoice backend (no trailing slash), e.g. https://carpentry-invoice-backend.yourname.workers.dev. Leave blank to fall back to the plain contact form."
+    },
+    {
+      "type": "text",
+      "id": "turnstile_site_key",
+      "label": "Cloudflare Turnstile site key",
+      "info": "Public site key for the spam check. Leave blank to disable the widget."
     },
     {
       "type": "header",

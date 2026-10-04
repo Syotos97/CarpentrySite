@@ -66,6 +66,32 @@ async function handleSubmit(request, env) {
     return json({ ok: false, error: 'Invalid request body.' }, env, { status: 400 });
   }
 
+  // Honeypot: real users never see or fill this field. Respond with fake success so bots don't adapt.
+  if (payload.website) {
+    return json({ ok: true, trackingUrl: env.SHOP_ORIGIN }, env);
+  }
+
+  if (env.TURNSTILE_SECRET) {
+    const verifyBody = new URLSearchParams({
+      secret: env.TURNSTILE_SECRET,
+      response: String(payload.turnstileToken || ''),
+      remoteip: request.headers.get('CF-Connecting-IP') || '',
+    });
+    let verified = false;
+    try {
+      const verifyResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        body: verifyBody,
+      });
+      verified = (await verifyResponse.json()).success === true;
+    } catch {
+      verified = false;
+    }
+    if (!verified) {
+      return json({ ok: false, error: 'Spam check failed. Please refresh the page and try again.' }, env, { status: 403 });
+    }
+  }
+
   const customerName = (payload.customerName || '').trim();
   const customerEmail = (payload.customerEmail || '').trim();
 
