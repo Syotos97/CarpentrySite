@@ -26,6 +26,7 @@ admin order log page.
 6. Set secrets:
    ```
    npx wrangler secret put RESEND_API_KEY
+   npx wrangler secret put TURNSTILE_SECRET   # required; secret key of the Turnstile widget
    npx wrangler secret put ADMIN_MASTER_KEY   # any long random string, used for /admin/orders
    ```
 7. Run the migration:

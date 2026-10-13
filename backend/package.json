@@ -10,6 +10,10 @@
     "db:migrate:remote": "wrangler d1 execute carpentry-invoices --remote --file=./migrations/0001_init.sql"
   },
   "devDependencies": {
-    "wrangler": "^3.80.0"
+    "wrangler": "^4.150.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "workerd@1.20261006.1": true
   }
 }
