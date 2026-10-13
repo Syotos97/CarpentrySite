@@ -14,10 +14,10 @@ import {
   cancelOrder,
   requestCancellation,
   dismissCancellationRequest,
+  consumeRateLimit,
 } from './db.js';
 import {
   sendAdminNotification,
-  sendCustomerConfirmation,
   sendInvoiceFinalizedEmail,
   sendCustomerCancellationEmail,
   sendAdminCancellationRequestNotice,
@@ -40,6 +40,29 @@ function dataUrlToBytes(dataUrl) {
 const MAX_ATTACHMENTS = 6;
 const MAX_ATTACHMENT_BYTES = 15_000_000;
 const ALLOWED_ATTACHMENT_MIME = /^(image\/(png|jpe?g|webp|gif)|application\/pdf)$/;
+
+const EMAIL_PATTERN = /^[^\s@<>"',;]+@[^\s@<>"',;]+\.[^\s@<>"',;]{2,}$/;
+const MAX_LENGTHS = { name: 100, email: 254, phone: 40, short: 200, notes: 5000, summary: 1000 };
+const HOUR_MS = 60 * 60 * 1000;
+const MAX_SUBMISSIONS_PER_IP_PER_HOUR = 5;
+const MAX_SUBMISSIONS_PER_EMAIL_PER_HOUR = 3;
+
+function tooLong(value, max) {
+  return typeof value === 'string' && value.length > max;
+}
+
+function isExpectedHostname(hostname, env) {
+  if (!hostname) {
+    return false;
+  }
+  const shopHost = new URL(env.SHOP_ORIGIN).hostname;
+  return (
+    hostname === shopHost ||
+    hostname === `www.${shopHost}` ||
+    `www.${hostname}` === shopHost ||
+    hostname.endsWith('.myshopify.com')
+  );
+}
 
 function decodeDataUrl(dataUrl) {
   const match = /^data:([^;,]+);base64,(.+)$/.exec(dataUrl || '');
@@ -71,7 +94,11 @@ async function handleSubmit(request, env) {
     return json({ ok: true, trackingUrl: env.SHOP_ORIGIN }, env);
   }
 
-  if (env.TURNSTILE_SECRET) {
+  if (!env.TURNSTILE_SECRET) {
+    return json({ ok: false, error: 'Spam protection is not configured.' }, env, { status: 500 });
+  }
+
+  {
     const verifyBody = new URLSearchParams({
       secret: env.TURNSTILE_SECRET,
       response: String(payload.turnstileToken || ''),
@@ -83,7 +110,8 @@ async function handleSubmit(request, env) {
         method: 'POST',
         body: verifyBody,
       });
-      verified = (await verifyResponse.json()).success === true;
+      const result = await verifyResponse.json();
+      verified = result.success === true && isExpectedHostname(result.hostname, env);
     } catch {
       verified = false;
     }
@@ -92,11 +120,39 @@ async function handleSubmit(request, env) {
     }
   }
 
-  const customerName = (payload.customerName || '').trim();
-  const customerEmail = (payload.customerEmail || '').trim();
+  const customerName = String(payload.customerName || '').trim();
+  const customerEmail = String(payload.customerEmail || '').trim();
 
   if (!customerName || !customerEmail || !payload.category) {
     return json({ ok: false, error: 'Name, email, and project category are required.' }, env, { status: 400 });
+  }
+
+  if (!EMAIL_PATTERN.test(customerEmail)) {
+    return json({ ok: false, error: 'Please enter a valid email address.' }, env, { status: 400 });
+  }
+
+  if (
+    customerName.length > MAX_LENGTHS.name ||
+    customerEmail.length > MAX_LENGTHS.email ||
+    tooLong(payload.customerPhone, MAX_LENGTHS.phone) ||
+    tooLong(payload.category, MAX_LENGTHS.short) ||
+    tooLong(payload.subcategory, MAX_LENGTHS.short) ||
+    tooLong(payload.woodFamily, MAX_LENGTHS.short) ||
+    tooLong(payload.woodSpecies, MAX_LENGTHS.short) ||
+    tooLong(payload.dimensionPreference, MAX_LENGTHS.short) ||
+    tooLong(payload.paymentMethod, MAX_LENGTHS.short) ||
+    tooLong(payload.dimensionsSummary, MAX_LENGTHS.summary) ||
+    tooLong(payload.projectNotes, MAX_LENGTHS.notes)
+  ) {
+    return json({ ok: false, error: 'One of the fields is too long. Please shorten it and try again.' }, env, { status: 400 });
+  }
+
+  const clientIp = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const withinIpLimit = await consumeRateLimit(env, `ip:${clientIp}`, MAX_SUBMISSIONS_PER_IP_PER_HOUR, HOUR_MS);
+  const withinEmailLimit =
+    withinIpLimit && (await consumeRateLimit(env, `email:${customerEmail.toLowerCase()}`, MAX_SUBMISSIONS_PER_EMAIL_PER_HOUR, HOUR_MS));
+  if (!withinIpLimit || !withinEmailLimit) {
+    return json({ ok: false, error: 'Too many requests right now. Please try again in an hour or contact us directly.' }, env, { status: 429 });
   }
 
   const id = crypto.randomUUID();
@@ -176,7 +232,8 @@ async function handleSubmit(request, env) {
   await insertOrder(env, order);
 
   try {
-    await Promise.all([sendAdminNotification(env, order), sendCustomerConfirmation(env, order)]);
+    // The customer is not emailed until the owner approves by sending an invoice, so the form can't be used to email third parties.
+    await sendAdminNotification(env, order);
   } catch (error) {
     // Order is already saved; surface the email failure but don't lose the submission.
     return json(

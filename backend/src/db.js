@@ -40,6 +40,28 @@ export async function insertOrder(env, order) {
     .run();
 }
 
+// Returns false when `key` already has `limit` hits within the window; otherwise records a hit.
+export async function consumeRateLimit(env, key, limit, windowMs) {
+  const now = Date.now();
+  const cutoff = new Date(now - windowMs).toISOString();
+
+  await env.DB.prepare('DELETE FROM rate_limits WHERE created_at < ?')
+    .bind(new Date(now - 24 * 60 * 60 * 1000).toISOString())
+    .run();
+
+  const row = await env.DB.prepare('SELECT COUNT(*) AS n FROM rate_limits WHERE key = ? AND created_at > ?')
+    .bind(key, cutoff)
+    .first();
+  if ((row?.n || 0) >= limit) {
+    return false;
+  }
+
+  await env.DB.prepare('INSERT INTO rate_limits (key, created_at) VALUES (?, ?)')
+    .bind(key, new Date(now).toISOString())
+    .run();
+  return true;
+}
+
 export async function getOrderByAdminToken(env, adminToken) {
   return env.DB.prepare('SELECT * FROM orders WHERE admin_token = ?').bind(adminToken).first();
 }
